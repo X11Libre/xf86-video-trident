@@ -21,7 +21,7 @@
  *
  * Author:  Alan Hourihane, alanh@fairlite.demon.co.uk
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_video.c,v 1.45 2003/11/10 18:22:34 tsi Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_video.c,v 1.40 2003/09/05 22:07:29 alanh Exp $ */
 
 #include "xf86.h"
 #include "xf86_OSproc.h"
@@ -85,7 +85,6 @@ void TRIDENTInitVideo(ScreenPtr pScreen)
      * The following has been tested on:
      *
      * 9525         : flags: None
-     * Image985     : flags: None
      * Cyber9397(DVD) : flags: VID_ZOOM_NOMINI
      * CyberBlade/i7: flags: VID_ZOOM_INV | VID_ZOOM_MINI
      * CyberBlade/i1: flags: VID_ZOOM_INV | VID_ZOOM_MINI
@@ -107,10 +106,8 @@ void TRIDENTInitVideo(ScreenPtr pScreen)
     if (pTrident->Chipset == CYBER9397 || pTrident->Chipset == CYBER9397DVD)
 	pTrident->videoFlags = VID_ZOOM_NOMINI;
 
-    if (pTrident->Chipset == CYBER9397DVD || 
-	pTrident->Chipset == CYBER9525DVD ||
-	pTrident->Chipset >= BLADE3D)
-		pTrident->videoFlags |= VID_DOUBLE_LINEBUFFER_FOR_WIDE_SRC;
+    if (pTrident->Chipset == CYBER9397DVD || pTrident->Chipset >= CYBER9525DVD)
+	pTrident->videoFlags |= VID_DOUBLE_LINEBUFFER_FOR_WIDE_SRC;
 
     newAdaptor = TRIDENTSetupImageVideo(pScreen);
     TRIDENTInitOffscreenImages(pScreen);
@@ -142,7 +139,7 @@ void TRIDENTInitVideo(ScreenPtr pScreen)
 
     if (pTrident->videoFlags)
 	xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,3,
-		       "Trident Video Flags: %s %s %s %s\n",
+		       "Trident Video Flags: %s %s %s\n",
 		   pTrident->videoFlags & VID_ZOOM_INV ? "VID_ZOOM_INV" : "",
 		   pTrident->videoFlags & VID_ZOOM_MINI ? "VID_ZOOM_MINI" : "",                   pTrident->videoFlags & VID_OFF_SHIFT_4 ? "VID_OFF_SHIFT_4"
 		   : "",
@@ -169,7 +166,11 @@ static XF86VideoFormatRec Formats[NUM_FORMATS] =
   {8, PseudoColor},  {15, TrueColor}, {16, TrueColor}, {24, TrueColor}
 };
 
+#ifdef TRIDENT_XV_GAMMA
+#define NUM_ATTRIBUTES 6
+#else
 #define NUM_ATTRIBUTES 5
+#endif
 
 static XF86AttributeRec Attributes[NUM_ATTRIBUTES] =
 {
@@ -180,10 +181,33 @@ static XF86AttributeRec Attributes[NUM_ATTRIBUTES] =
     {XvSettable | XvGettable, 0, 7,           "XV_CONTRAST"}
 };
 
-#define NUM_IMAGES 3
+#if 0
+# define NUM_IMAGES 4
+#else
+# define NUM_IMAGES 4
+#endif
 
 static XF86ImageRec Images[NUM_IMAGES] =
 {
+#if 0
+    {
+	0x35315652,
+        XvRGB,
+	LSBFirst,
+	{'R','V','1','5',
+	  0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
+	16,
+	XvPacked,
+	1,
+	15, 0x001F, 0x03E0, 0x7C00,
+	0, 0, 0,
+	0, 0, 0,
+	0, 0, 0,
+	{'R','V','B',0,
+	  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+	XvTopToBottom
+   },
+#endif
    {
 	0x36315652,
         XvRGB,
@@ -360,7 +384,7 @@ TRIDENTSetupImageVideo(ScreenPtr pScreen)
     pPriv->fixFrame = 100;
 
     /* gotta uninit this someplace */
-    REGION_NULL(pScreen, &pPriv->clip);
+    REGION_INIT(pScreen, &pPriv->clip, NullBox, 0); 
 
     pTrident->adaptor = adapt;
 
@@ -785,7 +809,7 @@ TRIDENTPutImage(
    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
    INT32 x1, x2, y1, y2;
    unsigned char *dst_start;
-   int new_size, offset, offset2 = 0, offset3 = 0;
+   int pitch, new_size, offset, offset2 = 0, offset3 = 0;
    int srcPitch, srcPitch2 = 0, dstPitch;
    int top, left, npixels, nlines, bpp;
    BoxRec dstBox;
@@ -812,6 +836,7 @@ TRIDENTPutImage(
    dstBox.y2 -= pScrn->frameY0;
 
    bpp = pScrn->bitsPerPixel >> 3;
+   pitch = bpp * pScrn->displayWidth;
 
    dstPitch = ((width << 1) + 15) & ~15;
    new_size = ((dstPitch * height) + bpp - 1) / bpp;
@@ -884,8 +909,6 @@ TRIDENTPutImage(
 
     pPriv->videoStatus = CLIENT_VIDEO_ON;
 
-    pTrident->VideoTimerCallback = TRIDENTVideoTimerCallback;
-
     return Success;
 }
 
@@ -944,7 +967,7 @@ TRIDENTAllocateSurface(
     XF86SurfacePtr surface
 ){
     FBLinearPtr linear;
-    int pitch, size, bpp;
+    int pitch, fbpitch, size, bpp;
     OffscreenPrivPtr pPriv;
 
     if((w > 1024) || (h > 1024))
@@ -953,6 +976,7 @@ TRIDENTAllocateSurface(
     w = (w + 1) & ~1;
     pitch = ((w << 1) + 15) & ~15;
     bpp = pScrn->bitsPerPixel >> 3;
+    fbpitch = bpp * pScrn->displayWidth;
     size = ((pitch * h) + bpp - 1) / bpp;
 
     if(!(linear = TRIDENTAllocateMemory(pScrn, NULL, size)))
@@ -1308,6 +1332,8 @@ WaitForVBlank(ScrnInfoPtr pScrn)
      * full vblank has passed. 
      * - Alan.
      */
-    WAITFORVSYNC;
-    WAITFORVSYNC;
+    while (!(hwp->readST01(hwp)&0x8)) {};
+    while (hwp->readST01(hwp)&0x8) {};
+    while (!(hwp->readST01(hwp)&0x8)) {};
+    while (hwp->readST01(hwp)&0x8) {};
 }

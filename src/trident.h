@@ -126,7 +126,6 @@ typedef struct {
     CARD32		DrawFlag;
     CARD16		LinePattern;
     RamDacRecPtr	RamDacRec;
-    int			CursorOffset;
     xf86CursorInfoPtr	CursorInfoRec;
     xf86Int10InfoPtr	Int10;
     vbeInfoPtr		pVbe;

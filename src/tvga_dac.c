@@ -21,7 +21,7 @@
  *
  * Author:  Alan Hourihane, alanh@fairlite.demon.co.uk
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/tvga_dac.c,v 1.7tsi Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/tvga_dac.c,v 1.7 2003/09/05 22:07:29 alanh Exp $ */
 
 #include "xf86.h"
 #include "xf86_OSproc.h"
@@ -137,6 +137,7 @@ void
 TVGARestore(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
+    CARD8 temp;
     int vgaIOBase;
     vgaIOBase = VGAHWPTR(pScrn)->IOBase;
 
@@ -148,18 +149,18 @@ TVGARestore(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
 
     /* Goto New Mode */
     OUTB(0x3C4, 0x0B);
-    (void) INB(0x3C5);
+    temp = INB(0x3C5);
 
     /* Unprotect registers */
     OUTW(0x3C4, (0x80 << 8) | NewMode1);
 
-    (void) INB(0x3C8);
-    (void) INB(0x3C6);
-    (void) INB(0x3C6);
-    (void) INB(0x3C6);
-    (void) INB(0x3C6);
+    temp = INB(0x3C8);
+    temp = INB(0x3C6);
+    temp = INB(0x3C6);
+    temp = INB(0x3C6);
+    temp = INB(0x3C6);
     OUTB(0x3C6, tridentReg->tridentRegsDAC[0x00]);
-    (void) INB(0x3C8);
+    temp = INB(0x3C8);
 
     OUTW_3x4(CRTCModuleTest);
     OUTW_3x4(LinearAddReg);
@@ -183,16 +184,17 @@ void
 TVGASave(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
+    CARD8 temp;
     int vgaIOBase;
     vgaIOBase = VGAHWPTR(pScrn)->IOBase;
 
-    (void) INB(0x3C8);
-    (void) INB(0x3C6);
-    (void) INB(0x3C6);
-    (void) INB(0x3C6);
-    (void) INB(0x3C6);
+    temp = INB(0x3C8);
+    temp = INB(0x3C6);
+    temp = INB(0x3C6);
+    temp = INB(0x3C6);
+    temp = INB(0x3C6);
     tridentReg->tridentRegsDAC[0x00] = INB(0x3C6);
-    (void) INB(0x3C8);
+    temp = INB(0x3C8);
 
     /* Goto Old Mode */
     OUTB(0x3C4, 0x0B);
@@ -202,7 +204,7 @@ TVGASave(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
 
     /* Goto New Mode */
     OUTB(0x3C4, 0x0B);
-    (void) INB(0x3C5);
+    temp = INB(0x3C5);
 
     INB_3C4(NewMode1);
 
