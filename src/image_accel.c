@@ -23,7 +23,7 @@
  * 
  * Trident 3DImage' accelerated options.
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/image_accel.c,v 1.26 2003/10/30 13:38:01 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/image_accel.c,v 1.27 2004/01/21 22:57:34 alanh Exp $ */
 
 #include "xf86.h"
 #include "xf86_OSproc.h"
@@ -292,6 +292,8 @@ ImageSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
+    ImageSync(pScrn);
+
     pTrident->BltScanDirection = 0;
     if ((xdir < 0) || (ydir < 0)) pTrident->BltScanDirection |= 1<<2;
 
@@ -352,6 +354,8 @@ ImageSetupForSolidLine(ScrnInfoPtr pScrn, int color,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
+    ImageSync(pScrn);
+
     REPLICATE(color);
     IMAGE_OUT(0x2120, 0x84000000);
     IMAGE_OUT(0x2120, 0x90000000 | XAACopyROP[rop]);
@@ -403,6 +407,8 @@ ImageSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
 				    int rop, unsigned int planemask)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
+
+    ImageSync(pScrn);
 
     REPLICATE(color);
     IMAGE_OUT(0x2120, 0x80000000);
@@ -468,6 +474,8 @@ ImageSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
+    ImageSync(pScrn);
+
     IMAGE_OUT(0x2120, 0x90000000 | XAAPatternROP[rop]);
     if (bg == -1) {
 	REPLICATE(fg);
@@ -512,6 +520,8 @@ ImageSetupForColor8x8PatternFill(ScrnInfoPtr pScrn,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
+    ImageSync(pScrn);
+
     IMAGE_OUT(0x2120, 0x90000000 | XAAPatternROP[rop]);
     IMAGE_OUT(0x2120, 0x80000000 | 1<<26);
     if (transparency_color != -1) {
@@ -546,6 +556,8 @@ ImageSetupForScanlineCPUToScreenColorExpandFill(
 	unsigned int planemask
 ){
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
+
+    ImageSync(pScrn);
 
     IMAGE_OUT(0x2120, 0x80000000);
     IMAGE_OUT(0x2120, 0x90000000 | XAACopyROP[rop]);
@@ -599,6 +611,9 @@ ImageSetupForScanlineImageWrite(ScrnInfoPtr pScrn, int rop,
                              int bpp, int depth)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
+
+    ImageSync(pScrn);
+
     IMAGE_OUT(0x2120, 0x90000000 | XAACopyROP[rop]);
     if (transparency_color != -1) {
 	IMAGE_OUT(0x2120, 0x70000000 | 1<<26 | (transparency_color&0xffffff));
