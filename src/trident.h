@@ -21,7 +21,7 @@
  *
  * Authors:  Alan Hourihane, <alanh@fairlite.demon.co.uk>
  */
-/* $XFree86$ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident.h,v 1.60 2003/10/30 13:38:01 alanh Exp $ */
 /*#define VBE_INFO*/
 
 #ifndef _TRIDENT_H_

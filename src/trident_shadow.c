@@ -1,4 +1,4 @@
-/* $XFree86$ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_shadow.c,v 1.3 2001/06/14 02:23:50 keithp Exp $ */
 
 /*
    Copyright (c) 1999, 2000 The XFree86 Project Inc. 
