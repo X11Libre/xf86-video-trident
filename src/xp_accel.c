@@ -23,7 +23,7 @@
  * 
  * BladeXP accelerated options.
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/xp_accel.c,v 1.7 2004/01/21 22:57:34 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/xp_accel.c,v 1.6 2003/10/30 13:38:02 alanh Exp $ */
 
 #include "xf86.h"
 #include "xf86_OSproc.h"
@@ -257,8 +257,6 @@ XPSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int dst = 0;
 
-    XPSync(pScrn);
-
     pTrident->BltScanDirection = 0;
     if (xdir < 0) pTrident->BltScanDirection |= XNEG;
     if (ydir < 0) pTrident->BltScanDirection |= YNEG;
@@ -301,8 +299,6 @@ XPSetupForSolidLine(ScrnInfoPtr pScrn, int color,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    XPSync(pScrn);
-
     pTrident->BltScanDirection = 0;
     REPLICATE(color);
     TGUI_FMIX(XAAPatternROP[rop]);
@@ -339,8 +335,6 @@ XPSubsequentSolidHorVertLine(
     int len, int dir
 ){
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-
-    XPSync(pScrn);
 
     TGUI_DRAWFLAG(SOLIDFILL);
     if (dir == DEGREES_0) {
@@ -426,8 +420,6 @@ XPSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    XPSync(pScrn);
-
     REPLICATE(color);
     TGUI_FMIX(XAAPatternROP[rop]);
     MMIO_OUT32(pTrident->IOBase, 0x2158, color);
@@ -508,8 +500,6 @@ XPSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int drawflag = 0;
-
-    XPSync(pScrn);
 
     REPLICATE(fg);
     MMIO_OUT32(pTrident->IOBase, 0x2158, fg);
