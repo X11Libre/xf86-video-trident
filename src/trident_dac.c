@@ -21,7 +21,7 @@
  *
  * Author:  Alan Hourihane, alanh@fairlite.demon.co.uk
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_dac.c,v 1.73 2003/09/05 22:07:28 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_dac.c,v 1.79 2003/11/03 05:11:42 tsi Exp $ */
 
 #include "xf86.h"
 #include "xf86_OSproc.h"
@@ -107,14 +107,6 @@ TridentFindMode(int xres, int yres, int depth)
     biosMode *mode;
 
     switch (depth) {
-    case 1:
-	size = sizeof(bios1) / sizeof(biosMode);
-	mode = bios1;
-	break;
-    case 4:
-	size = sizeof(bios4) / sizeof(biosMode);
-	mode = bios4;
-	break;
     case 8:
 	size = sizeof(bios8) / sizeof(biosMode);
 	mode = bios8;
@@ -237,7 +229,6 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
     int clock = pTrident->currentClock;
     CARD8 protect = 0;
     Bool fullSize = FALSE;
-    Bool isShadow = FALSE;
 
     vgaHWPtr hwp = VGAHWPTR(pScrn);
     vgaRegPtr regp = &hwp->ModeReg;
@@ -370,8 +361,8 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
  		pReg->tridentRegs3x4[CRTHiOrd] = LCD[i].shadow_HiOrd;
 	    }
 	    
-	    fullSize = (pScrn->currentMode->HDisplay == LCD[i].display_x) 
-	        && (pScrn->currentMode->VDisplay == LCD[i].display_y);
+	    fullSize = (mode->HDisplay == LCD[i].display_x) 
+	        && (mode->VDisplay == LCD[i].display_y);
  	}
  	
   	/* copy over common bits from normal VGA */
@@ -405,7 +396,6 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 				|| (pReg->tridentRegs3CE[VertStretch] & 1));
 	    pReg->tridentRegs3CE[CyberControl] |= 0x81;
 	    xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Shadow on\n");
-	    isShadow = TRUE;
 	} else {
 	    pReg->tridentRegs3CE[CyberControl] &= 0x7E;
 	    xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Shadow off\n");
@@ -417,7 +407,6 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	
 	if (pTrident->CyberShadow) {
 	    pReg->tridentRegs3CE[CyberControl] &= 0x7E;
-	    isShadow = FALSE;
 	    xf86DrvMsgVerb(pScrn->scrnIndex,X_INFO,1,"Forcing Shadow off\n");
 	}
 
@@ -457,7 +446,7 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	    if (!mul) mul = 1;
 	    
 	    /* this is what my BIOS does */ 
-	    val = (pScrn->currentMode->HDisplay * mul / 8) + 16;
+	    val = (mode->HDisplay * mul / 8) + 16;
 
 	    pReg->tridentRegs3x4[PreEndControl] = ((val >> 8) < 2 ? 2 :0)
 	      | ((val >> 8) & 0x01);
@@ -472,15 +461,17 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	/* set mode */
 	if (pTrident->Chipset < BLADEXP) {
 	  pReg->tridentRegs3CE[BiosMode] = TridentFindMode(
-					   pScrn->currentMode->HDisplay,
-					   pScrn->currentMode->VDisplay,
+					   mode->HDisplay,
+					   mode->VDisplay,
 					   pScrn->depth);
 	  xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 1, 
-			 "Setting BIOS Mode: %x\n",
-			 pReg->tridentRegs3CE[BiosMode]);
+			 "Setting BIOS Mode: %x for: %ix%i\n",
+			 pReg->tridentRegs3CE[BiosMode],
+			 mode->HDisplay,
+			 mode->VDisplay);
 	} else {
-	  TridentFindNewMode(pScrn->currentMode->HDisplay,
-			     pScrn->currentMode->VDisplay,
+	  TridentFindNewMode(mode->HDisplay,
+			     mode->VDisplay,
 			     &pReg->tridentRegs3CE[BiosNewMode1],
 			     &pReg->tridentRegs3CE[BiosNewMode2]);
 	  xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 1, 
@@ -525,10 +516,7 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	case IMAGE975:
 	case IMAGE985:
 	case CYBER9388:
-	    if (pScrn->bitsPerPixel >= 8)
     	    	pReg->tridentRegs3CE[MiscExtFunc] |= 0x10;
-	    else
-    	    	pReg->tridentRegs3CE[MiscExtFunc] &= ~0x10;
 	    if (!pReg->tridentRegs3x4[PreEndControl])
 	    	pReg->tridentRegs3x4[PreEndControl] = 0x01;
 	    if (!pReg->tridentRegs3x4[PreEndFetch])
@@ -556,10 +544,6 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 
     /* Defaults for all trident chipsets follows */
     switch (pScrn->bitsPerPixel) {
-	case 1:
-	case 4:
-    	    offset = pScrn->displayWidth >> 4;
-	    break;
 	case 8:
 	    pReg->tridentRegs3CE[MiscExtFunc] |= 0x02;
     	    offset = pScrn->displayWidth >> 3;
@@ -735,6 +719,10 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
  
     if (pTrident->Chipset == CYBERBLADEXP4)
     	pReg->tridentRegs3CE[DisplayEngCont] = 0x08;
+
+    /* Avoid lockup on Blade3D, PCI Retry is permanently on */
+    if (pTrident->Chipset == BLADE3D)
+    	pReg->tridentRegs3x4[PCIRetry] = 0x9F;
    
     return(TRUE);
 }
@@ -743,7 +731,6 @@ void
 TridentRestore(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    CARD8 temp;
     int vgaIOBase;
     vgaIOBase = VGAHWPTR(pScrn)->IOBase;
 
@@ -758,18 +745,18 @@ TridentRestore(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
 #endif
     /* Goto New Mode */
     OUTB(0x3C4, 0x0B);
-    temp = INB(0x3C5);
+    (void) INB(0x3C5);
 
     /* Unprotect registers */
     OUTW(0x3C4, ((0xC0 ^ 0x02) << 8) | NewMode1);
     
-    temp = INB(0x3C8);
-    temp = INB(0x3C6);
-    temp = INB(0x3C6);
-    temp = INB(0x3C6);
-    temp = INB(0x3C6);
+    (void) INB(0x3C8);
+    (void) INB(0x3C6);
+    (void) INB(0x3C6);
+    (void) INB(0x3C6);
+    (void) INB(0x3C6);
     OUTB(0x3C6, tridentReg->tridentRegsDAC[0x00]);
-    temp = INB(0x3C8);
+    (void) INB(0x3C8);
 
     OUTW_3x4(CRTCModuleTest);
     OUTW_3x4(LinearAddReg);
@@ -891,13 +878,12 @@ void
 TridentSave(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    CARD8 temp;
     int vgaIOBase;
     vgaIOBase = VGAHWPTR(pScrn)->IOBase;
 
     /* Goto New Mode */
     OUTB(0x3C4, 0x0B);
-    temp = INB(0x3C5);
+    (void) INB(0x3C5);
 
     INB_3C4(NewMode1);
     if (pTrident->Chipset > PROVIDIA9685)
@@ -985,13 +971,13 @@ TridentSave(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
     INB_3CE(MiscExtFunc);
     INB_3CE(MiscIntContReg);
 
-    temp = INB(0x3C8);
-    temp = INB(0x3C6);
-    temp = INB(0x3C6);
-    temp = INB(0x3C6);
-    temp = INB(0x3C6);
+    (void) INB(0x3C8);
+    (void) INB(0x3C6);
+    (void) INB(0x3C6);
+    (void) INB(0x3C6);
+    (void) INB(0x3C6);
     tridentReg->tridentRegsDAC[0x00] = INB(0x3C6);
-    temp = INB(0x3C8);
+    (void) INB(0x3C8);
 
     tridentReg->tridentRegsClock[0x00] = INB(0x3CC);
     if (Is3Dchip) {
@@ -1089,14 +1075,15 @@ TridentLoadCursorImage(
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int vgaIOBase;
+    int programmed_offset = pTrident->CursorOffset / 1024;
     vgaIOBase = VGAHWPTR(pScrn)->IOBase;
 
-    memcpy((CARD8 *)pTrident->FbBase + (pScrn->videoRam * 1024) - 4096,
+    memcpy((CARD8 *)pTrident->FbBase + pTrident->CursorOffset,
 			src, pTrident->CursorInfoRec->MaxWidth * 
 			pTrident->CursorInfoRec->MaxHeight / 4);
 
-    OUTW(vgaIOBase + 4, (((pScrn->videoRam-4) & 0xFF) << 8) | 0x44);
-    OUTW(vgaIOBase + 4, ((pScrn->videoRam-4) & 0xFF00) | 0x45);
+    OUTW(vgaIOBase + 4, ((programmed_offset & 0xFF) << 8) | 0x44);
+    OUTW(vgaIOBase + 4, (programmed_offset & 0xFF00) | 0x45);
 }
 
 static Bool 
@@ -1112,15 +1099,60 @@ TridentUseHWCursor(ScreenPtr pScreen, CursorPtr pCurs)
     return TRUE;
 }
 
+#define CURSOR_WIDTH 64
+#define CURSOR_HEIGHT 64
+#define CURSOR_ALIGN(x,bytes) (((x) + ((bytes) - 1)) & ~((bytes) - 1))
+
 Bool 
 TridentHWCursorInit(ScreenPtr pScreen)
 {
     ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     xf86CursorInfoPtr infoPtr;
-    int memory = pScrn->displayWidth * pScrn->virtualY * pScrn->bitsPerPixel/8;
+    FBAreaPtr          fbarea;
+    int                width;
+    int		       width_bytes;
+    int                height;
+    int                size_bytes;
 
-    if (memory > (pScrn->videoRam * 1024 - 4096)) return FALSE;
+    size_bytes                = CURSOR_WIDTH * 4 * CURSOR_HEIGHT;
+    width                     = pScrn->displayWidth;
+    width_bytes		      = width * (pScrn->bitsPerPixel / 8);
+    height                    = (size_bytes + width_bytes - 1) / width_bytes;
+    fbarea                    = xf86AllocateOffscreenArea(pScreen,
+							  width,
+							  height,
+							  1024,
+							  NULL,
+							  NULL,
+							  NULL);
+
+    if (!fbarea) {
+	pTrident->CursorOffset = 0;
+	xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+		   "Hardware cursor disabled"
+		   " due to insufficient offscreen memory\n");
+	return FALSE;
+    } else {
+	pTrident->CursorOffset = CURSOR_ALIGN((fbarea->box.x1 + 
+					       fbarea->box.y1 * width) *
+					       pScrn->bitsPerPixel / 8,
+					       1024);
+    }
+
+    if ((pTrident->Chipset != CYBER9397DVD) &&
+      			    (pTrident->Chipset < CYBERBLADEE4)) {
+	/* Can't deal with an offset more than 4MB - 4096 bytes */
+	if (pTrident->CursorOffset >= ((4096*1024) - 4096)) {
+	    pTrident->CursorOffset = 0;
+    	    xf86FreeOffscreenArea(fbarea);
+	    xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+		   "Hardware cursor disabled"
+		   " due to cursor offset constraints.\n");
+		return FALSE;
+	}
+    }
+
     infoPtr = xf86CreateCursorInfoRec();
     if(!infoPtr) return FALSE;
     

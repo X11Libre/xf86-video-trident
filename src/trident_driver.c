@@ -30,8 +30,6 @@
  */
 /* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_driver.c,v 1.190 2004/01/21 22:31:54 alanh Exp $ */
 
-#include "xf1bpp.h"
-#include "xf4bpp.h"
 #include "fb.h"
 
 #include "mibank.h"
@@ -503,14 +501,6 @@ static const char *vgahwSymbols[] = {
     NULL
 };
 
-#ifdef XFree86LOADER
-static const char *miscfbSymbols[] = {
-    "xf1bppScreenInit",
-    "xf4bppScreenInit",
-    NULL
-};
-#endif
-
 static const char *fbSymbols[] = {
     "fbPictureInit",
     "fbScreenInit",
@@ -584,7 +574,7 @@ tridentSetup(pointer module, pointer opts, int *errmaj, int *errmin)
 	setupDone = TRUE;
 	xf86AddDriver(&TRIDENT, module, 0);
 	LoaderRefSymLists(vgahwSymbols, fbSymbols, i2cSymbols, vbeSymbols,
-			  miscfbSymbols, ramdacSymbols, int10Symbols,
+			  ramdacSymbols, int10Symbols,
 			  xaaSymbols, shadowSymbols, NULL);
 	return (pointer)TRUE;
     } 
@@ -698,25 +688,6 @@ static void
 TRIDENTIdentify(int flags)
 {
     xf86PrintChipsets(TRIDENT_NAME, "driver for Trident chipsets", TRIDENTChipsets);
-}
-
-static void
-TRIDENTFix1bpp(ScrnInfoPtr pScrn) {
-   vgaHWPtr hwp = VGAHWPTR(pScrn);
-/* In 1 bpp we have color 0 at LUT 0 and color 1 at LUT 0x3f.
-   This makes white and black look right (otherwise they were both
-   black. I'm sure there's a better way to do that, just lazy to
-   search the docs.  */
-
-   (*hwp->writeDacWriteAddr)(hwp, 0x00);
-   (*hwp->writeDacData)(hwp, 0x00);
-   (*hwp->writeDacData)(hwp, 0x00);
-   (*hwp->writeDacData)(hwp, 0x00);
-
-   (*hwp->writeDacWriteAddr)(hwp, 0x3F);
-   (*hwp->writeDacData)(hwp, 0x3F);
-   (*hwp->writeDacData)(hwp, 0x3F);
-   (*hwp->writeDacData)(hwp, 0x3F);
 }
 
 Bool
@@ -1070,8 +1041,6 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     int i, NoClocks = 16;
     CARD8 revision;
     ClockRangePtr clockRanges;
-    char *mod = NULL;
-    const char *Sym = "";
     Bool ddcLoaded = FALSE;
     char *s;
 
@@ -1121,8 +1090,6 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     } else {
 	/* Check that the returned depth is one we support */
 	switch (pScrn->depth) {
-	case 1:
-	case 4:
 	case 8:
 	    if (pScrn->bitsPerPixel != pScrn->depth) {
 	        xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
@@ -1238,7 +1205,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     xf86ProcessOptions(pScrn->scrnIndex, pScrn->options, pTrident->Options);
 
     /* Set the bits per RGB for 8bpp mode */
-    if (pScrn->depth <= 8) {
+    if (pScrn->depth == 8) {
 	/* XXX This is here just to test options. */
 	/* Default to 8 */
 	pScrn->rgbBits = 6;
@@ -1412,9 +1379,6 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
         if (!pTrident->Linear) 
 	    xf86DrvMsg(pScrn->scrnIndex, X_WARNING, "Ignoring Option SHADOW_FB"
 		       " in non-Linear Mode\n");
-	else if (pScrn->depth < 8) 
-	    xf86DrvMsg(pScrn->scrnIndex, X_WARNING, "Tgnoring Option SHADOW_FB"
-		       " when depth < 8");
 	else {
 	    pTrident->ShadowFB = TRUE;
 	    pTrident->NoAccel = TRUE;
@@ -1427,9 +1391,6 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
         if (!pTrident->Linear) 
 	    xf86DrvMsg(pScrn->scrnIndex, X_WARNING, "Ignoring Option ROTATE "
 		       "in non-Linear Mode\n");
-	else if (pScrn->depth < 8) 
-	    xf86DrvMsg(pScrn->scrnIndex, X_WARNING, "Ignoring Option ROTATE "
-		       "when depth < 8");
 	else {
 	    if(!xf86NameCmp(s, "CW")) {
 	        /* accel is disabled below for shadowFB */
@@ -2290,10 +2251,9 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
      * care of this, we don't worry about setting them here.
      */
 
-    if ((pScrn->depth < 8) || 
-        (pScrn->bitsPerPixel == 24)) {
+    if (pScrn->bitsPerPixel == 24) {
     	    xf86DrvMsg(pScrn->scrnIndex, X_PROBED, 
-		"Disabling Engine due to 24bpp or < 8bpp.\n");
+		"Disabling Engine due to 24bpp.\n");
 	    pTrident->NoAccel = TRUE;
     }
 
@@ -2360,35 +2320,21 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 
     /* Load bpp-specific modules */
     switch (pScrn->bitsPerPixel) {
-    case 1:
-	pTrident->EngineOperation |= 0x00;
-	mod = "xf1bpp";
-	Sym = "xf1bppScreenInit";
-	break;
-    case 4:
-	pTrident->EngineOperation |= 0x00;
-	mod = "xf4bpp";
-	Sym = "xf4bppScreenInit";
-	break;
     case 8:
 	pTrident->EngineOperation |= 0x00;
-	mod = "fb";
 	break;
     case 16:
 	pTrident->EngineOperation |= 0x01;
-	mod = "fb";
 	break;
     case 24:
 	pTrident->EngineOperation |= 0x03;
-	mod = "fb";
 	break;
     case 32:
 	pTrident->EngineOperation |= 0x02;
-	mod = "fb";
 	break;
     }
 
-    if (mod && xf86LoadSubModule(pScrn, mod) == NULL) {
+    if (xf86LoadSubModule(pScrn, "fb") == NULL) {
 	if (IsPciCard && UseMMIO) {
     	    TRIDENTDisableMMIO(pScrn);
  	    TRIDENTUnmapMem(pScrn);
@@ -2397,13 +2343,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	return FALSE;
     }
 
-    if (mod) {
-	if (Sym) {
-	    xf86LoaderReqSymbols(Sym, NULL);
-	} else {
-	    xf86LoaderReqSymLists(fbSymbols, NULL);
-	}
-    }
+    xf86LoaderReqSymLists(fbSymbols, NULL);
 
     if (!xf86LoadSubModule(pScrn, "i2c")) {
 	if (IsPciCard && UseMMIO) {
@@ -2870,16 +2810,6 @@ TRIDENTScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
      */
 
     switch (pScrn->bitsPerPixel) {
-    case 1:
-	ret = xf1bppScreenInit(pScreen, FBStart, width,
-			height, pScrn->xDpi, pScrn->yDpi, 
-			displayWidth);
-	break;
-    case 4:
-	ret = xf4bppScreenInit(pScreen, FBStart, width,
-			height, pScrn->xDpi, pScrn->yDpi, 
-			displayWidth);
-	break;
     case 8:
     case 16:
     case 24:
@@ -2916,15 +2846,10 @@ TRIDENTScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
 		visual->blueMask = pScrn->mask.blue;
 	    }
 	}
-    } else {
-	if (pScrn->bitsPerPixel == 1) {
-	    TRIDENTFix1bpp(pScrn);
-	}
     }
 
     /* must be after RGB ordering fixed */
-    if (pScrn->bitsPerPixel > 4)
-	fbPictureInit (pScreen, 0, 0);
+    fbPictureInit (pScreen, 0, 0);
 
     xf86SetBlackWhitePixels(pScreen);
 
@@ -3021,9 +2946,6 @@ TRIDENTScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
     /* Initialise cursor functions */
     miDCInitialize (pScreen, xf86GetPointerScreenFuncs());
 
-    if (pScrn->bitsPerPixel < 8) 
-	pTrident->HWCursor = FALSE;
-
     if (pTrident->HWCursor) {
         xf86SetSilkenMouse(pScreen);
 	TridentHWCursorInit(pScreen);
@@ -3115,9 +3037,6 @@ TRIDENTAdjustFrame(int scrnIndex, int x, int y, int flags)
     vgaIOBase = VGAHWPTR(pScrn)->IOBase;
 
     switch (pScrn->bitsPerPixel) {
-	case 4:
-	    base >>= 3;
-	    break;
 	case 8:
 	    if (pScrn->progClock)
 	    	base = (base & 0xFFFFFFF8) >> 2;
