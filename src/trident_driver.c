@@ -477,16 +477,16 @@ tridentLCD LCD[] = {
 #endif
 
 static const char *xaaSymbols[] = {
-    "XAACopyROP",
+    "XAAGetCopyROP",
     "XAACreateInfoRec",
     "XAADestroyInfoRec",
     "XAAInit",
-    "XAAPatternROP",
+    "XAAGetPatternROP",
     NULL
 };
 
 static const char *vgahwSymbols[] = {
-    "vgaHWBlankScreen",
+    "vgaHWBlankScreenWeak",
     "vgaHWFreeHWRec",
     "vgaHWGetHWRec",
     "vgaHWGetIOBase",
@@ -494,7 +494,7 @@ static const char *vgahwSymbols[] = {
     "vgaHWInit",
     "vgaHWLock",
     "vgaHWMapMem",
-    "vgaHWProtect",
+    "vgaHWProtectWeak",
     "vgaHWRestore",
     "vgaHWSave",
     "vgaHWSaveScreen",
@@ -565,7 +565,7 @@ static XF86ModuleVersionInfo tridentVersRec =
 	MODULEVENDORSTRING,
 	MODINFOSTRING1,
 	MODINFOSTRING2,
-	XF86_VERSION_CURRENT,
+	XORG_VERSION_CURRENT,
 	TRIDENT_MAJOR_VERSION, TRIDENT_MINOR_VERSION, TRIDENT_PATCHLEVEL,
 	ABI_CLASS_VIDEODRV,			/* This is a video driver */
 	ABI_VIDEODRV_VERSION,
@@ -2034,7 +2034,8 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     if (!pScrn->progClock) {
 	pScrn->numClocks = NoClocks;
 	xf86GetClocks(pScrn, NoClocks, TRIDENTClockSelect,
-			  vgaHWProtect, vgaHWBlankScreen,
+			  vgaHWProtectWeak(),
+			  vgaHWBlankScreenWeak(),
 			  vgaIOBase + 0x0A, 0x08, 1, 28322);
 	from = X_PROBED;
 	xf86ShowClocks(pScrn, from);

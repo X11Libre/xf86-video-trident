@@ -292,7 +292,7 @@ BladeSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
 	pTrident->BltScanDirection |= 1<<5;
     }
 #endif
-    BLADE_OUT(0x2148, XAACopyROP[rop]);
+    BLADE_OUT(0x2148, XAAGetCopyROP(rop));
 }
 
 static void
@@ -345,7 +345,7 @@ BladeSetupForSolidLine(ScrnInfoPtr pScrn, int color,
 
     REPLICATE(color);
     BLADE_OUT(0x2160, color);
-    BLADE_OUT(0x2148, XAACopyROP[rop]);
+    BLADE_OUT(0x2148, XAAGetCopyROP(rop));
     pTrident->BltScanDirection = 0;
     REPLICATE(planemask);
     if (planemask != -1) {
@@ -435,7 +435,7 @@ BladeSetupForDashedLine(ScrnInfoPtr pScrn, int fg, int bg, int rop,
     REPLICATE(bg);
     BLADE_OUT(0x2160, fg);
     BLADE_OUT(0x2164, bg);
-    BLADE_OUT(0x2148, XAACopyROP[rop]);
+    BLADE_OUT(0x2148, XAAGetCopyROP(rop));
     pTrident->BltScanDirection = 0;
     REPLICATE(planemask);
     if (planemask != -1) {
@@ -471,7 +471,7 @@ BladeSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
 
     REPLICATE(color);
     BLADE_OUT(0x2160, color);
-    BLADE_OUT(0x2148, XAACopyROP[rop]);
+    BLADE_OUT(0x2148, XAAGetCopyROP(rop));
     pTrident->BltScanDirection = 0;
 #if 0
     REPLICATE(planemask);
@@ -506,7 +506,7 @@ BladeSetupForScreenToScreenColorExpand(ScrnInfoPtr pScrn,
     REPLICATE(fg);
     IMAGE_OUT(0x44, fg);
     IMAGE_OUT(0x48, bg);
-    IMAGE_OUT(0x20, 0x90000000 | XAACopyROP[rop]);
+    IMAGE_OUT(0x20, 0x90000000 | XAAGetCopyROP(rop));
     pTrident->BltScanDirection = 0;
     REPLICATE(planemask);
     if (planemask != -1) {
@@ -538,7 +538,7 @@ BladeSetupForCPUToScreenColorExpand(ScrnInfoPtr pScrn,
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     pTrident->BltScanDirection = 0;
-    BLADE_OUT(0x2148, XAACopyROP[rop]);
+    BLADE_OUT(0x2148, XAAGetCopyROP(rop));
     if (bg == -1) {
 	pTrident->BltScanDirection |= 2<<19;
     	REPLICATE(fg);
@@ -581,7 +581,7 @@ BladeSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     BladeSync(pScrn);
-    BLADE_OUT(0x2148, XAAPatternROP[rop]);
+    BLADE_OUT(0x2148, XAAGetPatternROP(rop));
 
     if (bg == -1) {
     REPLICATE(fg);
@@ -645,7 +645,7 @@ BladeSetupForColor8x8PatternFill(ScrnInfoPtr pScrn,
 	BLADE_OUT(0x2168, transparency_color & 0xffffff);
 	pTrident->BltScanDirection |= 1<<6;
     }
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
     REPLICATE(planemask);
     if (planemask != -1) {
 	BLADE_OUT(0x2184, ~planemask);
@@ -677,7 +677,7 @@ static void BladeSetupForImageWrite(
 ){
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    BLADE_OUT(0x2148, XAACopyROP[rop]);
+    BLADE_OUT(0x2148, XAAGetCopyROP(rop));
     pTrident->BltScanDirection = 0;
 #if 0
     REPLICATE(planemask);

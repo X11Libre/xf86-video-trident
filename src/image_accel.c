@@ -296,7 +296,7 @@ ImageSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
     if ((xdir < 0) || (ydir < 0)) pTrident->BltScanDirection |= 1<<2;
 
     IMAGE_OUT(0x2120, 0x80000000);
-    IMAGE_OUT(0x2120, 0x90000000 | XAACopyROP[rop]);
+    IMAGE_OUT(0x2120, 0x90000000 | XAAGetCopyROP(rop));
 
     if (transparency_color != -1) {
 	IMAGE_OUT(0x2120, 0x70000000 | 1<<26 | (transparency_color&0xffffff));
@@ -354,7 +354,7 @@ ImageSetupForSolidLine(ScrnInfoPtr pScrn, int color,
 
     REPLICATE(color);
     IMAGE_OUT(0x2120, 0x84000000);
-    IMAGE_OUT(0x2120, 0x90000000 | XAACopyROP[rop]);
+    IMAGE_OUT(0x2120, 0x90000000 | XAAGetCopyROP(rop));
     IMAGE_OUT(0x2144, color);
 }
 
@@ -406,7 +406,7 @@ ImageSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
 
     REPLICATE(color);
     IMAGE_OUT(0x2120, 0x80000000);
-    IMAGE_OUT(0x2120, 0x90000000 | XAACopyROP[rop]);
+    IMAGE_OUT(0x2120, 0x90000000 | XAAGetCopyROP(rop));
     IMAGE_OUT(0x2144, color);
 }
 
@@ -468,7 +468,7 @@ ImageSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    IMAGE_OUT(0x2120, 0x90000000 | XAAPatternROP[rop]);
+    IMAGE_OUT(0x2120, 0x90000000 | XAAGetPatternROP(rop));
     if (bg == -1) {
 	REPLICATE(fg);
 	IMAGE_OUT(0x2120, 0x80000000 | 1<<27);
@@ -512,7 +512,7 @@ ImageSetupForColor8x8PatternFill(ScrnInfoPtr pScrn,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    IMAGE_OUT(0x2120, 0x90000000 | XAAPatternROP[rop]);
+    IMAGE_OUT(0x2120, 0x90000000 | XAAGetPatternROP(rop));
     IMAGE_OUT(0x2120, 0x80000000 | 1<<26);
     if (transparency_color != -1) {
 	IMAGE_OUT(0x2120, 0x70000000 | 1<<26 | (transparency_color&0xffffff));
@@ -548,7 +548,7 @@ ImageSetupForScanlineCPUToScreenColorExpandFill(
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     IMAGE_OUT(0x2120, 0x80000000);
-    IMAGE_OUT(0x2120, 0x90000000 | XAACopyROP[rop]);
+    IMAGE_OUT(0x2120, 0x90000000 | XAAGetCopyROP(rop));
     if (bg == -1) {
 	pTrident->ROP = 2<<22;
     	REPLICATE(fg);
@@ -599,7 +599,7 @@ ImageSetupForScanlineImageWrite(ScrnInfoPtr pScrn, int rop,
                              int bpp, int depth)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    IMAGE_OUT(0x2120, 0x90000000 | XAACopyROP[rop]);
+    IMAGE_OUT(0x2120, 0x90000000 | XAAGetCopyROP(rop));
     if (transparency_color != -1) {
 	IMAGE_OUT(0x2120, 0x70000000 | 1<<26 | (transparency_color&0xffffff));
 	pTrident->DstEnable = TRUE;

@@ -292,7 +292,7 @@ TridentSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
     }
 
     TGUI_DRAWFLAG(pTrident->DrawFlag | pTrident->BltScanDirection | SCR2SCR | dst);
-    TGUI_FMIX(XAACopyROP[rop]);
+    TGUI_FMIX(XAAGetCopyROP(rop));
 }
 
 static void
@@ -324,7 +324,7 @@ TridentSetupForSolidLine(ScrnInfoPtr pScrn, int color,
 
     pTrident->BltScanDirection = 0;
     REPLICATE(color);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
     if (pTrident->Chipset == PROVIDIA9685 ||
         pTrident->Chipset == CYBER9388) {
     	TGUI_FPATCOL(color);
@@ -411,7 +411,7 @@ TridentSetupForDashedLine(
     	    TGUI_BCOLOUR(bg);
     	}
     }
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
     pTrident->LinePattern = NiceDashPattern;
 }
 
@@ -445,7 +445,7 @@ TridentSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
     int drawflag = 0;
 
     REPLICATE(color);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
     if (pTrident->Chipset == PROVIDIA9685 ||
         pTrident->Chipset == CYBER9388) {
     	TGUI_FPATCOL(color);
@@ -536,7 +536,7 @@ TridentSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
     TGUI_DRAWFLAG(pTrident->DrawFlag | PAT2SCR | PATMONO | drawflag);
     TGUI_PATLOC(((patterny * pTrident->PatternLocation) +
 		 (patternx * pScrn->bitsPerPixel / 8)) >> 6);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
 }
 
 static void 
@@ -578,7 +578,7 @@ TridentSetupForColor8x8PatternFill(ScrnInfoPtr pScrn,
     TGUI_DRAWFLAG(pTrident->DrawFlag | PAT2SCR | drawflag);
     TGUI_PATLOC(((patterny * pTrident->PatternLocation) +
 		 (patternx * pScrn->bitsPerPixel / 8)) >> 6);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
 }
 
 static void 
@@ -619,7 +619,7 @@ TridentSetupForScanlineCPUToScreenColorExpandFill(
 
     TGUI_SRC_XY(0,0);
     TGUI_DRAWFLAG(drawflag);
-    TGUI_FMIX(XAACopyROP[rop]);
+    TGUI_FMIX(XAAGetCopyROP(rop));
 }
 
 static void
