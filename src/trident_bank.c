@@ -21,7 +21,7 @@
  *
  * Author:  Alan Hourihane, alanh@fairlite.demon.co.uk
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_bank.c,v 1.4 2000/12/07 16:48:04 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_bank.c,v 1.5 2003/09/05 22:07:28 alanh Exp $ */
 
 /* All drivers should typically include these */
 #include "xf86.h"
