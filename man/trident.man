@@ -1,4 +1,4 @@
-.\" $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident.man,v 1.15 2003/07/03 07:52:46 alanh Exp $ 
+.\" $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident.man,v 1.14 2003/05/29 21:48:09 herrb Exp $ 
 .\" shorthand for double quote that works everywhere.
 .ds q \N'34'
 .TH TRIDENT __drivermansuffix__ __vendorversion__
@@ -14,7 +14,7 @@ trident \- Trident video driver
 .fi
 .SH DESCRIPTION
 .B trident
-is an XFree86 driver for Trident video cards.  The driver is 
+is an __xservername__ driver for Trident video cards.  The driver is 
 accelerated, and provides support for the following framebuffer depths:
 1, 4, 8, 15, 16, and 24. Multi-head configurations are supported.
 The XvImage extension is supported on TGUI96xx and greater cards.
@@ -41,7 +41,7 @@ CyberBlade/e4, CyberBladeXP, CyberBladeAi1/XP, BladeXP
 8900C, 8900D, 9000, 9200CXr, Cyber9320, 9400CXi, 9440AGi
 These cards have been ported but need further testing and may not work.
 .SH CONFIGURATION DETAILS
-Please refer to XF86Config(__filemansuffix__) for general configuration
+Please refer to __xconfigfile__(__filemansuffix__) for general configuration
 details.  This section only covers configuration details specific to this
 driver.
 .PP
@@ -128,6 +128,6 @@ an integer value greater or equal to 0 and less than 128.
 Default: gamma and brightness control is turned off. 
 Note: This is not supported on all chipsets.
 .SH "SEE ALSO"
-XFree86(1), XF86Config(__filemansuffix__), xf86config(1), Xserver(1), X(__miscmansuffix__)
+__xservername__(__appmansuffix__), __xconfigfile__(__filemansuffix__), xorgconfig(__appmansuffix__), Xserver(__appmansuffix__), X(__miscmansuffix__)
 .SH AUTHOR
 Author: Alan Hourihane

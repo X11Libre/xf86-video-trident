@@ -28,7 +28,7 @@
  *	    Massimiliano Ghilardi, max@Linuz.sns.it, some fixes to the
  *				   clockchip programming code.
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_driver.c,v 1.191 2004/01/21 22:51:19 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_driver.c,v 1.190 2004/01/21 22:31:54 alanh Exp $ */
 
 #include "xf1bpp.h"
 #include "xf4bpp.h"
@@ -565,7 +565,7 @@ static XF86ModuleVersionInfo tridentVersRec =
 	MODULEVENDORSTRING,
 	MODINFOSTRING1,
 	MODINFOSTRING2,
-	XF86_VERSION_CURRENT,
+	XORG_VERSION_CURRENT,
 	TRIDENT_MAJOR_VERSION, TRIDENT_MINOR_VERSION, TRIDENT_PATCHLEVEL,
 	ABI_CLASS_VIDEODRV,			/* This is a video driver */
 	ABI_VIDEODRV_VERSION,

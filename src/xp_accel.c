@@ -23,7 +23,7 @@
  * 
  * BladeXP accelerated options.
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/xp_accel.c,v 1.8 2004/02/20 23:34:12 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/xp_accel.c,v 1.6 2003/10/30 13:38:02 alanh Exp $ */
 
 #include "xf86.h"
 #include "xf86_OSproc.h"
