@@ -23,7 +23,7 @@
  * 
  * Trident Blade3D accelerated options.
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/blade_accel.c,v 1.22 2004/01/21 22:31:54 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/blade_accel.c,v 1.21 2003/10/30 13:38:01 alanh Exp $ */
 
 #include "xf86.h"
 #include "xf86_OSproc.h"
@@ -277,8 +277,6 @@ BladeSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    BladeSync(pScrn);
-
     pTrident->BltScanDirection = 0;
     if ((xdir < 0) || (ydir < 0)) pTrident->BltScanDirection |= 1<<1;
 
@@ -471,8 +469,6 @@ BladeSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    BladeSync(pScrn);
-
     REPLICATE(color);
     BLADE_OUT(0x2160, color);
     BLADE_OUT(0x2148, XAACopyROP[rop]);
@@ -540,8 +536,6 @@ BladeSetupForCPUToScreenColorExpand(ScrnInfoPtr pScrn,
     unsigned int planemask)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-
-    BladeSync(pScrn);
 
     pTrident->BltScanDirection = 0;
     BLADE_OUT(0x2148, XAACopyROP[rop]);
@@ -682,8 +676,6 @@ static void BladeSetupForImageWrite(
    int bpp, int depth
 ){
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-
-    BladeSync(pScrn);
 
     BLADE_OUT(0x2148, XAACopyROP[rop]);
     pTrident->BltScanDirection = 0;
