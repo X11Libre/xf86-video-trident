@@ -486,7 +486,7 @@ static const char *xaaSymbols[] = {
 };
 
 static const char *vgahwSymbols[] = {
-    "vgaHWBlankScreen",
+    "vgaHWBlankScreenWeak",
     "vgaHWFreeHWRec",
     "vgaHWGetHWRec",
     "vgaHWGetIOBase",
@@ -494,7 +494,7 @@ static const char *vgahwSymbols[] = {
     "vgaHWInit",
     "vgaHWLock",
     "vgaHWMapMem",
-    "vgaHWProtect",
+    "vgaHWProtectWeak",
     "vgaHWRestore",
     "vgaHWSave",
     "vgaHWSaveScreen",
