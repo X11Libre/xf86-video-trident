@@ -734,6 +734,10 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
  
     if (pTrident->Chipset == CYBERBLADEXP4)
     	pReg->tridentRegs3CE[DisplayEngCont] = 0x08;
+
+    /* Avoid lockup on Blade3D, PCI Retry is permanently on */
+    if (pTrident->Chipset == BLADE3D)
+    	pReg->tridentRegs3x4[PCIRetry] = 0x9F;
    
     return(TRUE);
 }

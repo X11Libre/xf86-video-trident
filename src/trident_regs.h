@@ -200,6 +200,13 @@
 #define GER_DSTCLIP_X	0x214C		/* Word */
 #define GER_DSTCLIP_Y	0x214E		/* Word */
 
+/* Wait for VSync */
+#define WAITFORVSYNC \
+ { \
+    while (hwp->readST01(hwp)&0x8) {}; \
+    while (!(hwp->readST01(hwp)&0x8)) {}; \
+ }
+
 /* Defines for IMAGE Graphics Engine */
 #define IMAGE_GE_STATUS 	0x2164
 #define IMAGE_GE_DRAWENV	0x2120

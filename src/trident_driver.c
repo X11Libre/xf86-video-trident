@@ -28,7 +28,7 @@
  *	    Massimiliano Ghilardi, max@Linuz.sns.it, some fixes to the
  *				   clockchip programming code.
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_driver.c,v 1.189 2003/11/06 18:38:09 tsi Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_driver.c,v 1.190 2004/01/21 22:31:54 alanh Exp $ */
 
 #include "xf1bpp.h"
 #include "xf4bpp.h"
@@ -1923,6 +1923,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	    chipset = "Blade3D";
 	    pTrident->NewClockCode = TRUE;
 	    pTrident->frequency = NTSC;
+	    pTrident->UsePCIRetry = TRUE; /* To avoid lockups */
 	    break;
 	case CYBERBLADEI7:
     	    pTrident->ddc1Read = Tridentddc1Read;
@@ -2604,6 +2605,8 @@ TRIDENTModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     TRIDENTRegPtr tridentReg;
 
+    WAITFORVSYNC;
+
     TridentFindClock(pScrn,mode->Clock);
 
     switch (pTrident->Chipset) {
@@ -3182,6 +3185,9 @@ TRIDENTLeaveVT(int scrnIndex, int flags)
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     vgaHWPtr hwp = VGAHWPTR(pScrn);
 
+    if (!pTrident->NoAccel)
+	pTrident->AccelInfoRec->Sync(pScrn);
+
     TRIDENTRestore(pScrn);
     vgaHWLock(hwp);
 
@@ -3205,6 +3211,9 @@ TRIDENTCloseScreen(int scrnIndex, ScreenPtr pScreen)
     vgaHWPtr hwp = VGAHWPTR(pScrn);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
+    if (!pTrident->NoAccel)
+	pTrident->AccelInfoRec->Sync(pScrn);
+	
     if (xf86IsPc98())
 	PC98TRIDENTDisable(pScrn);
 

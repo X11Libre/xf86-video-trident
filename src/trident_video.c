@@ -884,6 +884,8 @@ TRIDENTPutImage(
 
     pPriv->videoStatus = CLIENT_VIDEO_ON;
 
+    pTrident->VideoTimerCallback = TRIDENTVideoTimerCallback;
+
     return Success;
 }
 
@@ -1306,8 +1308,6 @@ WaitForVBlank(ScrnInfoPtr pScrn)
      * full vblank has passed. 
      * - Alan.
      */
-    while (!(hwp->readST01(hwp)&0x8)) {};
-    while (hwp->readST01(hwp)&0x8) {};
-    while (!(hwp->readST01(hwp)&0x8)) {};
-    while (hwp->readST01(hwp)&0x8) {};
+    WAITFORVSYNC;
+    WAITFORVSYNC;
 }
