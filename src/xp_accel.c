@@ -23,7 +23,7 @@
  * 
  * BladeXP accelerated options.
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/xp_accel.c,v 1.5 2003/09/05 22:07:29 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/xp_accel.c,v 1.6 2003/10/30 13:38:02 alanh Exp $ */
 
 #include "xf86.h"
 #include "xf86_OSproc.h"
@@ -120,17 +120,6 @@ XPAccelInit(ScreenPtr pScreen)
     XAAInfoRecPtr infoPtr;
     ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    BoxRec AvailFBArea;
-
-    AvailFBArea.x1 = 0;
-    AvailFBArea.y1 = 0;
-    AvailFBArea.x2 = pScrn->displayWidth;
-    AvailFBArea.y2 = (pTrident->FbMapSize - 4096) / (pScrn->displayWidth *
-					    pScrn->bitsPerPixel / 8);
-
-    if (AvailFBArea.y2 > 2047) AvailFBArea.y2 = 2047;
-
-    xf86InitFBManager(pScreen, &AvailFBArea);
 
     if (pTrident->NoAccel)
 	return FALSE;
@@ -279,7 +268,7 @@ XPSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
     }
 
     TGUI_DRAWFLAG(pTrident->BltScanDirection | SCR2SCR | dst);
-    TGUI_FMIX(XAACopyROP[rop]);
+    TGUI_FMIX(XAAGetCopyROP(rop));
 }
 
 static void
@@ -312,7 +301,7 @@ XPSetupForSolidLine(ScrnInfoPtr pScrn, int color,
 
     pTrident->BltScanDirection = 0;
     REPLICATE(color);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
     if (pTrident->Chipset >= PROVIDIA9685) {
     	TGUI_FPATCOL(color);
     } else {
@@ -399,7 +388,7 @@ XPSetupForDashedLine(
     	    TGUI_BCOLOUR(bg);
     	}
     }
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
     pTrident->LinePattern = NiceDashPattern;
 }
 
@@ -432,7 +421,7 @@ XPSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     REPLICATE(color);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
     MMIO_OUT32(pTrident->IOBase, 0x2158, color);
     TGUI_DRAWFLAG(SOLIDFILL);
 }
@@ -527,7 +516,7 @@ XPSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
     TGUI_DRAWFLAG(PATMONO | drawflag);
     MMIO_OUT32(pTrident->IOBase, 0x2180, patternx);
     MMIO_OUT32(pTrident->IOBase, 0x2184, patterny);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
 }
 
 static void 
@@ -554,7 +543,7 @@ XPSetupForScanlineCPUToScreenColorExpandFill(
 ){
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    TGUI_FMIX(XAACopyROP[rop]);
+    TGUI_FMIX(XAAGetCopyROP(rop));
     if (bg == -1) {
     TGUI_DRAWFLAG(SRCMONO | 1<<12);
     	REPLICATE(fg);

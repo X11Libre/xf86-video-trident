@@ -23,7 +23,7 @@
  * 
  * Trident accelerated options.
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_accel.c,v 1.27 2003/09/05 22:07:28 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_accel.c,v 1.28 2003/10/30 13:38:01 alanh Exp $ */
 
 #include "xf86.h"
 #include "xf86_OSproc.h"
@@ -117,17 +117,6 @@ TridentAccelInit(ScreenPtr pScreen)
     XAAInfoRecPtr infoPtr;
     ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    BoxRec AvailFBArea;
-
-    AvailFBArea.x1 = 0;
-    AvailFBArea.y1 = 0;
-    AvailFBArea.x2 = pScrn->displayWidth;
-    AvailFBArea.y2 = (pTrident->FbMapSize - 4096) / (pScrn->displayWidth *
-					    pScrn->bitsPerPixel / 8);
-
-    if (AvailFBArea.y2 > 2047) AvailFBArea.y2 = 2047;
-
-    xf86InitFBManager(pScreen, &AvailFBArea);
 
     if (pTrident->NoAccel)
 	return FALSE;
@@ -303,7 +292,7 @@ TridentSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
     }
 
     TGUI_DRAWFLAG(pTrident->DrawFlag | pTrident->BltScanDirection | SCR2SCR | dst);
-    TGUI_FMIX(XAACopyROP[rop]);
+    TGUI_FMIX(XAAGetCopyROP(rop));
 }
 
 static void
@@ -335,7 +324,7 @@ TridentSetupForSolidLine(ScrnInfoPtr pScrn, int color,
 
     pTrident->BltScanDirection = 0;
     REPLICATE(color);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
     if (pTrident->Chipset == PROVIDIA9685 ||
         pTrident->Chipset == CYBER9388) {
     	TGUI_FPATCOL(color);
@@ -422,7 +411,7 @@ TridentSetupForDashedLine(
     	    TGUI_BCOLOUR(bg);
     	}
     }
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
     pTrident->LinePattern = NiceDashPattern;
 }
 
@@ -456,7 +445,7 @@ TridentSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
     int drawflag = 0;
 
     REPLICATE(color);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
     if (pTrident->Chipset == PROVIDIA9685 ||
         pTrident->Chipset == CYBER9388) {
     	TGUI_FPATCOL(color);
@@ -547,7 +536,7 @@ TridentSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
     TGUI_DRAWFLAG(pTrident->DrawFlag | PAT2SCR | PATMONO | drawflag);
     TGUI_PATLOC(((patterny * pTrident->PatternLocation) +
 		 (patternx * pScrn->bitsPerPixel / 8)) >> 6);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
 }
 
 static void 
@@ -589,7 +578,7 @@ TridentSetupForColor8x8PatternFill(ScrnInfoPtr pScrn,
     TGUI_DRAWFLAG(pTrident->DrawFlag | PAT2SCR | drawflag);
     TGUI_PATLOC(((patterny * pTrident->PatternLocation) +
 		 (patternx * pScrn->bitsPerPixel / 8)) >> 6);
-    TGUI_FMIX(XAAPatternROP[rop]);
+    TGUI_FMIX(XAAGetPatternROP(rop));
 }
 
 static void 
@@ -630,7 +619,7 @@ TridentSetupForScanlineCPUToScreenColorExpandFill(
 
     TGUI_SRC_XY(0,0);
     TGUI_DRAWFLAG(drawflag);
-    TGUI_FMIX(XAACopyROP[rop]);
+    TGUI_FMIX(XAAGetCopyROP(rop));
 }
 
 static void
