@@ -21,7 +21,7 @@
  *
  * Author:  Alan Hourihane, alanh@fairlite.demon.co.uk
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_dac.c,v 1.79 2003/11/03 05:11:42 tsi Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_dac.c,v 1.80 2004/01/21 22:31:54 alanh Exp $ */
 
 #include "xf86.h"
 #include "xf86_OSproc.h"
@@ -734,6 +734,10 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
  
     if (pTrident->Chipset == CYBERBLADEXP4)
     	pReg->tridentRegs3CE[DisplayEngCont] = 0x08;
+
+    /* Avoid lockup on Blade3D, PCI Retry is permanently on */
+    if (pTrident->Chipset == BLADE3D)
+    	pReg->tridentRegs3x4[PCIRetry] = 0x9F;
    
     return(TRUE);
 }
