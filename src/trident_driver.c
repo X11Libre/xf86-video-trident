@@ -123,7 +123,7 @@ static int pix24bpp = 0;
  * an upper-case version of the driver name.
  */
 
-DriverRec TRIDENT = {
+_X_EXPORT DriverRec TRIDENT = {
     VERSION,
     TRIDENT_DRIVER_NAME,
     TRIDENTIdentify,
@@ -565,7 +565,11 @@ static XF86ModuleVersionInfo tridentVersRec =
 	{0,0,0,0}
 };
 
-XF86ModuleData tridentModuleData = { &tridentVersRec, tridentSetup, NULL };
+_X_EXPORT XF86ModuleData tridentModuleData = {
+	&tridentVersRec,
+	tridentSetup,
+	NULL
+};
 
 pointer
 tridentSetup(pointer module, pointer opts, int *errmaj, int *errmin)
