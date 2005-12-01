@@ -671,10 +671,11 @@ TRIDENTDisplayVideo(
     OUTW(vgaIOBase + 4, ((width<<1) & 0xff00)      | 0x91);
     OUTW(vgaIOBase + 4, ((offset) & 0xff) << 8     | 0x92);
     OUTW(vgaIOBase + 4, ((offset) & 0xff00)        | 0x93);
-    if (pTrident->Chipset >= CYBER9397)
+    if (pTrident->Chipset >= CYBER9397) {
     	OUTW(vgaIOBase + 4, ((offset) & 0x0f0000) >> 8 | 0x94);
-    else
+    } else {
     	OUTW(vgaIOBase + 4, ((offset) & 0x070000) >> 8 | 0x94);
+    }
     
     /* Horizontal Zoom */
     if (pTrident->videoFlags & VID_ZOOM_INV) {
