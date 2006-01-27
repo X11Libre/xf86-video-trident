@@ -40,6 +40,8 @@
 #include "xf86Pci.h"
 #include "vbe.h"
 
+#define PCI_CHIP_2200		0x2200
+
 typedef struct {
 	unsigned char tridentRegs3x4[0x100];
 	unsigned char tridentRegs3CE[0x100];
@@ -126,6 +128,7 @@ typedef struct {
     CARD32		DrawFlag;
     CARD16		LinePattern;
     RamDacRecPtr	RamDacRec;
+    int			CursorOffset;
     xf86CursorInfoPtr	CursorInfoRec;
     xf86Int10InfoPtr	Int10;
     vbeInfoPtr		pVbe;
@@ -304,7 +307,8 @@ typedef enum {
     CYBERBLADEE4,
     BLADEXP,
     CYBERBLADEXPAI1,
-    CYBERBLADEXP4
+    CYBERBLADEXP4,
+    XP5
 } TRIDENTType;
 
 #define UseMMIO		(pTrident->NoMMIO == FALSE)
@@ -335,6 +339,7 @@ typedef enum {
 			 (pTrident->Chipset == BLADE3D) || \
 			 (pTrident->Chipset == CYBERBLADEXPAI1) || \
 			 (pTrident->Chipset == CYBERBLADEXP4) || \
+			 (pTrident->Chipset == XP5) || \
 			 (pTrident->Chipset == BLADEXP))
 
 /*

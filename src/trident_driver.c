@@ -171,6 +171,7 @@ static SymTabRec TRIDENTChipsets[] = {
     { BLADEXP,			"bladeXP" },
     { CYBERBLADEXPAI1,		"cyberbladeXPAi1" },
     { CYBERBLADEXP4,		"cyberbladeXP4" },
+    { XP5,			"XP5" },
     { -1,				NULL }
 };
 
@@ -214,6 +215,7 @@ static PciChipsets TRIDENTPciChipsets[] = {
     { BLADEXP,		PCI_CHIP_9910,	RES_SHARED_VGA },
     { CYBERBLADEXPAI1,	PCI_CHIP_8820,	RES_SHARED_VGA },
     { CYBERBLADEXP4,	PCI_CHIP_2100,	RES_SHARED_VGA },
+    { XP5,		PCI_CHIP_2200,	RES_SHARED_VGA },
     { -1,		-1,		RES_UNDEFINED }
 };
     
@@ -313,6 +315,7 @@ static int ClockLimit[] = {
 	230000,
 	230000,
 	230000,
+	230000,
 };
 
 static int ClockLimit16bpp[] = {
@@ -341,6 +344,7 @@ static int ClockLimit16bpp[] = {
 	170000,
 	170000,
 	170000,
+	230000,
 	230000,
 	230000,
 	230000,
@@ -399,6 +403,7 @@ static int ClockLimit24bpp[] = {
 	115000,
 	115000,
 	115000,
+	115000,
 };
 
 static int ClockLimit32bpp[] = {
@@ -423,6 +428,7 @@ static int ClockLimit32bpp[] = {
 	70000,
 	70000,
 	70000,
+	115000,
 	115000,
 	115000,
 	115000,
@@ -1999,6 +2005,17 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	    chipset = "CyberBladeXP4";
 	    pTrident->NewClockCode = TRUE;
 	    pTrident->frequency = NTSC;
+	case XP5:
+    	    pTrident->ddc1Read = Tridentddc1Read;
+	    ramtype = "SGRAM";
+            pTrident->HasSGRAM = TRUE;
+	    pTrident->IsCyber = TRUE;
+	    pTrident->shadowNew = TRUE;
+	    pTrident->NoAccel = TRUE; /* for now */
+	    Support24bpp = TRUE;
+	    chipset = "XP5";
+	    pTrident->NewClockCode = TRUE;
+	    pTrident->frequency = NTSC;
 	    break;
     }
 
@@ -2046,6 +2063,27 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	pScrn->videoRam = pTrident->pEnt->device->videoRam;
 	from = X_CONFIG;
     } else {
+      if (pTrident->Chipset == XP5) {
+	OUTB(vgaIOBase + 4, 0x60);
+	videoram = INB(vgaIOBase + 5);
+	switch (videoram & 0x7) {
+ 	case 0x00:
+	    pScrn->videoRam = 131072;
+	    break;
+	case 0x01:
+	    pScrn->videoRam = 65536;
+	    break;
+	case 0x02:
+	    pScrn->videoRam = 32768;
+	    break;
+	case 0x03:
+	    pScrn->videoRam = 16384;
+	    break;
+	case 0x04:
+	    pScrn->videoRam = 8192;
+	    break;
+	}
+      } else
       if (pTrident->Chipset == CYBER9525DVD) {
 	pScrn->videoRam = 2560;
       } else
@@ -2582,6 +2620,7 @@ TRIDENTModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	case BLADEXP:
 	case CYBERBLADEXPAI1:
 	case CYBERBLADEXP4:
+	case XP5:
 	    /* Get ready for MUX mode */
 	    if (pTrident->MUX && 
 		pScrn->bitsPerPixel == 8 && 
