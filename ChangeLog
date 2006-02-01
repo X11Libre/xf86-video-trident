@@ -1,3 +1,14 @@
+2006-02-01  Alan Hourihane  <alanh@fairlite.demon.co.uk>
+
+	* src/trident_dac.c: (TridentInit), (TridentHWCursorInit):
+	* src/trident_driver.c: (TRIDENTPreInit), (TRIDENTModeInit),
+	(TRIDENTCloseScreen), (TRIDENTLcdDisplaySize):
+	* src/trident_video.c: (tridentFixFrame):
+	* src/tridenthelper.c: (TridentFindClock):
+	Commit patch from https://bugs.freedesktop.org/show_bug.cgi?id=2785
+	i.e. detect 1400x1050 panels from DDC information and a few other
+	fixes for BladeXP chipsets - notably the Toshiba Tecra 8200.
+
 2006-01-27  Alan Hourihane  <alanh@fairlite.demon.co.uk>
 
 	* configure.ac:

@@ -97,8 +97,8 @@ static biosMode bios24[] = {
 static newModes newModeRegs [] = {
   { 320, 200, 0x13, 0x30 },
   { 640, 480, 0x13, 0x61 },
-  { 800, 600, 0x13, 0x61 },
-  { 1024, 768, 0x3b, 0x63 },
+  { 800, 600, 0x13, 0x62 },
+  { 1024, 768, 0x31, 0x63 },
   { 1280, 1024, 0x7b, 0x64 },
   { 1400, 1050, 0x11, 0x7b } 
 };
@@ -362,7 +362,10 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
  	    pReg->tridentRegs3x4[0x15] = regp->CRTC[0x15];
  	    pReg->tridentRegs3x4[0x16] = LCD[i].shadow_16;
  	    if (LCDActive) {
- 		pReg->tridentRegs3x4[CRTHiOrd] = LCD[i].shadow_HiOrd;
+		/* use current screen size not panel size for display area */
+ 		pReg->tridentRegs3x4[CRTHiOrd] = 
+		    (pReg->tridentRegs3x4[CRTHiOrd] & 0x10)
+		    | (LCD[i].shadow_HiOrd & ~0x10);
 	    }
 	    
 	    fullSize = (mode->HDisplay == LCD[i].display_x) 
@@ -373,7 +376,6 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
   	
   	pReg->tridentRegs3x4[0x7] &= ~0x4A;
 	pReg->tridentRegs3x4[0x7] |= (vgaReg->CRTC[0x7] & 0x4A);
-
 	if (LCDActive && fullSize) {	
 	    regp->CRTC[0] = pReg->tridentRegs3x4[0];
 	    regp->CRTC[3] = pReg->tridentRegs3x4[3];
@@ -437,11 +439,23 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
  		       regp->CRTC[0x14],regp->CRTC[0x16]);
  	
 	
-	/* disable stretching, enable centering */
-	pReg->tridentRegs3CE[VertStretch] &= 0xFC;
+	/* disable stretching, enable centering for default sizes */
+	pReg->tridentRegs3CE[VertStretch] &= 0x7C;
+	switch (mode->VDisplay) {
+	    case 768:
+	    case 600:
+	    case 480:
+	    case 240:
 	pReg->tridentRegs3CE[VertStretch] |= 0x80;
-	pReg->tridentRegs3CE[HorStretch] &= 0xFC;
+	}
+	pReg->tridentRegs3CE[HorStretch] &= 0x7C;
+	switch (mode->HDisplay) {
+	    case 1024:
+	    case 800:
+	    case 640:
+	    case 320:
 	pReg->tridentRegs3CE[HorStretch] |= 0x80;
+	}
 #if 1
 	{
   	    int mul = pScrn->bitsPerPixel >> 3; 
@@ -479,16 +493,19 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 			     &pReg->tridentRegs3CE[BiosNewMode1],
 			     &pReg->tridentRegs3CE[BiosNewMode2]);
 	  xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 1, 
-			 "Setting BIOS Mode Regs: %x %x\n",
+			 "Setting BIOS Mode Regs: %x %x for: %ix%i\n",
 			 pReg->tridentRegs3CE[BiosNewMode1],
-			 pReg->tridentRegs3CE[BiosNewMode2]);
+			 pReg->tridentRegs3CE[BiosNewMode2],
+			 mode->HDisplay,
+			 mode->VDisplay);
 	};
 	
 	/* no stretch */
-	if (pTrident->Chipset != CYBERBLADEXPAI1)
-	    pReg->tridentRegs3CE[BiosReg] = 0;
-	else
+	if (pTrident->Chipset == CYBERBLADEXPAI1
+	    || pTrident->Chipset == BLADEXP)
 	    pReg->tridentRegs3CE[BiosReg] = 8;
+	else
+	    pReg->tridentRegs3CE[BiosReg] = 0;
 
 	if (pTrident->CyberStretch) {
 	    pReg->tridentRegs3CE[VertStretch] |= 0x01;
@@ -584,6 +601,7 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	case 32:
 	    pReg->tridentRegs3CE[MiscExtFunc] |= 0x02;
 	    if (pTrident->Chipset != CYBERBLADEXP4
+	        && pTrident->Chipset != BLADEXP
 	        && pTrident->Chipset != XP5
 	        && pTrident->Chipset != CYBERBLADEE4
 		&& pTrident->Chipset != CYBERBLADEXPAI1) {
@@ -595,6 +613,7 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
     	    pReg->tridentRegs3x4[PixelBusReg] = 0x09;
 	    pReg->tridentRegsDAC[0x00] = 0xD0;
 	    if (pTrident->Chipset == CYBERBLADEXP4
+	        || pTrident->Chipset == BLADEXP
 	        || pTrident->Chipset == XP5
 	        || pTrident->Chipset == CYBERBLADEE4
 		|| pTrident->Chipset == CYBERBLADEXPAI1) {
@@ -1177,6 +1196,7 @@ TridentHWCursorInit(ScreenPtr pScreen)
 		HARDWARE_CURSOR_SWAP_SOURCE_AND_MASK |
 		HARDWARE_CURSOR_SOURCE_MASK_INTERLEAVE_32 |
                 ((pTrident->Chipset == CYBERBLADEXP4 ||
+                  pTrident->Chipset == BLADEXP ||
                   pTrident->Chipset == XP5 ||
                   pTrident->Chipset == CYBERBLADEE4) ? 
                 HARDWARE_CURSOR_TRUECOLOR_AT_8BPP : 0);

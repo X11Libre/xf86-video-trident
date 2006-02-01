@@ -105,6 +105,7 @@ static void	PC98TRIDENT96xxDisable(ScrnInfoPtr pScrn);
 static void	PC98TRIDENT9385Init(ScrnInfoPtr pScrn);
 static void	PC98TRIDENT9385Enable(ScrnInfoPtr pScrn);
 static void	PC98TRIDENT9385Disable(ScrnInfoPtr pScrn);
+static int      TRIDENTLcdDisplaySize (xf86MonPtr pMon);
 
 /*
  * This is intentionally screen-independent.  It indicates the binding
@@ -480,7 +481,7 @@ tridentLCD LCD[] = {
     { 3,800,600,40000,0x7f,0x00,0x69,0x7f,0x72,0xf0,0x59,0x0d,0x00,0x08},
     { 2,1024,768,65000,0xa3,0x00,0x84,0x94,0x24,0xf5,0x03,0x09,0x24,0x08},
     { 0,1280,1024,108000,0xce,0x91,0xa6,0x14,0x28,0x5a,0x01,0x04,0x28,0xa8},
-    { 4,1400,1050,122000,0xe6,0xcd,0xba,0x1d,0x38,0x00,0x1c,0x28,0x28,0xf8},
+    { 4,1400,1050,122000,0xe6,0x8d,0xba,0x1d,0x38,0x00,0x1c,0x28,0x28,0xf8},
     { 0xff,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 #endif
@@ -1058,7 +1059,9 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     CARD8 revision;
     ClockRangePtr clockRanges;
     Bool ddcLoaded = FALSE;
+    xf86MonPtr pMon = NULL;
     char *s;
+    Bool tmp_bool;
 
     /* Allocate the TRIDENTRec driverPrivate */
     if (!TRIDENTGetRec(pScrn)) {
@@ -1252,9 +1255,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	pTrident->UsePCIBurst = FALSE;
 	xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "PCI Burst disbled\n");
     }
-    if (xf86ReturnOptValBool(pTrident->Options, OPTION_1400_DISPLAY, FALSE)) {
-	pTrident->displaySize = 1400;
-    }
+    /* Display Size override moved to DDC section */
     if(xf86GetOptValInteger(pTrident->Options, OPTION_VIDEO_KEY,
 						&(pTrident->videoKey))) {
 	xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "video key set to 0x%x\n",
@@ -1507,7 +1508,6 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
      */
 
     if (xf86LoadSubModule(pScrn, "vbe")) {
-	xf86MonPtr pMon;
 	vbeInfoPtr pVbe;
 
         xf86LoaderReqSymLists(vbeSymbols, NULL);
@@ -1536,6 +1536,12 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	    
     }
     
+    if (xf86GetOptValBool(pTrident->Options, OPTION_1400_DISPLAY, &tmp_bool)) {
+	if (tmp_bool)
+	    pTrident->displaySize = 1400;
+    } else 
+	pTrident->displaySize = TRIDENTLcdDisplaySize(pMon);
+
     if (IsPciCard && UseMMIO) {
     	if (!TRIDENTMapMem(pScrn))
 	    return FALSE;
@@ -2180,7 +2186,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 			pTrident->lcdMode = LCD[i].mode;
 		}
 		xf86DrvMsg(pScrn->scrnIndex,
-			   X_CONFIG,"%s Panel %ix%i found\n",
+			   X_INFO,"%s Panel %ix%i found\n",
 			   (dsp & 0x80) ? "TFT" :
 			   ((dsp1 & 0x20) ? "DSTN" : "STN"), 
 			   LCD[i].display_x,LCD[i].display_y);		
@@ -2625,6 +2631,7 @@ TRIDENTModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	    if (pTrident->MUX && 
 		pScrn->bitsPerPixel == 8 && 
 		!mode->CrtcHAdjusted) {
+		ErrorF("BARF\n");
 		mode->CrtcHDisplay >>= 1;
 		mode->CrtcHSyncStart >>= 1;
 		mode->CrtcHSyncEnd >>= 1;
@@ -2652,6 +2659,7 @@ TRIDENTModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
     /* Initialise the ModeReg values */
     if (!vgaHWInit(pScrn, mode))
 	return FALSE;
+
     pScrn->vtSema = TRUE;
     /*
      * We used to do this at a later time. 
@@ -3180,13 +3188,13 @@ TRIDENTCloseScreen(int scrnIndex, ScreenPtr pScreen)
     vgaHWPtr hwp = VGAHWPTR(pScrn);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
+    if (pScrn->vtSema) {
     if (!pTrident->NoAccel)
 	pTrident->AccelInfoRec->Sync(pScrn);
 	
     if (xf86IsPc98())
 	PC98TRIDENTDisable(pScrn);
 
-    if (pScrn->vtSema) {
     	TRIDENTRestore(pScrn);
     	vgaHWLock(hwp);
 	if (IsPciCard && UseMMIO) TRIDENTDisableMMIO(pScrn);
@@ -3648,5 +3656,41 @@ tridentSetModeBIOS(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	    }
 	}
     }
+}
+
+/* Currently we only test for 1400 */
+static int 
+TRIDENTLcdDisplaySize (xf86MonPtr pMon)
+{
+    if (pMon) {
+	int i,j;
+
+	for (i = 0; i < STD_TIMINGS; i++) {
+	    if (pMon->timings2[i].hsize == 1400) {
+		return 1400;
+	    }
+	}
+	/*
+	 * If not explicitely set try to find out if the display supports
+	 * the 1400 mode. For sanity check if DDC comes from a digital
+	 * display.
+	 */
+	if (DIGITAL(pMon->features.input_type)) {
+	    for (i = 0; i < DET_TIMINGS; i++) {
+		if (pMon->det_mon[i].type == DS_STD_TIMINGS) {
+		    for (j = 0; j < 5; j++) {
+			if (pMon->det_mon[i].section.std_t[j].hsize == 1400) {
+			    return 1400;
+			}
+		    }
+		} else if (pMon->det_mon[i].type == DT) {
+		    if (pMon->det_mon[i].section.d_timings.h_active == 1400) {
+			return 1400;
+		    }
+		}
+	    }
+	}
+    }
+    return 0;
 }
 

@@ -182,7 +182,6 @@ TridentFindClock(ScrnInfoPtr pScrn, int clock)
 	    xf86DrvMsg(pScrn->scrnIndex,X_INFO,"MUX is %s\n",pTrident->MUX?
 		       "on":"off");
 	    return;
-
 	} else
 #endif
 	{
@@ -191,9 +190,13 @@ TridentFindClock(ScrnInfoPtr pScrn, int clock)
 	}
 	
     } 
-    if (clock > pTrident->MUXThreshold) pTrident->MUX = TRUE;
-    else  pTrident->MUX = FALSE;
-
+#ifndef READOUT
+    if (pTrident->Chipset != BLADEXP
+	&& clock > pTrident->MUXThreshold) 
+	pTrident->MUX = TRUE;
+    else  
+	pTrident->MUX = FALSE;
+#endif
 }
 
 float
