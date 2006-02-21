@@ -27,6 +27,7 @@
 #ifndef _TRIDENT_H_
 #define _TRIDENT_H_
 
+#include "exa.h"
 #include "xf86Cursor.h"
 #include "xaa.h"
 #include "xf86RamDac.h"
@@ -59,6 +60,8 @@ typedef struct {
     pciVideoPtr		PciInfo;
     PCITAG		PciTag;
     EntityInfoPtr	pEnt;
+    ExaDriverPtr	EXADriverPtr;
+    int			useEXA;
     int			Chipset;
     int			DACtype;
     int			RamDac;
@@ -225,8 +228,11 @@ void TridentSave(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg);
 Bool TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode);
 Bool TridentAccelInit(ScreenPtr pScreen);
 Bool XPAccelInit(ScreenPtr pScreen);
+Bool XP4XaaInit(ScreenPtr pScreen);
+Bool XP4ExaInit(ScreenPtr pScreen);
 Bool ImageAccelInit(ScreenPtr pScreen);
-Bool BladeAccelInit(ScreenPtr pScreen);
+Bool BladeXaaInit(ScreenPtr pScreen);
+Bool BladeExaInit(ScreenPtr pScreen);
 Bool TridentHWCursorInit(ScreenPtr pScreen);
 int TridentFindMode(int xres, int yres, int depth);
 void TGUISetClock(ScrnInfoPtr pScrn, int clock, unsigned char *a, unsigned char *b);

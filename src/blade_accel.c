@@ -150,7 +150,7 @@ BladeInitializeAccelerator(ScrnInfoPtr pScrn)
 }
 
 Bool
-BladeAccelInit(ScreenPtr pScreen)
+BladeXaaInit(ScreenPtr pScreen)
 {
     XAAInfoRecPtr infoPtr;
     ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];

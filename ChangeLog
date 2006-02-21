@@ -1,3 +1,37 @@
+2006-02-21  Alan Hourihane  <alanh@fairlite.demon.co.uk>
+
+	* man/trident.man:
+	* src/Makefile.am:
+	* src/blade_accel.c: (BladeXaaInit):
+	* src/blade_accel_exa.c: (GetCopyROP), (GetDepth), (PrepareSolid),
+	(Solid), (DoneSolid), (PrepareCopy), (Copy), (DoneCopy),
+	(CheckComposite), (PrepareComposite), (Composite), (DoneComposite),
+	(UploadToScreen), (DownloadFromScreen), (MarkSync),
+	(BladeDisableClipping), (WaitMarker), (PrepareAccess),
+	(FinishAccess), (BladeSetClippingRectangle),
+	(BladeInitializeAccelerator), (BladeExaInit):
+	* src/trident.h:
+	* src/trident_driver.c: (tridentSetup), (TRIDENTProbe),
+	(TRIDENTPreInit), (TRIDENTMapMem), (TRIDENTScreenInit),
+	(TRIDENTLeaveVT), (TRIDENTCloseScreen):
+	* src/trident_regs.h:
+	* src/xp4_accel.c: (XP4InitializeAccelerator), (XP4XaaInit),
+	(XP4Sync), (XP4SetupForScreenToScreenCopy),
+	(XP4SubsequentScreenToScreenCopy), (XP4SetupForSolidLine),
+	(XP4SubsequentSolidBresenhamLine), (XP4SubsequentSolidHorVertLine),
+	(XP4SetupForDashedLine), (XP4SubsequentDashedBresenhamLine),
+	(XP4SetupForFillRectSolid), (XP4SubsequentFillRectSolid),
+	(MoveDWORDS), (MoveDWORDS_FixedBase),
+	(XP4SetupForMono8x8PatternFill),
+	(XP4SubsequentMono8x8PatternFillRect),
+	(XP4SetupForCPUToScreenColorExpandFill),
+	(XP4SubsequentCPUToScreenColorExpandFill):
+	* src/xp4_accel_exa.c: (GetCopyROP), (GetPatternROP),
+	(XP4WaitMarker), (XP4Done), (XP4PrepareSolid), (XP4Solid),
+	(XP4PrepareCopy), (XP4Copy), (XP4ExaInit):
+	Add XAA & EXA Acceleration for XP4 & XP5 Chipsets
+	Add EXA Acceleration for Blade chipsets (Jesse Barnes)
+
 2006-02-01  Alan Hourihane  <alanh@fairlite.demon.co.uk>
 
 	* src/trident_dac.c: (TridentInit), (TridentHWCursorInit):
