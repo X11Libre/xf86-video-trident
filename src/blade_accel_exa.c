@@ -23,9 +23,12 @@
  * Authors:  Alan Hourihane, <alanh@fairlite.demon.co.uk>
  *           Jesse Barnes <jbarnes@virtuousgeek.org>
  *
- * Trident Blade3D accelerated options.
+ * Trident Blade3D EXA support.
+ * TODO:
+ *   Composite hooks (some ops/arg. combos may not be supported)
+ *   Upload/Download from screen (is this even possible with this chip?)
+ *   Fast mixed directoion Blts
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/blade_accel.c,v 1.21 2003/10/30 13:38:01 alanh Exp $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -131,8 +134,7 @@ static void Solid(PixmapPtr pPixmap, int x, int y, int x2, int y2)
 	      dst_stride << 20 | dst_off);
 
     BLADE_OUT(GER_DRAW_CMD, GER_OP_LINE | pTrident->BltScanDirection |
-	      GER_DRAW_SRC_COLOR | GER_ROP_ENABLE | GER_SRC_CONST |
-	      (pTrident->Clipping ? 1 : 0));
+	      GER_DRAW_SRC_COLOR | GER_ROP_ENABLE | GER_SRC_CONST);
 
     BLADE_OUT(GER_DST1, y << 16 | x);
     BLADE_OUT(GER_DST2, ((y2 - 1) & 0xfff) << 16 | ((x2 - 1) & 0xfff));
@@ -185,8 +187,7 @@ static void Copy(PixmapPtr pDstPixmap, int x1, int y1, int x2,
 	TRIDENTPTR(xf86Screens[pDstPixmap->drawable.pScreen->myNum]);
 
     BLADE_OUT(GER_DRAW_CMD, GER_OP_BLT_HOST | GER_DRAW_SRC_COLOR |
-	      GER_ROP_ENABLE | GER_BLT_SRC_FB | pTrident->BltScanDirection |
-	      (pTrident->Clipping ? 1 : 0));
+	      GER_ROP_ENABLE | GER_BLT_SRC_FB | pTrident->BltScanDirection);
 
     if (pTrident->BltScanDirection) {
 	BLADE_OUT(GER_SRC1, (y1 + h - 1) << 16 | (x1 + w - 1));
@@ -205,7 +206,7 @@ static void Copy(PixmapPtr pDstPixmap, int x1, int y1, int x2,
 static void DoneCopy(PixmapPtr pDstPixmap)
 {
 }
-#if 0
+
 /* Composite comes later (if at all) */
 static Bool CheckComposite(int op, PicturePtr pSrcPicture,
 			   PicturePtr pMaskPicture, PicturePtr pDstPicture)
@@ -230,71 +231,9 @@ static void DoneComposite(PixmapPtr pDst)
 {
 }
 
-static Bool UploadToScreen(PixmapPtr pDstPixmap, int x, int y, int w, int h,
-			   char *src, int src_stride)
-{
-    TRIDENTPtr pTrident =
-	TRIDENTPTR(xf86Screens[pSrcPixmap->drawable.pScreen->myNum]);
-    int src_off = src >> 3;
-    int dst_stride = (pDstPixmap->drawable.width + 7) / 8;
-    int dst_off = exaGetPixmapOffset(pDstPixmap) / 8;
-
-    pTrident->BltScanDirection = 0;
-
-    /* Blade only supports +xdir,+ydir && -xdir,-ydir */
-    if ((xdir * ydir) < 0)
-	return FALSE;
-
-    REPLICATE(planemask, pSrcPixmap->drawable.bitsPerPixel);
-    if (planemask != (unsigned int)-1) {
-	BLADE_OUT(GER_BITMASK, ~planemask);
-	pTrident->BltScanDirection |= 1 << 5;
-    }
-
-    BLADE_OUT(GER_SRCBASE0, GetDepth(8) |
-	      src_stride << 20 | src_off);
-
-    BLADE_OUT(GER_DSTBASE0, GetDepth(pDstPixmap->drawable.bitsPerPixel) |
-	      dst_stride << 20 | dst_off);
-
-    if ((xdir < 0) || (ydir < 0))
-	pTrident->BltScanDirection |= 1 << 1;
-
-    BLADE_OUT(GER_ROP, GetCopyROP(alu));
-
-    BLADE_OUT(GER_DRAW_CMD, GER_OP_BLT_HOST | GER_DRAW_SRC_COLOR |
-	      GER_ROP_ENABLE | GER_BLT_SRC_FB | pTrident->BltScanDirection |
-	      (pTrident->Clipping ? 1 : 0));
-
-    if (pTrident->BltScanDirection) {
-	BLADE_OUT(GER_SRC1, (y1 + h - 1) << 16 | (x1 + w - 1));
-	BLADE_OUT(GER_SRC2, y1 << 16 | x1);
-	BLADE_OUT(GER_DST1, (y2 + h - 1) << 16 | (x2 + w - 1));
-	BLADE_OUT(GER_DST2, (y2 & 0xfff) << 16 | (x2 & 0xfff));
-    } else {
-	BLADE_OUT(GER_SRC1, y1 << 16 | x1);
-	BLADE_OUT(GER_SRC2, (y1 + h - 1) << 16 | (x1 + w - 1));
-	BLADE_OUT(GER_DST1, y2 << 16 | x2);
-	BLADE_OUT(GER_DST2, (((y2 + h - 1) & 0xfff) << 16 |
-			     ((x2 +w - 1) & 0xfff)));
-    }
-}
-
-static Bool DownloadFromScreen(PixmapPtr pSrc, int x, int y, int w, int h,
-			       char *dst, int dst_pitch)
-{
-}
-#endif
-
 static int MarkSync(ScreenPtr pScreen)
 {
     return 0;
-}
-
-static void BladeDisableClipping(ScrnInfoPtr pScrn)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    pTrident->Clipping = FALSE;
 }
 
 static void WaitMarker(ScreenPtr pScreen, int marker)
@@ -303,8 +242,6 @@ static void WaitMarker(ScreenPtr pScreen, int marker)
     int busy;
     int cnt = 10000000;
 
-    if (pTrident->Clipping)
-	BladeDisableClipping(xf86Screens[pScreen->myNum]);
     BLADE_OUT(GER_PATSTYLE, 0); /* Clear pattern & style first? */
 
     BLADEBUSY(busy);
@@ -318,7 +255,7 @@ static void WaitMarker(ScreenPtr pScreen, int marker)
     	BLADEBUSY(busy);
     }
 }
-#if 0
+
 static Bool PrepareAccess(PixmapPtr pPix, int index)
 {
 }
@@ -327,16 +264,6 @@ static void FinishAccess(PixmapPtr pPix, int index)
 {
 }
 
-static void BladeSetClippingRectangle(ScrnInfoPtr pScrn, int x1, int y1,
-				      int x2, int y2)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-
-    BLADE_OUT(GER_CLIP0, (y1 & 0x0fff) << 16 | (x1 & 0x0fff));
-    BLADE_OUT(GER_CLIP1, (y2 & 0x0fff) << 16 | (x2 & 0x0fff));
-    pTrident->Clipping = TRUE;
-}
-#endif
 static void BladeInitializeAccelerator(ScrnInfoPtr pScrn)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
@@ -377,7 +304,7 @@ Bool BladeExaInit(ScreenPtr pScreen)
 	((pScrn->bitsPerPixel + 7) / 8);
 
     if(ExaDriver->card.memorySize > ExaDriver->card.offScreenBase)
-	ExaDriver->card.flags = EXA_OFFSCREEN_PIXMAPS;
+	ExaDriver->card.flags |= EXA_OFFSCREEN_PIXMAPS;
     else {
 	xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "Not enough video RAM for "
 		   "offscreen memory manager. Xv disabled\n");
@@ -400,13 +327,7 @@ Bool BladeExaInit(ScreenPtr pScreen)
     ExaDriver->accel.Copy = Copy;
     ExaDriver->accel.DoneCopy = DoneCopy;
 
-    /* Composite pointers if implemented... */
-
-    /* Upload, download to/from Screen, optional */
-#if 0
-    ExaDriver->accel.UploadToScreen = UploadToScreen;
-    ExaDriver->accel.DownloadFromScreen = DownloadFromScreen;
-#endif
+    /* Composite not done yet */
 
     pTrident->EXADriverPtr = ExaDriver;
 
