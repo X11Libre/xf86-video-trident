@@ -288,7 +288,7 @@ Bool BladeExaInit(ScreenPtr pScreen)
     if (pTrident->NoAccel)
 	return FALSE;
 
-    ExaDriver = xnfcalloc(sizeof(ExaDriverRec), 1);
+    ExaDriver = exaDriverAlloc();
     if (!ExaDriver) {
 	pTrident->NoAccel = TRUE;
 	return FALSE;
@@ -297,35 +297,35 @@ Bool BladeExaInit(ScreenPtr pScreen)
     pTrident->InitializeAccelerator = BladeInitializeAccelerator;
     BladeInitializeAccelerator(pScrn);
 
-    ExaDriver->card.memoryBase = pTrident->FbBase;
-    ExaDriver->card.memorySize = pScrn->videoRam * 1024;
+    ExaDriver->memoryBase = pTrident->FbBase;
+    ExaDriver->memorySize = pScrn->videoRam * 1024;
 
-    ExaDriver->card.offScreenBase = pScrn->virtualX * pScrn->virtualY *
+    ExaDriver->offScreenBase = pScrn->virtualX * pScrn->virtualY *
 	((pScrn->bitsPerPixel + 7) / 8);
 
-    if(ExaDriver->card.memorySize > ExaDriver->card.offScreenBase)
-	ExaDriver->card.flags |= EXA_OFFSCREEN_PIXMAPS;
+    if(ExaDriver->memorySize > ExaDriver->offScreenBase)
+	ExaDriver->flags |= EXA_OFFSCREEN_PIXMAPS;
     else {
 	xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "Not enough video RAM for "
 		   "offscreen memory manager. Xv disabled\n");
 	/* disable Xv here... */
     }
 
-    ExaDriver->card.pixmapOffsetAlign = 32;
-    ExaDriver->card.pixmapPitchAlign = 32;
-    ExaDriver->card.maxX = 2047;
-    ExaDriver->card.maxY = 2047;
+    ExaDriver->pixmapOffsetAlign = 32;
+    ExaDriver->pixmapPitchAlign = 32;
+    ExaDriver->maxX = 2047;
+    ExaDriver->maxY = 2047;
 
-    ExaDriver->accel.MarkSync = MarkSync;
-    ExaDriver->accel.WaitMarker = WaitMarker;
+    ExaDriver->MarkSync = MarkSync;
+    ExaDriver->WaitMarker = WaitMarker;
 
     /* Solid fill & copy, the bare minimum */
-    ExaDriver->accel.PrepareSolid = PrepareSolid;
-    ExaDriver->accel.Solid = Solid;
-    ExaDriver->accel.DoneSolid = DoneSolid;
-    ExaDriver->accel.PrepareCopy = PrepareCopy;
-    ExaDriver->accel.Copy = Copy;
-    ExaDriver->accel.DoneCopy = DoneCopy;
+    ExaDriver->PrepareSolid = PrepareSolid;
+    ExaDriver->Solid = Solid;
+    ExaDriver->DoneSolid = DoneSolid;
+    ExaDriver->PrepareCopy = PrepareCopy;
+    ExaDriver->Copy = Copy;
+    ExaDriver->DoneCopy = DoneCopy;
 
     /* Composite not done yet */
 

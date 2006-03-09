@@ -499,7 +499,7 @@ static const char *xaaSymbols[] = {
 };
 
 const char *exaSymbols[] = {
-    "exaGetVersion",
+    "exaDriverAlloc",
     "exaDriverInit",
     "exaDriverFini",
     "exaOffscreenAlloc",
@@ -2461,7 +2461,15 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	}
 
 	if (pTrident->useEXA) {
-	    if (!xf86LoadSubModule(pScrn, "exa")) {
+	    XF86ModReqInfo req;
+	    int errmaj, errmin;
+
+	    req.majorversion = 2;
+	    req.minorversion = 0;
+            if (!LoadSubModule(pScrn->module, "exa", NULL, NULL, NULL, &req,
+		&errmaj, &errmin))
+	    {
+		LoaderErrorMsg(NULL, "exa", errmaj, errmin);
 		if (IsPciCard && UseMMIO) {
 		    TRIDENTDisableMMIO(pScrn);
 		    TRIDENTUnmapMem(pScrn);
@@ -3214,7 +3222,7 @@ TRIDENTLeaveVT(int scrnIndex, int flags)
     if (!pTrident->NoAccel && !pTrident->useEXA)
 	pTrident->AccelInfoRec->Sync(pScrn);
     else if (!pTrident->NoAccel && pTrident->useEXA)
-	pTrident->EXADriverPtr->accel.WaitMarker(pScrn->pScreen, 0);
+	pTrident->EXADriverPtr->WaitMarker(pScrn->pScreen, 0);
 
     TRIDENTRestore(pScrn);
     vgaHWLock(hwp);
@@ -3243,7 +3251,7 @@ TRIDENTCloseScreen(int scrnIndex, ScreenPtr pScreen)
     if (!pTrident->NoAccel && !pTrident->useEXA)
 	pTrident->AccelInfoRec->Sync(pScrn);
     else if (!pTrident->NoAccel && pTrident->useEXA)
-	pTrident->EXADriverPtr->accel.WaitMarker(pScreen, 0);
+	pTrident->EXADriverPtr->WaitMarker(pScreen, 0);
 	
     if (xf86IsPc98())
 	PC98TRIDENTDisable(pScrn);

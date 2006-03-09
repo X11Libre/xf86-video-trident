@@ -241,33 +241,36 @@ XP4ExaInit(ScreenPtr pScreen)
     if (pTrident->NoAccel)
 	return FALSE;
 
-    if (!(pExa = xf86calloc(1, sizeof(*pExa)))) {
+    if (!(pExa = exaDriverAlloc())) {
         pTrident->NoAccel = TRUE;
         return FALSE;
     }
     pTrident->EXADriverPtr = pExa;
 
-    pExa->card.flags = EXA_OFFSCREEN_PIXMAPS;
-    pExa->card.memoryBase = pTrident->FbBase;
-    pExa->card.memorySize = pTrident->FbMapSize;
-    pExa->card.offScreenBase = pScrn->virtualX * pScrn->virtualY *
+    pExa->exa_major = 2;
+    pExa->exa_minor = 0;
+
+    pExa->flags = EXA_OFFSCREEN_PIXMAPS;
+    pExa->memoryBase = pTrident->FbBase;
+    pExa->memorySize = pTrident->FbMapSize;
+    pExa->offScreenBase = pScrn->virtualX * pScrn->virtualY *
                                ((pScrn->bitsPerPixel + 7) / 8);
 
-    pExa->card.pixmapOffsetAlign = 16;
-    pExa->card.pixmapPitchAlign = 16;
+    pExa->pixmapOffsetAlign = 16;
+    pExa->pixmapPitchAlign = 16;
 
-    pExa->card.maxX = 4095;
-    pExa->card.maxY = 4095;
+    pExa->maxX = 4095;
+    pExa->maxY = 4095;
 
-    pExa->accel.WaitMarker = XP4WaitMarker;
+    pExa->WaitMarker = XP4WaitMarker;
 
-    pExa->accel.PrepareSolid = XP4PrepareSolid;
-    pExa->accel.Solid = XP4Solid;
-    pExa->accel.DoneSolid = XP4Done;
+    pExa->PrepareSolid = XP4PrepareSolid;
+    pExa->Solid = XP4Solid;
+    pExa->DoneSolid = XP4Done;
 
-    pExa->accel.PrepareCopy = XP4PrepareCopy;
-    pExa->accel.Copy = XP4Copy;
-    pExa->accel.DoneCopy = XP4Done;
+    pExa->PrepareCopy = XP4PrepareCopy;
+    pExa->Copy = XP4Copy;
+    pExa->DoneCopy = XP4Done;
 
     return(exaDriverInit(pScreen, pExa));
 }
