@@ -281,18 +281,22 @@ static void BladeInitializeAccelerator(ScrnInfoPtr pScrn)
 
 Bool BladeExaInit(ScreenPtr pScreen)
 {
-    ExaDriverPtr ExaDriver;
     ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
+    ExaDriverPtr ExaDriver;
 
     if (pTrident->NoAccel)
 	return FALSE;
 
-    ExaDriver = exaDriverAlloc();
-    if (!ExaDriver) {
-	pTrident->NoAccel = TRUE;
-	return FALSE;
+    if (!(ExaDriver = exaDriverAlloc())) {
+        pTrident->NoAccel = TRUE;
+        return FALSE;
     }
+
+    ExaDriver->exa_major = 2;
+    ExaDriver->exa_minor = 0;
+
+    pTrident->EXADriverPtr = ExaDriver;
 
     pTrident->InitializeAccelerator = BladeInitializeAccelerator;
     BladeInitializeAccelerator(pScrn);
@@ -329,7 +333,5 @@ Bool BladeExaInit(ScreenPtr pScreen)
 
     /* Composite not done yet */
 
-    pTrident->EXADriverPtr = ExaDriver;
-
-    return exaDriverInit(pScreen, pTrident->EXADriverPtr);
+    return exaDriverInit(pScreen, ExaDriver);
 }

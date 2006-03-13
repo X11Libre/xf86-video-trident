@@ -241,11 +241,10 @@ XP4ExaInit(ScreenPtr pScreen)
     if (pTrident->NoAccel)
 	return FALSE;
 
-    if (!(pExa = exaDriverAlloc())) {
+    if (!(pExa = pTrident->EXADriverPtr = exaDriverAlloc())) {
         pTrident->NoAccel = TRUE;
         return FALSE;
     }
-    pTrident->EXADriverPtr = pExa;
 
     pExa->exa_major = 2;
     pExa->exa_minor = 0;

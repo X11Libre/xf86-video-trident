@@ -2037,6 +2037,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	    chipset = "CyberBladeXP4";
 	    pTrident->NewClockCode = TRUE;
 	    pTrident->frequency = NTSC;
+	    break;
 	case XP5:
     	    pTrident->ddc1Read = Tridentddc1Read;
 	    ramtype = "SGRAM";
@@ -2099,7 +2100,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	videoram = INB(vgaIOBase + 5);
 	switch (videoram & 0x7) {
  	case 0x00:
-	    pScrn->videoRam = 131072;
+	    pScrn->videoRam = 65536 /* 131072 */;
 	    break;
 	case 0x01:
 	    pScrn->videoRam = 65536;
@@ -2187,8 +2188,6 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 
     xf86DrvMsg(pScrn->scrnIndex, from, "VideoRAM: %d kByte\n",
                pScrn->videoRam);
-
-    pTrident->FbMapSize = pScrn->videoRam * 1024;
 
     if (pTrident->IsCyber) {
 	unsigned char mod, dsp, dsp1;
@@ -2464,8 +2463,9 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	    XF86ModReqInfo req;
 	    int errmaj, errmin;
 
+	    memset(&req, 0, sizeof(req));
+
 	    req.majorversion = 2;
-	    req.minorversion = 0;
             if (!LoadSubModule(pScrn->module, "exa", NULL, NULL, NULL, &req,
 		&errmaj, &errmin))
 	    {
@@ -2523,6 +2523,8 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	pScrn->racIoFlags = 0;
     else 
 	pScrn->racIoFlags = RAC_FB | RAC_COLORMAP | RAC_CURSOR | RAC_VIEWPORT;
+
+    pTrident->FbMapSize = pScrn->videoRam * 1024;
 
     return TRUE;
 }
