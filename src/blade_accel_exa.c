@@ -304,7 +304,7 @@ Bool BladeExaInit(ScreenPtr pScreen)
     ExaDriver->memoryBase = pTrident->FbBase;
     ExaDriver->memorySize = pScrn->videoRam * 1024;
 
-    ExaDriver->offScreenBase = pScrn->virtualX * pScrn->virtualY *
+    ExaDriver->offScreenBase = pScrn->displayWidth * pScrn->virtualY *
 	((pScrn->bitsPerPixel + 7) / 8);
 
     if(ExaDriver->memorySize > ExaDriver->offScreenBase)

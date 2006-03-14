@@ -1,3 +1,9 @@
+2006-03-14  Alan Hourihane  <alanh@fairlite.demon.co.uk>
+
+	* src/blade_accel_exa.c: (BladeExaInit):
+	* src/xp4_accel_exa.c: (XP4ExaInit):
+	Change virtualX to displayWidth (caught by Eric Anholt)
+
 2006-03-13  Alan Hourihane  <alanh@fairlite.demon.co.uk>
 
 	* src/blade_accel_exa.c: (BladeExaInit):

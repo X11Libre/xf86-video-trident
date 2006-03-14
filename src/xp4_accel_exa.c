@@ -252,7 +252,7 @@ XP4ExaInit(ScreenPtr pScreen)
     pExa->flags = EXA_OFFSCREEN_PIXMAPS;
     pExa->memoryBase = pTrident->FbBase;
     pExa->memorySize = pTrident->FbMapSize;
-    pExa->offScreenBase = pScrn->virtualX * pScrn->virtualY *
+    pExa->offScreenBase = pScrn->displayWidth * pScrn->virtualY *
                                ((pScrn->bitsPerPixel + 7) / 8);
 
     pExa->pixmapOffsetAlign = 16;
