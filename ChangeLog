@@ -1,3 +1,8 @@
+2006-04-06  Adam Jackson  <ajax@freedesktop.org>
+
+	* src/trident.h:
+	Coverity #500: Size the tridentRegsClock array properly.
+
 2006-03-14  Alan Hourihane  <alanh@fairlite.demon.co.uk>
 
 	* src/blade_accel_exa.c: (BladeExaInit):
