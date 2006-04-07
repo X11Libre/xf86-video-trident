@@ -62,7 +62,8 @@ static void TRIDENTQueryBestSize(ScrnInfoPtr, Bool,
 	short, short, short, short, unsigned int *, unsigned int *, pointer);
 static int TRIDENTPutImage( ScrnInfoPtr, 
 	short, short, short, short, short, short, short, short,
-	int, unsigned char*, short, short, Bool, RegionPtr, pointer);
+	int, unsigned char*, short, short, Bool, RegionPtr, pointer,
+	DrawablePtr);
 static int TRIDENTQueryImageAttributes(ScrnInfoPtr, 
 	int, unsigned short *, unsigned short *,  int *, int *);
 static void TRIDENTVideoTimerCallback(ScrnInfoPtr pScrn, Time time);
@@ -786,7 +787,8 @@ TRIDENTPutImage(
   int id, unsigned char* buf, 
   short width, short height, 
   Bool sync,
-  RegionPtr clipBoxes, pointer data
+  RegionPtr clipBoxes, pointer data,
+  DrawablePtr pDraw
 ){
    TRIDENTPortPrivPtr pPriv = (TRIDENTPortPrivPtr)data;
    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
