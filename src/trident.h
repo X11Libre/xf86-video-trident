@@ -27,6 +27,10 @@
 #ifndef _TRIDENT_H_
 #define _TRIDENT_H_
 
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
 #include "exa.h"
 #include "xf86Cursor.h"
 #include "xaa.h"

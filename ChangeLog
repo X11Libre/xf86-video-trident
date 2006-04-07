@@ -1,3 +1,27 @@
+2006-04-07  Adam Jackson  <ajax@freedesktop.org>
+
+	* configure.ac:
+	* src/blade_accel.c:
+	* src/blade_accel_exa.c:
+	* src/image_accel.c:
+	* src/trident.h:
+	* src/trident_accel.c:
+	* src/trident_bank.c:
+	* src/trident_dac.c:
+	* src/trident_dga.c:
+	* src/trident_driver.c:
+	* src/trident_i2c.c:
+	* src/trident_shadow.c:
+	* src/trident_tv.c:
+	* src/trident_video.c:
+	* src/tridenthelper.c:
+	* src/tridentramdac.c:
+	* src/tvga_dac.c:
+	* src/xp4_accel.c:
+	* src/xp4_accel_exa.c:
+	* src/xp_accel.c:
+	Unlibcwrap.  Bump server version requirement.  Bump to 1.2.0.
+
 2006-04-06  Adam Jackson  <ajax@freedesktop.org>
 
 	* src/trident.h:

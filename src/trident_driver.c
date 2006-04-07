@@ -41,7 +41,6 @@
 #include "xf86.h"
 #include "xf86_OSproc.h"
 #include "xf86Resources.h"
-#include "xf86_ansic.h"
 #include "xf86Version.h"
 #include "xf86PciInfo.h"
 #include "xf86Pci.h"
@@ -117,7 +116,7 @@ static int pix24bpp = 0;
 #define TRIDENT_NAME "TRIDENT"
 #define TRIDENT_DRIVER_NAME "trident"
 #define TRIDENT_MAJOR_VERSION 1
-#define TRIDENT_MINOR_VERSION 1
+#define TRIDENT_MINOR_VERSION 2
 #define TRIDENT_PATCHLEVEL 0
 
 /* 
