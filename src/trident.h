@@ -48,7 +48,7 @@ typedef struct {
 	unsigned char tridentRegs3CE[0x100];
 	unsigned char tridentRegs3C4[0x100];
 	unsigned char tridentRegsDAC[0x01];
-        unsigned char tridentRegsClock[0x04];
+        unsigned char tridentRegsClock[0x05];
 	unsigned char DacRegs[0x300];
 } TRIDENTRegRec, *TRIDENTRegPtr;
 
