@@ -1337,6 +1337,8 @@ WaitForVBlank(ScrnInfoPtr pScrn)
      * full vblank has passed. 
      * - Alan.
      */
-    WAITFORVSYNC;
-    WAITFORVSYNC;
+    if (!xf86IsPc98()) {
+       WAITFORVSYNC;
+       WAITFORVSYNC;
+    }
 }

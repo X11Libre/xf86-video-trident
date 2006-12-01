@@ -2646,7 +2646,7 @@ TRIDENTModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     TRIDENTRegPtr tridentReg;
 
-    WAITFORVSYNC;
+    if (!xf86IsPc98()) WAITFORVSYNC;
 
     TridentFindClock(pScrn,mode->Clock);
 
