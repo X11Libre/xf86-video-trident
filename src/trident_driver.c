@@ -2321,7 +2321,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     clockRanges->maxClock = pTrident->MaxClock;
     clockRanges->clockIndex = -1;		/* programmable */
     clockRanges->interlaceAllowed = TRUE;
-    clockRanges->doubleScanAllowed = FALSE;	/* XXX check this */
+    clockRanges->doubleScanAllowed = TRUE;
 
     /*
      * xf86ValidateModes will check that the mode HTotal and VTotal values

@@ -887,6 +887,13 @@ TRIDENTPutImage(
 
     offset += top * dstPitch;
 
+    /* Fix video position when using doublescan */
+    if(pScrn->currentMode->Flags & V_DBLSCAN) {
+	    dstBox.y1 <<= 1;
+	    dstBox.y2 <<= 1;
+	    drw_h <<= 1;
+    }
+    
     tridentFixFrame(pScrn,&pPriv->fixFrame);
     TRIDENTDisplayVideo(pScrn, id, offset, width, height, dstPitch,
 	     x1, y1, x2, y2, &dstBox, src_w, src_h, drw_w, drw_h);
