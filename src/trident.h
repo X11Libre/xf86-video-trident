@@ -245,10 +245,6 @@ void tridentSetModeBIOS(ScrnInfoPtr pScrn, DisplayModePtr mode);
 void TridentOutIndReg(ScrnInfoPtr pScrn,
 		     CARD32 reg, unsigned char mask, unsigned char data);
 unsigned char TridentInIndReg(ScrnInfoPtr pScrn, CARD32 reg);
-void TridentWriteAddress(ScrnInfoPtr pScrn, CARD32 index);
-void TridentReadAddress(ScrnInfoPtr pScrn, CARD32 index);
-void TridentWriteData(ScrnInfoPtr pScrn, unsigned char data);
-unsigned char TridentReadData(ScrnInfoPtr pScrn);
 void TridentLoadPalette(ScrnInfoPtr pScrn, int numColors, int *indicies, LOCO *colors, VisualPtr pVisual);
 void TridentSetOverscan(ScrnInfoPtr pScrn, int overscan);
 int TGUISetRead(ScreenPtr pScreen, int bank);

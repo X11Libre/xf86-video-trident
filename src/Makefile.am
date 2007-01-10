@@ -40,7 +40,6 @@ trident_drv_la_SOURCES = \
          trident.h \
          tridenthelper.c \
          trident_i2c.c \
-         tridentramdac.c \
          trident_regs.h \
          trident_shadow.c \
          trident_tv.c \
