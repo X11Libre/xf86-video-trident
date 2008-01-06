@@ -1315,7 +1315,7 @@ tridentFixFrame(ScrnInfoPtr pScrn, int *fixFrame)
 	    break;
 	case CYBERBLADEXP4:
 	    pTrident->hsync -= 24;
-	    pTrident->hsync_rskew = -=1;
+	    pTrident->hsync_rskew = -1;
 	    break;
 	case CYBER9397:
 	    pTrident->hsync -= 1;
