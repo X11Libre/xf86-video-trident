@@ -261,6 +261,9 @@ void TRIDENTResetVideo(ScrnInfoPtr pScrn)
 	OUTW(0x3C4, 0x007A);
 	OUTW(0x3C4, 0x007D);
     }
+    if (pTrident->Chipset == CYBERBLADEXP4) {
+    	OUTW(0x3CE, 0x0462);
+    }
     switch (pScrn->depth) {
     case 8:
 	VIDEOOUT(pPriv->colorKey, pTrident->keyOffset);
@@ -1310,12 +1313,16 @@ tridentFixFrame(ScrnInfoPtr pScrn, int *fixFrame)
 	case CYBERBLADEE4:
 	    pTrident->hsync -= 8;
 	    break;
+	case CYBERBLADEXP4:
+	    pTrident->hsync -= 24;
+	    pTrident->hsync_rskew = -=1;
+	    break;
 	case CYBER9397:
 	    pTrident->hsync -= 1;
   	    pTrident->vsync -= 0;	     
 	    pTrident->vsync_bskew = 0;
 	    break;
-    case CYBER9397DVD:
+	case CYBER9397DVD:
 	    pTrident->hsync_rskew = -1;
 	    pTrident->vsync_bskew = -1;
 	    break;
