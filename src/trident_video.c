@@ -113,7 +113,7 @@ void TRIDENTInitVideo(ScreenPtr pScreen)
 
     if (pTrident->Chipset == CYBER9397DVD || 
 	pTrident->Chipset == CYBER9525DVD ||
-	pTrident->Chipset >= BLADE3D)
+	(pTrident->Chipset >= BLADE3D && pTrident->Chipset < CYBERBLADEXP4))
 		pTrident->videoFlags |= VID_DOUBLE_LINEBUFFER_FOR_WIDE_SRC;
 
     newAdaptor = TRIDENTSetupImageVideo(pScreen);
