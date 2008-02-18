@@ -937,7 +937,12 @@ TRIDENTProbe(DriverPtr drv, int flags)
      * All of the cards this driver supports are PCI, so the "probing" just
      * amounts to checking the PCI data that the server has already collected.
      */
-    if (xf86GetPciVideoInfo()) {
+#ifndef XSERVER_LIBPCIACCESS
+    if (xf86GetPciVideoInfo()== NULL) {
+	return FALSE;
+    }
+#endif
+    {
     	numUsed = xf86MatchPciInstances(TRIDENT_NAME, PCI_VENDOR_TRIDENT,
 		   TRIDENTChipsets, TRIDENTPciChipsets, devSections,
 		   numDevSections, drv, &usedChips);
@@ -1092,9 +1097,9 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	/* This driver can handle ISA and PCI buses */
 	if (pTrident->pEnt->location.type == BUS_PCI) {
 	    pTrident->PciInfo = xf86GetPciInfoForEntity(pTrident->pEnt->index);
-	    pTrident->PciTag = pciTag(pTrident->PciInfo->bus, 
-				  pTrident->PciInfo->device,
-				  pTrident->PciInfo->func);
+#ifndef XSERVER_LIBPCIACCESS
+	    pTrident->PciTag = PCI_DEV_TAG(pTrident->PciInfo);
+#endif
     	    pTrident->Linear = TRUE;
 	} else {
     	    pTrident->Linear = FALSE;
@@ -1491,7 +1496,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	    from = X_CONFIG;
     	} else {
     	    if (IsPciCard)
-	    	pTrident->FbAddress = pTrident->PciInfo->memBase[0]& 0xFFFFFFF0;
+	    	pTrident->FbAddress = PCI_REGION_BASE(pTrident->PciInfo, 0, REGION_MEM) & 0xFFFFFFF0;
 	    else
 	    	pTrident->FbAddress = 0xA0000;
     	}
@@ -1510,7 +1515,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	    from = X_CONFIG;
     	} else {
     	    if (IsPciCard)
-	    	pTrident->IOAddress = pTrident->PciInfo->memBase[1]& 0xFFFFC000;
+	    	pTrident->IOAddress = PCI_REGION_BASE(pTrident->PciInfo, 1, REGION_MEM) & 0xFFFFC000;
 	    else
 	    	/* FIXME - Multihead UNAWARE */
     	    	pTrident->IOAddress = 0xBF000;
@@ -1996,7 +2001,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	    pTrident->NewClockCode = TRUE;
 	    pTrident->frequency = NTSC;
 	    OUTB(0x3C4, 0x5D);
-	    if (pTrident->PciInfo->subsysVendor != 0x1023) {
+	    if (PCI_SUB_VENDOR_ID(pTrident->PciInfo) != 0x1023) {
 	    	chipset = "CyberBladeXP";
 	    	pTrident->IsCyber = TRUE;
 	    } else
@@ -2542,12 +2547,32 @@ TRIDENTMapMem(ScrnInfoPtr pScrn)
     if (Is3Dchip) mapsize = 0x20000;
 
     if (IsPciCard && UseMMIO)
+#ifndef XSERVER_LIBPCIACCESS
     	pTrident->IOBase = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_MMIO, 
 		pTrident->PciTag, pTrident->IOAddress, mapsize);
+#else
+	{
+		void **result = (void **)&pTrident->IOBase;
+		int err = pci_device_map_range(pTrident->PciInfo,
+						pTrident->IOAddress,
+						mapsize,
+						PCI_DEV_MAP_FLAG_WRITABLE,
+						result);
+		if (err) {
+			xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+				"Unable to map IO aperture. %s (%d)\n",
+				strerror(err), err);
+		}
+	}
+#endif
     else {
+#ifndef XSERVER_LIBPCIACCESS
     	pTrident->IOBase = xf86MapDomainMemory(pScrn->scrnIndex, VIDMEM_MMIO, 
 		pTrident->PciTag, pTrident->IOAddress, 0x1000);
     	pTrident->IOBase += 0xF00;
+#else
+	return FALSE;
+#endif
     }
 
     if (pTrident->IOBase == NULL)
@@ -2555,11 +2580,28 @@ TRIDENTMapMem(ScrnInfoPtr pScrn)
 
     if (pTrident->Linear) {
         if (pTrident->FbMapSize != 0) {
+#ifndef XSERVER_LIBPCIACCESS
 	    pTrident->FbBase = xf86MapPciMem(pScrn->scrnIndex, 
 				VIDMEM_FRAMEBUFFER,
 				 pTrident->PciTag,
 				 (unsigned long)pTrident->FbAddress,
 				 pTrident->FbMapSize);
+#else
+	    {
+		void **result = (void **)&pTrident->FbBase;
+		int err = pci_device_map_range(pTrident->PciInfo,
+						pTrident->FbAddress,
+						pTrident->FbMapSize,
+						PCI_DEV_MAP_FLAG_WRITABLE |
+						PCI_DEV_MAP_FLAG_WRITE_COMBINE,
+						result);
+		if (err) {
+			xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+				"Unable to map VRAM aperture. %s (%d)\n",
+				strerror(err), err);
+		}
+	    }
+#endif
 	    if (pTrident->FbBase == NULL)
 		return FALSE;
     	}
@@ -2585,19 +2627,27 @@ TRIDENTUnmapMem(ScrnInfoPtr pScrn)
     /*
      * Unmap IO registers to virtual address space
      */ 
-    if (IsPciCard && UseMMIO) 
+#ifdef XSERVER_LIBPCIACCESS
+    pci_device_unmap_range(pTrident->PciInfo, (pointer)pTrident->IOBase, mapsize);
+#else
+    if (IsPciCard && UseMMIO) {
     	xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pTrident->IOBase, mapsize);
-    else {
+    } else {
     	pTrident->IOBase -= 0xF00;
     	xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pTrident->IOBase, 0x1000);
     }
+#endif
     pTrident->IOBase = NULL;
 
     if (pTrident->Linear) {
     	if (pTrident->FbMapSize != 0) {
+#ifdef XSERVER_LIBPCIACCESS
+	    pci_device_unmap_range(pTrident->PciInfo, (pointer)pTrident->FbBase, pTrident->FbMapSize);
+#else
     	    xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pTrident->FbBase, 
 							pTrident->FbMapSize);
-    	pTrident->FbBase = NULL;
+#endif
+	    pTrident->FbBase = NULL;
         }
     }
 

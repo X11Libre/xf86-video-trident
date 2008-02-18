@@ -31,6 +31,8 @@
 #include <string.h>
 #include <math.h>
 
+#include "tridentpcirename.h"
+
 #include "exa.h"
 #include "xf86Cursor.h"
 #include "xaa.h"
