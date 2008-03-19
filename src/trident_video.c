@@ -21,7 +21,6 @@
  *
  * Author:  Alan Hourihane, alanh@fairlite.demon.co.uk
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_video.c,v 1.45 2003/11/10 18:22:34 tsi Exp $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"

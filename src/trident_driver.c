@@ -28,7 +28,6 @@
  *	    Massimiliano Ghilardi, max@Linuz.sns.it, some fixes to the
  *				   clockchip programming code.
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/trident/trident_driver.c,v 1.190 2004/01/21 22:31:54 alanh Exp $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
