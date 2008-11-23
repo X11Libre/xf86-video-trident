@@ -173,6 +173,7 @@ static SymTabRec TRIDENTChipsets[] = {
     { -1,				NULL }
 };
 
+#ifdef HAVE_ISA
 static IsaChipsets TRIDENTISAchipsets[] = {
     { TVGA9000,			RES_EXCLUSIVE_VGA },
     { TVGA9000i,		RES_EXCLUSIVE_VGA },
@@ -184,6 +185,7 @@ static IsaChipsets TRIDENTISAchipsets[] = {
     { TGUI9440AGi,		RES_EXCLUSIVE_VGA },
     { -1,			RES_UNDEFINED }
 };
+#endif
 
 static PciChipsets TRIDENTPciChipsets[] = {
     { CYBER9320,	PCI_CHIP_9320,	RES_SHARED_VGA },
@@ -808,6 +810,7 @@ TRIDENTClockSelect(ScrnInfoPtr pScrn, int no)
     return(TRUE);
 }
 
+#ifdef HAVE_ISA
 static int
 TridentFindIsaDevice(GDevPtr dev)
 {
@@ -898,6 +901,7 @@ TridentFindIsaDevice(GDevPtr dev)
     }
     return found;
 }
+#endif
 
 
 /* Mandatory */
@@ -974,6 +978,7 @@ TRIDENTProbe(DriverPtr drv, int flags)
 	}
     }
 
+#ifdef HAVE_ISA
     /* Isa Bus */
     numUsed = xf86MatchIsaInstances(TRIDENT_NAME,TRIDENTChipsets,
 				     TRIDENTISAchipsets,
@@ -1004,7 +1009,8 @@ TRIDENTProbe(DriverPtr drv, int flags)
 	}
 	xfree(usedChips);
     }
-    
+#endif    
+
     xfree(devSections);
     return foundScreen;
 }
