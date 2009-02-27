@@ -251,6 +251,14 @@ static void WaitMarker(ScreenPtr pScreen, int marker)
     }
 }
 
+static Bool PrepareAccess(PixmapPtr pPix, int index)
+{
+}
+
+static void FinishAccess(PixmapPtr pPix, int index)
+{
+}
+
 static void BladeInitializeAccelerator(ScrnInfoPtr pScrn)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
