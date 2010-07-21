@@ -22,9 +22,9 @@
 
 AC_PREREQ([2.60])
 AC_INIT([xf86-video-trident],
-        1.3.4,
+        [1.3.4],
         [https://bugs.freedesktop.org/enter_bug.cgi?product=xorg],
-        xf86-video-trident)
+        [xf86-video-trident])
 
 AC_CONFIG_SRCDIR([Makefile.am])
 AM_CONFIG_HEADER([config.h])
