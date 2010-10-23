@@ -560,7 +560,7 @@ TRIDENTFreeRec(ScrnInfoPtr pScrn)
 {
     if (pScrn->driverPrivate == NULL)
 	return;
-    xfree(pScrn->driverPrivate);
+    free(pScrn->driverPrivate);
     pScrn->driverPrivate = NULL;
 }
 
@@ -900,7 +900,7 @@ TRIDENTProbe(DriverPtr drv, int flags)
 		    foundScreen = TRUE;
 		}
 	    }
-	    xfree(usedChips);
+	    free(usedChips);
 	}
     }
 
@@ -933,11 +933,11 @@ TRIDENTProbe(DriverPtr drv, int flags)
 		foundScreen = TRUE;
 	    }
 	}
-	xfree(usedChips);
+	free(usedChips);
     }
 #endif    
 
-    xfree(devSections);
+    free(devSections);
     return foundScreen;
 }
 	
@@ -1163,7 +1163,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     xf86CollectOptions(pScrn, NULL);
 
     /* Process the options */
-    if (!(pTrident->Options = xalloc(sizeof(TRIDENTOptions))))
+    if (!(pTrident->Options = malloc(sizeof(TRIDENTOptions))))
 	return FALSE;
     memcpy(pTrident->Options, TRIDENTOptions, sizeof(TRIDENTOptions));
     xf86ProcessOptions(pScrn->scrnIndex, pScrn->options, pTrident->Options);
@@ -2868,7 +2868,7 @@ TRIDENTScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
 
     if(pTrident->ShadowFB) {
  	pTrident->ShadowPitch = BitmapBytePad(pScrn->bitsPerPixel * width);
-        pTrident->ShadowPtr = xalloc(pTrident->ShadowPitch * height);
+        pTrident->ShadowPtr = malloc(pTrident->ShadowPitch * height);
 	displayWidth = pTrident->ShadowPitch / (pScrn->bitsPerPixel >> 3);
         FBStart = pTrident->ShadowPtr;
     } else {
@@ -2958,7 +2958,7 @@ TRIDENTScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv)
 		(miBankProcPtr)TVGA8900SetReadWrite;
 	if (!miInitializeBanking(pScreen, pScrn->virtualX, pScrn->virtualY,
 				 pScrn->displayWidth, pBankInfo)) {
-	    xfree(pBankInfo);
+	    free(pBankInfo);
 	    pBankInfo = NULL;
 	    if (pTrident->pVbe)
 	    	vbeFree(pTrident->pVbe);
@@ -3238,15 +3238,15 @@ TRIDENTCloseScreen(int scrnIndex, ScreenPtr pScreen)
 	XAADestroyInfoRec(pTrident->AccelInfoRec);
     if (pTrident->EXADriverPtr) {
 	exaDriverFini(pScreen);
-	xfree(pTrident->EXADriverPtr);
+	free(pTrident->EXADriverPtr);
 	pTrident->EXADriverPtr = NULL;
     }	
     if (pTrident->CursorInfoRec)
 	xf86DestroyCursorInfoRec(pTrident->CursorInfoRec);
     if (pTrident->ShadowPtr)
-	xfree(pTrident->ShadowPtr);
+	free(pTrident->ShadowPtr);
     if (pTrident->DGAModes)
-	xfree(pTrident->DGAModes);
+	free(pTrident->DGAModes);
     pScrn->vtSema = FALSE;
 
     if(pTrident->BlockHandler)
