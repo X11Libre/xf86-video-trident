@@ -85,7 +85,7 @@ typedef struct {
     unsigned char *     IOBase;
     unsigned char *	FbBase;
     long		FbMapSize;
-    IOADDRESS		PIOBase;
+    unsigned long		PIOBase;
     Bool		NoAccel;
     Bool		HWCursor;
     Bool		UsePCIRetry;

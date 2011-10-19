@@ -3317,7 +3317,7 @@ static void
 TRIDENTEnableMMIO(ScrnInfoPtr pScrn)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    IOADDRESS vgaIOBase = pTrident->PIOBase + VGAHWPTR(pScrn)->IOBase;
+    unsigned long vgaIOBase = pTrident->PIOBase + VGAHWPTR(pScrn)->IOBase;
     CARD8 temp = 0, protect = 0;
 
     /*
