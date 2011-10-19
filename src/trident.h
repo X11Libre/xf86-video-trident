@@ -70,7 +70,7 @@ typedef struct {
 typedef struct {
     ScrnInfoPtr		pScrn;
     pciVideoPtr		PciInfo;
-    PCITAG		PciTag;
+    uint32_t		PciTag;
     EntityInfoPtr	pEnt;
     ExaDriverPtr	EXADriverPtr;
     int			useEXA;
