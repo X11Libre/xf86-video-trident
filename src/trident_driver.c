@@ -1109,7 +1109,12 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     hwp = VGAHWPTR(pScrn);
     vgaHWGetIOBase(hwp);
     vgaIOBase = hwp->IOBase;
+
+#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
     pTrident->PIOBase = hwp->PIOOffset;
+#else
+    pTrident->PIOBase = 0;
+#endif
 
 #ifndef XSERVER_LIBPCIACCESS
     xf86SetOperatingState(resVga, pTrident->pEnt->index, ResUnusedOpr);
