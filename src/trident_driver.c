@@ -1107,6 +1107,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	return FALSE;
 
     hwp = VGAHWPTR(pScrn);
+    vgaHWSetStdFuncs(hwp);
     vgaHWGetIOBase(hwp);
     vgaIOBase = hwp->IOBase;
 
