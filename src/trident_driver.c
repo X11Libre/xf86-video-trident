@@ -2370,24 +2370,14 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	return FALSE;
     }
 
-    /* Load shadow if needed */
-    if (pTrident->ShadowFB) {
-	if (!xf86LoadSubModule(pScrn, "shadow")) {
-	    TRIDENTFreeRec(pScrn);
-	    return FALSE;
-	}
-    }
-
     /* Load XAA if needed */
     if (!pTrident->NoAccel) {
 	if (!pTrident->useEXA) {
 	    if (!xf86LoadSubModule(pScrn, "xaa")) {
-		if (IsPciCard && UseMMIO) {
-		    TRIDENTDisableMMIO(pScrn);
-		    TRIDENTUnmapMem(pScrn);
-		}
-		TRIDENTFreeRec(pScrn);
-		return FALSE;
+		xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+			   "Falling back to shadowfb\n");
+		pTrident->NoAccel = 1;
+		pTrident->ShadowFB = 1;
 	    }
 	}
 
@@ -2425,6 +2415,14 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 	    case 4096:
 		pTrident->EngineOperation |= 0x0C;
 		break;
+	}
+    }
+
+    /* Load shadow if needed */
+    if (pTrident->ShadowFB) {
+	if (!xf86LoadSubModule(pScrn, "shadow")) {
+	    TRIDENTFreeRec(pScrn);
+	    return FALSE;
 	}
     }
 
