@@ -99,7 +99,7 @@ XP4WaitMarker(ScreenPtr pScreen, int Marker)
 
 static void
 XP4Done(PixmapPtr p) {
-    ScrnInfoPtr pScrn = xf86Screens[p->drawable.pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(p->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int count = 0, timeout = 0;
     int busy;
@@ -126,7 +126,7 @@ XP4Done(PixmapPtr p) {
 static Bool
 XP4PrepareSolid(PixmapPtr pPixmap, int alu, Pixel planemask, Pixel fg)
 {
-    ScrnInfoPtr pScrn = xf86Screens[pPixmap->drawable.pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     unsigned int dorg = exaGetPixmapOffset(pPixmap);
     unsigned int dptch = exaGetPixmapPitch(pPixmap);
@@ -148,7 +148,7 @@ XP4PrepareSolid(PixmapPtr pPixmap, int alu, Pixel planemask, Pixel fg)
 static void
 XP4Solid(PixmapPtr pPixmap, int x1, int y1, int x2, int y2)
 {
-    ScrnInfoPtr pScrn = xf86Screens[pPixmap->drawable.pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int bpp;
     
@@ -173,7 +173,7 @@ static Bool
 XP4PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap, int dx, int dy,
                 int alu, Pixel planemask)
 {
-    ScrnInfoPtr pScrn = xf86Screens[pDstPixmap->drawable.pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pDstPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     unsigned int sorg = exaGetPixmapOffset(pSrcPixmap);
     unsigned int dorg = exaGetPixmapOffset(pDstPixmap);
@@ -198,7 +198,7 @@ XP4PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap, int dx, int dy,
 static void
 XP4Copy(PixmapPtr pDstPixmap, int x1, int y1, int x2, int y2, int w, int h)
 {
-    ScrnInfoPtr pScrn = xf86Screens[pDstPixmap->drawable.pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pDstPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int bpp;
     
@@ -233,7 +233,7 @@ Bool
 XP4ExaInit(ScreenPtr pScreen)
 {
     ExaDriverPtr pExa;
-    ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     if (pTrident->NoAccel)

@@ -116,7 +116,7 @@ Bool
 TridentAccelInit(ScreenPtr pScreen)
 {
     XAAInfoRecPtr infoPtr;
-    ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     if (pTrident->NoAccel)

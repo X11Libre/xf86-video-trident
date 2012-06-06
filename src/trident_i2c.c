@@ -57,7 +57,7 @@ TRIDENTI2CGetBits(I2CBusPtr b, int *clock, int *data) {
 Bool 
 TRIDENTI2CInit(ScreenPtr pScreen)
 {
-    ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     I2CBusPtr I2CPtr;
 

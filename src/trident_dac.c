@@ -1117,7 +1117,7 @@ TridentLoadCursorImage(
 static Bool 
 TridentUseHWCursor(ScreenPtr pScreen, CursorPtr pCurs)
 {
-    ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     
     if (pTrident->MUX && pScrn->bitsPerPixel == 8) return FALSE;
@@ -1134,7 +1134,7 @@ TridentUseHWCursor(ScreenPtr pScreen, CursorPtr pCurs)
 Bool 
 TridentHWCursorInit(ScreenPtr pScreen)
 {
-    ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     xf86CursorInfoPtr infoPtr;
     FBAreaPtr          fbarea;

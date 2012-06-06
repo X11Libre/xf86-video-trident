@@ -41,7 +41,7 @@ int TVGA8900SetRead(ScreenPtr pScreen, int bank)
 {
   ScrnInfoPtr pScrn;
   TRIDENTPtr pTrident;
-  pScrn = xf86Screens[pScreen->myNum];
+  pScrn = xf86ScreenToScrn(pScreen);
   pTrident = TRIDENTPTR(pScrn);
   OUTW(0x3c4, 0xC000 | (((bank & 0x3f) ^ 0x02)<<8)|0x0E);
   return 0;
@@ -50,7 +50,7 @@ int TGUISetRead(ScreenPtr pScreen, int bank)
 {
   ScrnInfoPtr pScrn;
   TRIDENTPtr pTrident;
-  pScrn = xf86Screens[pScreen->myNum];
+  pScrn = xf86ScreenToScrn(pScreen);
   pTrident = TRIDENTPTR(pScrn);
   OUTB(0x3d9, bank & 0xff);
   return 0;
@@ -59,7 +59,7 @@ int TVGA8900SetWrite(ScreenPtr pScreen, int bank)
 {
   ScrnInfoPtr pScrn;
   TRIDENTPtr pTrident;
-  pScrn = xf86Screens[pScreen->myNum];
+  pScrn = xf86ScreenToScrn(pScreen);
   pTrident = TRIDENTPTR(pScrn);
   OUTW(0x3c4, 0xC000 | (((bank & 0x3f) ^ 0x02)<<8)|0x0E);
   return 0;
@@ -68,7 +68,7 @@ int TGUISetWrite(ScreenPtr pScreen, int bank)
 {
   ScrnInfoPtr pScrn;
   TRIDENTPtr pTrident;
-  pScrn = xf86Screens[pScreen->myNum];
+  pScrn = xf86ScreenToScrn(pScreen);
   pTrident = TRIDENTPTR(pScrn);
   OUTB(0x3d8, bank & 0xff);
   return 0;
@@ -77,7 +77,7 @@ int TVGA8900SetReadWrite(ScreenPtr pScreen, int bank)
 {
   ScrnInfoPtr pScrn;
   TRIDENTPtr pTrident;
-  pScrn = xf86Screens[pScreen->myNum];
+  pScrn = xf86ScreenToScrn(pScreen);
   pTrident = TRIDENTPTR(pScrn);
   OUTW(0x3c4, 0xC000 | (((bank & 0x3f) ^ 0x02)<<8)|0x0E);
   return 0;
@@ -86,7 +86,7 @@ int TGUISetReadWrite(ScreenPtr pScreen, int bank)
 {
   ScrnInfoPtr pScrn;
   TRIDENTPtr pTrident;
-  pScrn = xf86Screens[pScreen->myNum];
+  pScrn = xf86ScreenToScrn(pScreen);
   pTrident = TRIDENTPTR(pScrn);
   OUTB(0x3d8, bank & 0xff);
   OUTB(0x3d9, bank & 0xff);

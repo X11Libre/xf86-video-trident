@@ -69,7 +69,7 @@ DGAFunctionRec TRIDENTDGAFuncs = {
 Bool
 TRIDENTDGAInit(ScreenPtr pScreen)
 {   
-   ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+   ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
    DGAModePtr modes = NULL, newmodes = NULL, currentMode;
    DisplayModePtr pMode, firstMode;
@@ -176,7 +176,7 @@ TRIDENT_SetMode(
 	
 	pScrn->displayWidth = OldDisplayWidth[index];
 	
-        TRIDENTSwitchMode(index, pScrn->currentMode, 0);
+        TRIDENTSwitchMode(SWITCH_MODE_ARGS(pScrn, pScrn->currentMode));
 	pTrident->DGAactive = FALSE;
    } else {
 	if(!pTrident->DGAactive) {  /* save the old parameters */
@@ -188,7 +188,7 @@ TRIDENT_SetMode(
 	pScrn->displayWidth = pMode->bytesPerScanline / 
 			      (pMode->bitsPerPixel >> 3);
 
-        TRIDENTSwitchMode(index, pMode->mode, 0);
+        TRIDENTSwitchMode(SWITCH_MODE_ARGS(pScrn, pMode->mode));
    }
    
    return TRUE;
@@ -213,7 +213,7 @@ TRIDENT_SetViewport(
 ){
    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-   TRIDENTAdjustFrame(pScrn->pScreen->myNum, x, y, flags);
+   TRIDENTAdjustFrame(ADJUST_FRAME_ARGS(pScrn, x, y));
    pTrident->DGAViewportStatus = 0;  /* TRIDENTAdjustFrame loops until finished */
 }
 
