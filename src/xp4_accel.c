@@ -37,6 +37,7 @@
 #include "trident.h"
 #include "trident_regs.h"
 
+#ifdef HAVE_XAA_H
 #include "xaarop.h"
 
 static void XP4Sync(ScrnInfoPtr pScrn);
@@ -121,10 +122,12 @@ XP4InitializeAccelerator(ScrnInfoPtr pScrn)
     MMIO_OUT32(pTrident->IOBase, 0x2154, (pScrn->displayWidth) << shift);
     MMIO_OUT32(pTrident->IOBase, 0x2150, (pScrn->displayWidth) << shift);
 }
+#endif
 
 Bool
 XP4XaaInit(ScreenPtr pScreen)
 {
+#ifdef HAVE_XAA_H
     XAAInfoRecPtr infoPtr;
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
@@ -198,8 +201,12 @@ XP4XaaInit(ScreenPtr pScreen)
 #endif
 
     return(XAAInit(pScreen, infoPtr));
+#else
+    return FALSE;
+#endif
 }
 
+#ifdef HAVE_XAA_H
 static void
 XP4Sync(ScrnInfoPtr pScrn)
 {
@@ -553,4 +560,5 @@ XP4SubsequentCPUToScreenColorExpandFill(
     XP4Sync(pScrn);
     MMIO_OUT32(pTrident->IOBase, 0x2124, ropcode << 24 | bpp << 8 | 2);
 }
+#endif
 #endif

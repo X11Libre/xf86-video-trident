@@ -34,7 +34,10 @@
 
 #include "exa.h"
 #include "xf86Cursor.h"
+#ifdef HAVE_XAA_H
 #include "xaa.h"
+#endif
+#include "xf86fbman.h"
 #include "xf86RamDac.h"
 #include "compiler.h"
 #include "vgaHW.h"
@@ -151,7 +154,9 @@ typedef struct {
 #ifdef VBE_INFO
     vbeModeInfoPtr	vbeModes;
 #endif
+#ifdef HAVE_XAA_H
     XAAInfoRecPtr	AccelInfoRec;
+#endif
     CloseScreenProcPtr	CloseScreen;
     ScreenBlockHandlerProcPtr BlockHandler;
     int                 panelWidth;

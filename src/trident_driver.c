@@ -3203,9 +3203,12 @@ TRIDENTLeaveVT(VT_FUNC_ARGS_DECL)
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     vgaHWPtr hwp = VGAHWPTR(pScrn);
 
+#ifdef HAVE_XAA_H
     if (!pTrident->NoAccel && !pTrident->useEXA)
 	pTrident->AccelInfoRec->Sync(pScrn);
-    else if (!pTrident->NoAccel && pTrident->useEXA)
+    else 
+#endif
+    if (!pTrident->NoAccel && pTrident->useEXA)
 	pTrident->EXADriverPtr->WaitMarker(pScrn->pScreen, 0);
 
     TRIDENTRestore(pScrn);
@@ -3234,9 +3237,12 @@ TRIDENTCloseScreen(CLOSE_SCREEN_ARGS_DECL)
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     if (pScrn->vtSema) {
+#ifdef HAVE_XAA_H
     if (!pTrident->NoAccel && !pTrident->useEXA)
 	pTrident->AccelInfoRec->Sync(pScrn);
-    else if (!pTrident->NoAccel && pTrident->useEXA)
+    else
+#endif
+    if (!pTrident->NoAccel && pTrident->useEXA)
 	pTrident->EXADriverPtr->WaitMarker(pScreen, 0);
 
 #if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
@@ -3250,8 +3256,10 @@ TRIDENTCloseScreen(CLOSE_SCREEN_ARGS_DECL)
     	TRIDENTUnmapMem(pScrn);
     }
 
+#ifdef HAVE_XAA_H
     if (pTrident->AccelInfoRec)
 	XAADestroyInfoRec(pTrident->AccelInfoRec);
+#endif
     if (pTrident->EXADriverPtr) {
 	exaDriverFini(pScreen);
 	free(pTrident->EXADriverPtr);
