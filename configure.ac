@@ -23,7 +23,7 @@
 # Initialize Autoconf
 AC_PREREQ([2.60])
 AC_INIT([xf86-video-trident],
-        [1.3.5],
+        [1.3.6],
         [https://bugs.freedesktop.org/enter_bug.cgi?product=xorg],
         [xf86-video-trident])
 AC_CONFIG_SRCDIR([Makefile.am])
