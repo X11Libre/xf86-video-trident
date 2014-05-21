@@ -981,6 +981,18 @@ TRIDENTProbeDDC(ScrnInfoPtr pScrn, int index)
     }
 }
 
+static void
+TRIDENTProtect(ScrnInfoPtr pScrn, Bool on)
+{
+    vgaHWProtect(pScrn, on);
+}
+
+static void
+TRIDENTBlankScreen(ScrnInfoPtr pScrn, Bool on)
+{
+    vgaHWBlankScreen(pScrn, on);
+}
+
 /* Mandatory */
 static Bool
 TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
@@ -1987,8 +1999,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     if (!pScrn->progClock) {
 	pScrn->numClocks = NoClocks;
 	xf86GetClocks(pScrn, NoClocks, TRIDENTClockSelect,
-			  vgaHWProtectWeak(),
-			  vgaHWBlankScreenWeak(),
+			  TRIDENTProtect, TRIDENTBlankScreen,
 			  vgaIOBase + 0x0A, 0x08, 1, 28322);
 	from = X_PROBED;
 	xf86ShowClocks(pScrn, from);
