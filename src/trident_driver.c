@@ -45,7 +45,6 @@
 #include "xf86Resources.h"
 #include "xf86RAC.h"
 #endif
-#include "xf86PciInfo.h"
 #include "xf86Pci.h"
 #include "xf86cmap.h"
 #include "vgaHW.h"

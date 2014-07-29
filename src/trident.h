@@ -57,7 +57,30 @@
 #define LINEAR() (1)
 #endif
 
-#define PCI_CHIP_2200		0x2200
+#define PCI_VENDOR_TRIDENT		0x1023
+#define PCI_CHIP_2100			0x2100
+#define PCI_CHIP_2200			0x2200
+#define PCI_CHIP_8400			0x8400
+#define PCI_CHIP_8420			0x8420
+#define PCI_CHIP_8500			0x8500
+#define PCI_CHIP_8520			0x8520
+#define PCI_CHIP_8600			0x8600
+#define PCI_CHIP_8620			0x8620
+#define PCI_CHIP_8820			0x8820
+#define PCI_CHIP_9320			0x9320
+#define PCI_CHIP_9388			0x9388
+#define PCI_CHIP_9397			0x9397
+#define PCI_CHIP_939A			0x939A
+#define PCI_CHIP_9420			0x9420
+#define PCI_CHIP_9440			0x9440
+#define PCI_CHIP_9520			0x9520
+#define PCI_CHIP_9525			0x9525
+#define PCI_CHIP_9540			0x9540
+#define PCI_CHIP_9660			0x9660
+#define PCI_CHIP_9750			0x9750
+#define PCI_CHIP_9850			0x9850
+#define PCI_CHIP_9880			0x9880
+#define PCI_CHIP_9910			0x9910
 
 typedef struct {
 	unsigned char tridentRegs3x4[0x100];
