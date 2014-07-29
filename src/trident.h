@@ -159,6 +159,7 @@ typedef struct {
 #endif
     CloseScreenProcPtr	CloseScreen;
     ScreenBlockHandlerProcPtr BlockHandler;
+    CreateScreenResourcesProcPtr CreateScreenResources;
     int                 panelWidth;
     int                 panelHeight;
     unsigned int	(*ddc1Read)(ScrnInfoPtr);
