@@ -201,30 +201,6 @@ static void DoneCopy(PixmapPtr pDstPixmap)
 {
 }
 
-/* Composite comes later (if at all) */
-static Bool CheckComposite(int op, PicturePtr pSrcPicture,
-			   PicturePtr pMaskPicture, PicturePtr pDstPicture)
-{
-    return 0;
-}
-
-static Bool PrepareComposite(int op, PicturePtr pSrcPicture,
-			     PicturePtr pMaskPicture, PicturePtr pDstPicture,
-			     PixmapPtr pSrc, PixmapPtr pMask, PixmapPtr pDst)
-{
-    return 0;
-}
-
-static void Composite(PixmapPtr pDst, int srcX, int srcY, int maskX,
-		      int maskY, int dstX, int dstY, int width,
-		      int height)
-{
-}
-
-static void DoneComposite(PixmapPtr pDst)
-{
-}
-
 static int MarkSync(ScreenPtr pScreen)
 {
     return 0;
@@ -318,8 +294,6 @@ Bool BladeExaInit(ScreenPtr pScreen)
     ExaDriver->PrepareCopy = PrepareCopy;
     ExaDriver->Copy = Copy;
     ExaDriver->DoneCopy = DoneCopy;
-
-    /* Composite not done yet */
 
     return exaDriverInit(pScreen, ExaDriver);
 }
