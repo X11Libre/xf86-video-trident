@@ -107,6 +107,14 @@ TridentFindMode(int xres, int yres, int depth)
     biosMode *mode;
 
     switch (depth) {
+    case 1:
+	size = sizeof(bios1) / sizeof(biosMode);
+	mode = bios1;
+	break;
+    case 4:
+	size = sizeof(bios4) / sizeof(biosMode);
+	mode = bios4;
+	break;
     case 8:
 	size = sizeof(bios8) / sizeof(biosMode);
 	mode = bios8;
