@@ -592,67 +592,6 @@ TRIDENTDisableMMIO(ScrnInfoPtr pScrn)
 }
 
 #if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-/* Initialize VGA Block for Trident Chip on PC-98x1 */
-static void
-PC98TRIDENTInit(ScrnInfoPtr pScrn)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    switch (pTrident->Chipset) {
-    case TGUI9660:
-    case TGUI9680:
-    case PROVIDIA9682:
-        PC98TRIDENT96xxInit(pScrn);
-        break;
-    case CYBER9320:
-    case CYBER9385:
-        PC98TRIDENT9385Init(pScrn);
-        break;
-    default: /* Run 96xx code as default */
-        PC98TRIDENT96xxInit(pScrn);
-        break;
-    }
-}
-
-static void
-PC98TRIDENTEnable(ScrnInfoPtr pScrn)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    switch (pTrident->Chipset) {
-    case TGUI9660:
-    case TGUI9680:
-    case PROVIDIA9682:
-        PC98TRIDENT96xxEnable(pScrn);
-        break;
-    case CYBER9320:
-    case CYBER9385:
-        PC98TRIDENT9385Enable(pScrn);
-        break;
-    default: /* Run 96xx code as default */
-        PC98TRIDENT96xxEnable(pScrn);
-        break;
-    }
-}
-
-static void
-PC98TRIDENTDisable(ScrnInfoPtr pScrn)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    switch (pTrident->Chipset) {
-    case TGUI9660:
-    case TGUI9680:
-    case PROVIDIA9682:
-        PC98TRIDENT96xxDisable(pScrn);
-        break;
-    case CYBER9320:
-    case CYBER9385:
-        PC98TRIDENT9385Disable(pScrn);
-        break;
-    default: /* Run 96xx code as default */
-        PC98TRIDENT96xxDisable(pScrn);
-        break;
-    }
-}
-
 /* Initialize VGA Block for Cyber9385 on PC-98x1 */
 static void
 PC98TRIDENT9385Init(ScrnInfoPtr pScrn)
@@ -833,6 +772,67 @@ PC98TRIDENT96xxDisable(ScrnInfoPtr pScrn)
     outb(0x6A, 0x8E);
     outb(0x6A, 0x06);
     outb(0x68, 0x0F);
+}
+
+/* Initialize VGA Block for Trident Chip on PC-98x1 */
+static void
+PC98TRIDENTInit(ScrnInfoPtr pScrn)
+{
+    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
+    switch (pTrident->Chipset) {
+    case TGUI9660:
+    case TGUI9680:
+    case PROVIDIA9682:
+        PC98TRIDENT96xxInit(pScrn);
+        break;
+    case CYBER9320:
+    case CYBER9385:
+        PC98TRIDENT9385Init(pScrn);
+        break;
+    default: /* Run 96xx code as default */
+        PC98TRIDENT96xxInit(pScrn);
+        break;
+    }
+}
+
+static void
+PC98TRIDENTEnable(ScrnInfoPtr pScrn)
+{
+    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
+    switch (pTrident->Chipset) {
+    case TGUI9660:
+    case TGUI9680:
+    case PROVIDIA9682:
+        PC98TRIDENT96xxEnable(pScrn);
+        break;
+    case CYBER9320:
+    case CYBER9385:
+        PC98TRIDENT9385Enable(pScrn);
+        break;
+    default: /* Run 96xx code as default */
+        PC98TRIDENT96xxEnable(pScrn);
+        break;
+    }
+}
+
+static void
+PC98TRIDENTDisable(ScrnInfoPtr pScrn)
+{
+    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
+    switch (pTrident->Chipset) {
+    case TGUI9660:
+    case TGUI9680:
+    case PROVIDIA9682:
+        PC98TRIDENT96xxDisable(pScrn);
+        break;
+    case CYBER9320:
+    case CYBER9385:
+        PC98TRIDENT9385Disable(pScrn);
+        break;
+    default: /* Run 96xx code as default */
+        PC98TRIDENT96xxDisable(pScrn);
+        break;
+    }
 }
 #endif
 
