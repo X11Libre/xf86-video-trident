@@ -47,71 +47,67 @@
 #include "xaarop.h"
 
 #undef REPLICATE
-#define REPLICATE(r, bpp)					\
-{								\
-	if (bpp == 16) {					\
-		r = ((r & 0xFFFF) << 16) | (r & 0xFFFF);	\
-	} else							\
-	if (bpp == 8) { 					\
-		r &= 0xFF;					\
-		r |= (r<<8);					\
-		r |= (r<<16);					\
-	}							\
+#define REPLICATE(r, bpp)                           \
+{                                                   \
+    if (bpp == 16) {                                \
+        r = ((r & 0xFFFF) << 16) | (r & 0xFFFF);    \
+    } else                                          \
+        if (bpp == 8) {                             \
+            r &= 0xFF;                              \
+            r |= (r<<8);                            \
+            r |= (r<<16);                           \
+    }                                               \
 }
 
-static int rop_table[16] =
-{
-   ROP_0,               /* GXclear */
-   ROP_DSa,             /* GXand */
-   ROP_SDna,            /* GXandReverse */
-   ROP_S,               /* GXcopy */
-   ROP_DSna,            /* GXandInverted */
-   ROP_D,               /* GXnoop */
-   ROP_DSx,             /* GXxor */
-   ROP_DSo,             /* GXor */
-   ROP_DSon,            /* GXnor */
-   ROP_DSxn,            /* GXequiv */
-   ROP_Dn,              /* GXinvert*/
-   ROP_SDno,            /* GXorReverse */
-   ROP_Sn,              /* GXcopyInverted */
-   ROP_DSno,            /* GXorInverted */
-   ROP_DSan,            /* GXnand */
-   ROP_1                /* GXset */
+static int rop_table[16] = {
+    ROP_0,              /* GXclear */
+    ROP_DSa,            /* GXand */
+    ROP_SDna,           /* GXandReverse */
+    ROP_S,              /* GXcopy */
+    ROP_DSna,           /* GXandInverted */
+    ROP_D,              /* GXnoop */
+    ROP_DSx,            /* GXxor */
+    ROP_DSo,            /* GXor */
+    ROP_DSon,           /* GXnor */
+    ROP_DSxn,           /* GXequiv */
+    ROP_Dn,             /* GXinvert*/
+    ROP_SDno,           /* GXorReverse */
+    ROP_Sn,             /* GXcopyInverted */
+    ROP_DSno,           /* GXorInverted */
+    ROP_DSan,           /* GXnand */
+    ROP_1               /* GXset */
 };
 
-static int GetCopyROP(int rop)
-{
+static int GetCopyROP(int rop) {
     return rop_table[rop];
 }
 
-static unsigned long GetDepth(int depth)
-{
+static unsigned long GetDepth(int depth) {
     unsigned long ret;
 
     switch (depth) {
     case 8:
-	ret = 0;
-	break;
+        ret = 0;
+        break;
     case 15:
-	ret = 5UL << 29; /* 555 */
+        ret = 5UL << 29; /* 555 */
     case 16:
-	ret = 1UL << 29; /* 565 */
-	break;
+        ret = 1UL << 29; /* 565 */
+        break;
     case 32:
-	ret = 2UL << 29;
-	break;
+        ret = 2UL << 29;
+        break;
     default:
-	ret = 0;
-	break;
+        ret = 0;
+        break;
     }
     return ret;
 }
 
 static Bool PrepareSolid(PixmapPtr pPixmap, int rop, Pixel planemask,
-			 Pixel color)
-{
-    TRIDENTPtr pTrident =
-	TRIDENTPTR(xf86ScreenToScrn(pPixmap->drawable.pScreen));
+        Pixel color) {
+    TRIDENTPtr pTrident = TRIDENTPTR(
+            xf86ScreenToScrn(pPixmap->drawable.pScreen));
 
     REPLICATE(color, pPixmap->drawable.bitsPerPixel);
     BLADE_OUT(GER_FGCOLOR, color);
@@ -121,32 +117,30 @@ static Bool PrepareSolid(PixmapPtr pPixmap, int rop, Pixel planemask,
     return TRUE;
 }
 
-static void Solid(PixmapPtr pPixmap, int x, int y, int x2, int y2)
-{
-    TRIDENTPtr pTrident =
-	TRIDENTPTR(xf86ScreenToScrn(pPixmap->drawable.pScreen));
+static void Solid(PixmapPtr pPixmap, int x, int y, int x2, int y2) {
+    TRIDENTPtr pTrident = TRIDENTPTR(
+            xf86ScreenToScrn(pPixmap->drawable.pScreen));
     int dst_stride = (pPixmap->drawable.width + 7) / 8;
     int dst_off = exaGetPixmapOffset(pPixmap) / 8;
 
-    BLADE_OUT(GER_DSTBASE0, GetDepth(pPixmap->drawable.bitsPerPixel) |
-	      dst_stride << 20 | dst_off);
+    BLADE_OUT(GER_DSTBASE0,
+            GetDepth(pPixmap->drawable.bitsPerPixel) | dst_stride << 20
+                    | dst_off);
 
-    BLADE_OUT(GER_DRAW_CMD, GER_OP_LINE | pTrident->BltScanDirection |
-	      GER_DRAW_SRC_COLOR | GER_ROP_ENABLE | GER_SRC_CONST);
+    BLADE_OUT(GER_DRAW_CMD,
+            GER_OP_LINE | pTrident->BltScanDirection | GER_DRAW_SRC_COLOR | GER_ROP_ENABLE | GER_SRC_CONST);
 
     BLADE_OUT(GER_DST1, y << 16 | x);
     BLADE_OUT(GER_DST2, ((y2 - 1) & 0xfff) << 16 | ((x2 - 1) & 0xfff));
 }
 
-static void DoneSolid(PixmapPtr pPixmap)
-{
+static void DoneSolid(PixmapPtr pPixmap) {
 }
 
 static Bool PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap,
-			int xdir, int ydir, int alu, Pixel planemask)
-{
-    TRIDENTPtr pTrident =
-	TRIDENTPTR(xf86ScreenToScrn(pSrcPixmap->drawable.pScreen));
+        int xdir, int ydir, int alu, Pixel planemask) {
+    TRIDENTPtr pTrident = TRIDENTPTR(
+            xf86ScreenToScrn(pSrcPixmap->drawable.pScreen));
     int src_stride = (pSrcPixmap->drawable.width + 7) / 8;
     int src_off = exaGetPixmapOffset(pSrcPixmap) / 8;
     int dst_stride = (pDstPixmap->drawable.width + 7) / 8;
@@ -155,59 +149,57 @@ static Bool PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap,
     pTrident->BltScanDirection = 0;
 
     REPLICATE(planemask, pSrcPixmap->drawable.bitsPerPixel);
-    if (planemask != (unsigned int)-1) {
-	BLADE_OUT(GER_BITMASK, ~planemask);
-	pTrident->BltScanDirection |= 1 << 5;
+    if (planemask != (unsigned int) -1) {
+        BLADE_OUT(GER_BITMASK, ~planemask);
+        pTrident->BltScanDirection |= 1 << 5;
     }
 
-    BLADE_OUT(GER_SRCBASE0, GetDepth(pSrcPixmap->drawable.bitsPerPixel) |
-	      src_stride << 20 | src_off);
+    BLADE_OUT(GER_SRCBASE0,
+            GetDepth(pSrcPixmap->drawable.bitsPerPixel)
+                    | src_stride << 20 | src_off);
 
-    BLADE_OUT(GER_DSTBASE0, GetDepth(pDstPixmap->drawable.bitsPerPixel) |
-	      dst_stride << 20 | dst_off);
+    BLADE_OUT(GER_DSTBASE0,
+            GetDepth(pDstPixmap->drawable.bitsPerPixel)
+                    | dst_stride << 20 | dst_off);
 
     if ((xdir < 0) || (ydir < 0))
-	pTrident->BltScanDirection |= 1 << 1;
+        pTrident->BltScanDirection |= 1 << 1;
 
     BLADE_OUT(GER_ROP, GetCopyROP(alu));
 
     return TRUE;
 }
 
-static void Copy(PixmapPtr pDstPixmap, int x1, int y1, int x2,
-		 int y2, int w, int h)
-{
-    TRIDENTPtr pTrident =
-	TRIDENTPTR(xf86ScreenToScrn(pDstPixmap->drawable.pScreen));
+static void Copy(PixmapPtr pDstPixmap, int x1, int y1, int x2, int y2,
+        int w, int h) {
+    TRIDENTPtr pTrident = TRIDENTPTR(
+            xf86ScreenToScrn(pDstPixmap->drawable.pScreen));
 
-    BLADE_OUT(GER_DRAW_CMD, GER_OP_BLT_HOST | GER_DRAW_SRC_COLOR |
-	      GER_ROP_ENABLE | GER_BLT_SRC_FB | pTrident->BltScanDirection);
+    BLADE_OUT(GER_DRAW_CMD,
+            GER_OP_BLT_HOST | GER_DRAW_SRC_COLOR | GER_ROP_ENABLE | GER_BLT_SRC_FB | pTrident->BltScanDirection);
 
     if (pTrident->BltScanDirection) {
-	BLADE_OUT(GER_SRC1, (y1 + h - 1) << 16 | (x1 + w - 1));
-	BLADE_OUT(GER_SRC2, y1 << 16 | x1);
-	BLADE_OUT(GER_DST1, (y2 + h - 1) << 16 | (x2 + w - 1));
-	BLADE_OUT(GER_DST2, (y2 & 0xfff) << 16 | (x2 & 0xfff));
+        BLADE_OUT(GER_SRC1, (y1 + h - 1) << 16 | (x1 + w - 1));
+        BLADE_OUT(GER_SRC2, y1 << 16 | x1);
+        BLADE_OUT(GER_DST1, (y2 + h - 1) << 16 | (x2 + w - 1));
+        BLADE_OUT(GER_DST2, (y2 & 0xfff) << 16 | (x2 & 0xfff));
     } else {
-	BLADE_OUT(GER_SRC1, y1 << 16 | x1);
-	BLADE_OUT(GER_SRC2, (y1 + h - 1) << 16 | (x1 + w - 1));
-	BLADE_OUT(GER_DST1, y2 << 16 | x2);
-	BLADE_OUT(GER_DST2, (((y2 + h - 1) & 0xfff) << 16 |
-			     ((x2 +w - 1) & 0xfff)));
+        BLADE_OUT(GER_SRC1, y1 << 16 | x1);
+        BLADE_OUT(GER_SRC2, (y1 + h - 1) << 16 | (x1 + w - 1));
+        BLADE_OUT(GER_DST1, y2 << 16 | x2);
+        BLADE_OUT(GER_DST2,
+                (((y2 + h - 1) & 0xfff) << 16 | ((x2 + w - 1) & 0xfff)));
     }
 }
 
-static void DoneCopy(PixmapPtr pDstPixmap)
-{
+static void DoneCopy(PixmapPtr pDstPixmap) {
 }
 
-static int MarkSync(ScreenPtr pScreen)
-{
+static int MarkSync(ScreenPtr pScreen) {
     return 0;
 }
 
-static void WaitMarker(ScreenPtr pScreen, int marker)
-{
+static void WaitMarker(ScreenPtr pScreen, int marker) {
     TRIDENTPtr pTrident = TRIDENTPTR(xf86ScreenToScrn(pScreen));
     int busy;
     int cnt = 10000000;
@@ -216,18 +208,17 @@ static void WaitMarker(ScreenPtr pScreen, int marker)
 
     BLADEBUSY(busy);
     while (busy != 0) {
-	if (--cnt < 0) {
-	    ErrorF("GE timeout\n");
-	    BLADE_OUT(GER_CONTROL, GER_CTL_RESET);
-	    BLADE_OUT(GER_CONTROL, GER_CTL_RESUME);
-	    break;
-	}
-    	BLADEBUSY(busy);
+        if (--cnt < 0) {
+            ErrorF("GE timeout\n");
+            BLADE_OUT(GER_CONTROL, GER_CTL_RESET);
+            BLADE_OUT(GER_CONTROL, GER_CTL_RESUME);
+            break;
+        }
+        BLADEBUSY(busy);
     }
 }
 
-static void BladeInitializeAccelerator(ScrnInfoPtr pScrn)
-{
+static void BladeInitializeAccelerator(ScrnInfoPtr pScrn) {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     BLADE_OUT(GER_DSTBASE0, 0);
@@ -241,14 +232,13 @@ static void BladeInitializeAccelerator(ScrnInfoPtr pScrn)
     BLADE_OUT(GER_PATSTYLE, 0);
 }
 
-Bool BladeExaInit(ScreenPtr pScreen)
-{
+Bool BladeExaInit(ScreenPtr pScreen) {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     ExaDriverPtr ExaDriver;
 
     if (pTrident->NoAccel)
-	return FALSE;
+        return FALSE;
 
     if (!(ExaDriver = exaDriverAlloc())) {
         pTrident->NoAccel = TRUE;
@@ -266,15 +256,16 @@ Bool BladeExaInit(ScreenPtr pScreen)
     ExaDriver->memoryBase = pTrident->FbBase;
     ExaDriver->memorySize = pScrn->videoRam * 1024;
 
-    ExaDriver->offScreenBase = pScrn->displayWidth * pScrn->virtualY *
-	((pScrn->bitsPerPixel + 7) / 8);
+    ExaDriver->offScreenBase = pScrn->displayWidth * pScrn->virtualY
+            * ((pScrn->bitsPerPixel + 7) / 8);
 
-    if(ExaDriver->memorySize > ExaDriver->offScreenBase)
-	ExaDriver->flags |= EXA_OFFSCREEN_PIXMAPS;
+    if (ExaDriver->memorySize > ExaDriver->offScreenBase)
+        ExaDriver->flags |= EXA_OFFSCREEN_PIXMAPS;
     else {
-	xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "Not enough video RAM for "
-		   "offscreen memory manager. Xv disabled\n");
-	/* disable Xv here... */
+        xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+                "Not enough video RAM for "
+                        "offscreen memory manager. Xv disabled\n");
+        /* disable Xv here... */
     }
 
     ExaDriver->pixmapOffsetAlign = 32;
