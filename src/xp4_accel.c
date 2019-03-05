@@ -65,10 +65,10 @@ static void XP4SubsequentSolidBresenhamLine(ScrnInfoPtr pScrn,
                                             int dmaj, int dmin,
                                             int e, int len,
                                             int octant);
-#endif
 static void XP4SubsequentSolidHorVertLine(ScrnInfoPtr pScrn,
                                             int x, int y,
                                             int len, int dir);
+#endif
 static void XP4SetupForFillRectSolid(ScrnInfoPtr pScrn,
                                         int color,
                                         int rop,
@@ -96,6 +96,7 @@ static void XP4SubsequentMono8x8PatternFillRect(ScrnInfoPtr pScrn,
                                                 int patterny,
                                                 int x, int y,
                                                 int w, int h);
+#if 0
 static void XP4SetupForCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
                                             int fg, int bg,
                                             int rop,
@@ -104,6 +105,7 @@ static void XP4SubsequentCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
                                                     int x, int y,
                                                     int w, int h,
                                                     int skipleft);
+#endif
 
 static int bpp;
 static int ropcode;
@@ -349,7 +351,6 @@ XP4SubsequentSolidBresenhamLine(ScrnInfoPtr pScrn,
     TGUI_COMMAND(GE_BRESLINE);
     XP4Sync(pScrn);
 }
-#endif
 
 static void
 XP4SubsequentSolidHorVertLine(ScrnInfoPtr pScrn,
@@ -371,7 +372,6 @@ XP4SubsequentSolidHorVertLine(ScrnInfoPtr pScrn,
     XP4Sync(pScrn);
 }
 
-#if 0
 void
 XP4SetupForDashedLine(ScrnInfoPtr pScrn,
                         int fg, int bg,
@@ -472,7 +472,7 @@ XP4SubsequentFillRectSolid(ScrnInfoPtr pScrn,
                             2);
 }
 
-#if 1
+#if 0
 static void
 MoveDWORDS(register CARD32* dest,
             register CARD32* src,
@@ -503,7 +503,7 @@ MoveDWORDS(register CARD32* dest,
 }
 #endif
 
-#if 1
+#if 0
 static void
 MoveDWORDS_FixedBase(register CARD32* dest,
                         register CARD32* src,
@@ -573,7 +573,7 @@ XP4SubsequentMono8x8PatternFillRect(ScrnInfoPtr pScrn,
                                 2);
 }
 
-#if 1
+#if 0
 static void
 XP4SetupForCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
                                         int fg, int bg,
