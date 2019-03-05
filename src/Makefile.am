@@ -49,5 +49,5 @@ trident_drv_la_SOURCES = \
         trident_video.c \
         tvga_dac.c \
         xp_xaa.c \
-        xp4_accel.c \
-        xp4_accel_exa.c
+        xp4_accel_exa.c \
+        xp4_xaa.c
