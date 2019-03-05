@@ -43,57 +43,65 @@ static int ropcode;
 
 static int CopyROP[16] =
 {
-   ROP_0,               /* GXclear */
-   ROP_DSa,             /* GXand */
-   ROP_SDna,            /* GXandReverse */
-   ROP_S,               /* GXcopy */
-   ROP_DSna,            /* GXandInverted */
-   ROP_D,               /* GXnoop */
-   ROP_DSx,             /* GXxor */
-   ROP_DSo,             /* GXor */
-   ROP_DSon,            /* GXnor */
-   ROP_DSxn,            /* GXequiv */
-   ROP_Dn,              /* GXinvert*/
-   ROP_SDno,            /* GXorReverse */
-   ROP_Sn,              /* GXcopyInverted */
-   ROP_DSno,            /* GXorInverted */
-   ROP_DSan,            /* GXnand */
-   ROP_1                /* GXset */
+    ROP_0,              /* GXclear */
+    ROP_DSa,            /* GXand */
+    ROP_SDna,           /* GXandReverse */
+    ROP_S,              /* GXcopy */
+    ROP_DSna,           /* GXandInverted */
+    ROP_D,              /* GXnoop */
+    ROP_DSx,            /* GXxor */
+    ROP_DSo,            /* GXor */
+    ROP_DSon,           /* GXnor */
+    ROP_DSxn,           /* GXequiv */
+    ROP_Dn,             /* GXinvert*/
+    ROP_SDno,           /* GXorReverse */
+    ROP_Sn,             /* GXcopyInverted */
+    ROP_DSno,           /* GXorInverted */
+    ROP_DSan,           /* GXnand */
+    ROP_1               /* GXset */
 };
 
 static int PatternROP[16]=
 {
-   ROP_0,
-   ROP_DPa,
-   ROP_PDna,
-   ROP_P,
-   ROP_DPna,
-   ROP_D,
-   ROP_DPx,
-   ROP_DPo,
-   ROP_DPon,
-   ROP_PDxn,
-   ROP_Dn,
-   ROP_PDno,
-   ROP_Pn,
-   ROP_DPno,
-   ROP_DPan,
-   ROP_1
+    ROP_0,
+    ROP_DPa,
+    ROP_PDna,
+    ROP_P,
+    ROP_DPna,
+    ROP_D,
+    ROP_DPx,
+    ROP_DPo,
+    ROP_DPon,
+    ROP_PDxn,
+    ROP_Dn,
+    ROP_PDno,
+    ROP_Pn,
+    ROP_DPno,
+    ROP_DPan,
+    ROP_1
 };
 
-static int GetCopyROP(int i) {
+static int
+GetCopyROP(int i)
+{
     return CopyROP[i];
 }
 
-static int GetPatternROP(int i) {
+static int
+GetPatternROP(int i)
+{
     return PatternROP[i];
 }
 
-static void XP4WaitMarker(ScreenPtr pScreen, int Marker) {
+static void
+XP4WaitMarker(ScreenPtr pScreen, int Marker)
+{
     /* Don't need a wait marker as we need to sync on all operations */
 }
 
-static void XP4Done(PixmapPtr p) {
+static void
+XP4Done(PixmapPtr p)
+{
     ScrnInfoPtr pScrn = xf86ScreenToScrn(p->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int count = 0, timeout = 0;
@@ -104,6 +112,7 @@ static void XP4Done(PixmapPtr p) {
         if (busy != GE_BUSY) {
             return;
         }
+
         count++;
         if (count == 10000000) {
             ErrorF("XP: BitBLT engine time-out.\n");
@@ -118,8 +127,10 @@ static void XP4Done(PixmapPtr p) {
     }
 }
 
-static Bool XP4PrepareSolid(PixmapPtr pPixmap, int alu, Pixel planemask,
-        Pixel fg) {
+static Bool
+XP4PrepareSolid(PixmapPtr pPixmap,
+                int alu, Pixel planemask, Pixel fg)
+{
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     unsigned int dorg = exaGetPixmapOffset(pPixmap);
@@ -139,7 +150,11 @@ static Bool XP4PrepareSolid(PixmapPtr pPixmap, int alu, Pixel planemask,
     return TRUE;
 }
 
-static void XP4Solid(PixmapPtr pPixmap, int x1, int y1, int x2, int y2) {
+static void
+XP4Solid(PixmapPtr pPixmap,
+            int x1, int y1,
+            int x2, int y2)
+{
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int bpp;
@@ -156,14 +171,20 @@ static void XP4Solid(PixmapPtr pPixmap, int x1, int y1, int x2, int y2) {
         break;
     }
 
-    MMIO_OUT32(pTrident->IOBase, 0x2138, x1 << 16 | y1);
-    MMIO_OUT32(pTrident->IOBase, 0x2140, (x2 - x1) << 16 | (y2 - y1));
+    MMIO_OUT32(pTrident->IOBase, 0x2138, (x1 << 16) | y1);
+    MMIO_OUT32(pTrident->IOBase, 0x2140, ((x2 - x1) << 16) |
+                                            (y2 - y1));
     MMIO_OUT32(pTrident->IOBase, 0x2124,
-            GetPatternROP(ropcode) << 24 | bpp << 8 | 2);
+                                    (GetPatternROP(ropcode) << 24) |
+                                    (bpp << 8) |
+                                    2);
 }
 
-static Bool XP4PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap, int dx,
-        int dy, int alu, Pixel planemask) {
+static Bool
+XP4PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap,
+                int dx, int dy,
+                int alu, Pixel planemask)
+{
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pDstPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     unsigned int sorg = exaGetPixmapOffset(pSrcPixmap);
@@ -188,8 +209,12 @@ static Bool XP4PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap, int dx,
     return TRUE;
 }
 
-static void XP4Copy(PixmapPtr pDstPixmap, int x1, int y1, int x2, int y2, int w,
-        int h) {
+static void
+XP4Copy(PixmapPtr pDstPixmap,
+        int x1, int y1,
+        int x2, int y2,
+        int w, int h)
+{
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pDstPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int bpp;
@@ -214,15 +239,19 @@ static void XP4Copy(PixmapPtr pDstPixmap, int x1, int y1, int x2, int y2, int w,
         x1 = x1 + w - 1;
         x2 = x2 + w - 1;
     }
-    MMIO_OUT32(pTrident->IOBase, 0x2128, pTrident->BltScanDirection | SCR2SCR);
-    MMIO_OUT32(pTrident->IOBase, 0x2138, x2 << 16 | y2);
-    MMIO_OUT32(pTrident->IOBase, 0x213C, x1 << 16 | y1);
-    MMIO_OUT32(pTrident->IOBase, 0x2140, w << 16 | h);
-    MMIO_OUT32(pTrident->IOBase, 0x2124,
-            GetCopyROP(ropcode) << 24 | bpp << 8 | 1);
+    MMIO_OUT32(pTrident->IOBase, 0x2128, pTrident->BltScanDirection |
+                                            SCR2SCR);
+    MMIO_OUT32(pTrident->IOBase, 0x2138, (x2 << 16) | y2);
+    MMIO_OUT32(pTrident->IOBase, 0x213C, (x1 << 16) | y1);
+    MMIO_OUT32(pTrident->IOBase, 0x2140, (w << 16) | h);
+    MMIO_OUT32(pTrident->IOBase, 0x2124, (GetCopyROP(ropcode) << 24) |
+                                            (bpp << 8) |
+                                            1);
 }
 
-Bool XP4ExaInit(ScreenPtr pScreen) {
+Bool
+XP4ExaInit(ScreenPtr pScreen)
+{
     ExaDriverPtr pExa;
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
@@ -241,8 +270,8 @@ Bool XP4ExaInit(ScreenPtr pScreen) {
     pExa->flags = EXA_OFFSCREEN_PIXMAPS;
     pExa->memoryBase = pTrident->FbBase;
     pExa->memorySize = pTrident->FbMapSize;
-    pExa->offScreenBase = pScrn->displayWidth * pScrn->virtualY
-            * ((pScrn->bitsPerPixel + 7) / 8);
+    pExa->offScreenBase = pScrn->displayWidth * pScrn->virtualY *
+                            ((pScrn->bitsPerPixel + 7) / 8);
 
     pExa->pixmapOffsetAlign = 16;
     pExa->pixmapPitchAlign = 16;
