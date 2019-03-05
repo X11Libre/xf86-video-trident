@@ -1,26 +1,28 @@
 /*
  * Copyright 1992-2003 by Alan Hourihane, North Wales, UK.
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of Alan Hourihane not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  Alan Hourihane makes no representations
- * about the suitability of this software for any purpose.  It is provided
+ * Permission to use, copy, modify, distribute, and sell this software
+ * and its documentation for any purpose is hereby granted without
+ * fee, provided that the above copyright notice appear in all copies
+ * and that both that copyright notice and this permission notice
+ * appear in supporting documentation, and that the name of Alan
+ * Hourihane not be used in advertising or publicity pertaining to
+ * distribution of the software without specific, written prior
+ * permission.  Alan Hourihane makes no representations about the
+ *  suitability of this software for any purpose.  It is provided
  * "as is" without express or implied warranty.
  *
- * ALAN HOURIHANE DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL ALAN HOURIHANE BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * ALAN HOURIHANE DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS, IN NO EVENT SHALL ALAN HOURIHANE BE LIABLE FOR ANY
+ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
+ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+ * SOFTWARE.
  *
  * Authors:  Alan Hourihane, <alanh@fairlite.demon.co.uk>
- * 
+ *
  * BladeXP accelerated options.
  */
 
@@ -43,46 +45,70 @@
 
 static void XPSync(ScrnInfoPtr pScrn);
 #if 0
-static void XPSetupForDashedLine(ScrnInfoPtr pScrn, int fg, int bg,
-        int rop, unsigned int planemask, int length,
-        unsigned char *pattern);
+static void XPSetupForDashedLine(ScrnInfoPtr pScrn,
+                                    int fg, int bg,
+                                    int rop,
+                                    unsigned int planemask,
+                                    int length,
+                                    unsigned char *pattern);
 static void XPSubsequentDashedBresenhamLine(ScrnInfoPtr pScrn,
-        int x, int y, int dmaj, int dmin, int e,
-        int len, int octant, int phase);
-static void XPSetupForSolidLine(ScrnInfoPtr pScrn, int color,
-        int rop, unsigned int planemask);
+                                    int x, int y,
+                                    int dmaj, int dmin,
+                                    int e, int len,
+                                    int octant, int phase);
+static void XPSetupForSolidLine(ScrnInfoPtr pScrn,
+                                int color,
+                                int rop,
+                                unsigned int planemask);
 static void XPSubsequentSolidBresenhamLine(ScrnInfoPtr pScrn,
-        int x, int y, int dmaj, int dmin, int e,
-        int len, int octant);
+                                            int x, int y,
+                                            int dmaj, int dmin,
+                                            int e, int len,
+                                            int octant);
 #endif
-static void XPSubsequentSolidHorVertLine(ScrnInfoPtr pScrn, int x, int y,
-        int len, int dir);
-static void XPSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
-        int rop, unsigned int planemask);
-static void XPSubsequentFillRectSolid(ScrnInfoPtr pScrn, int x,
-        int y, int w, int h);
+static void XPSubsequentSolidHorVertLine(ScrnInfoPtr pScrn,
+                                            int x, int y,
+                                            int len, int dir);
+static void XPSetupForFillRectSolid(ScrnInfoPtr pScrn,
+                                    int color,
+                                    int rop,
+                                    unsigned int planemask);
+static void XPSubsequentFillRectSolid(ScrnInfoPtr pScrn,
+                                        int x, int y,
+                                        int w, int h);
 static void XPSubsequentScreenToScreenCopy(ScrnInfoPtr pScrn,
-        int x1, int y1, int x2,
-        int y2, int w, int h);
+                                            int x1, int y1,
+                                            int x2, int y2,
+                                            int w, int h);
 static void XPSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
-        int xdir, int ydir, int rop,
-        unsigned int planemask,
-        int transparency_color);
+                                            int xdir, int ydir,
+                                            int rop,
+                                            unsigned int planemask,
+                                            int transparency_color);
 static void XPSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
-        int patternx, int patterny, int fg, int bg,
-        int rop, unsigned int planemask);
+                                            int patternx,
+                                            int patterny,
+                                            int fg, int bg,
+                                            int rop,
+                                            unsigned int planemask);
 static void XPSubsequentMono8x8PatternFillRect(ScrnInfoPtr pScrn,
-        int patternx, int patterny, int x, int y,
-        int w, int h);
+                                                int patternx,
+                                                int patterny,
+                                                int x, int y,
+                                                int w, int h);
 #if 0
 static void XPSetupForScanlineCPUToScreenColorExpandFill(
-        ScrnInfoPtr pScrn,
-        int fg, int bg, int rop,
-        unsigned int planemask);
+                                            ScrnInfoPtr pScrn,
+                                            int fg, int bg,
+                                            int rop,
+                                            unsigned int planemask);
 static void XPSubsequentScanlineCPUToScreenColorExpandFill(
-        ScrnInfoPtr pScrn, int x,
-        int y, int w, int h, int skipleft);
-static void XPSubsequentColorExpandScanline(ScrnInfoPtr pScrn, int bufno);
+                                                    ScrnInfoPtr pScrn,
+                                                    int x, int y,
+                                                    int w, int h,
+                                                    int skipleft);
+static void XPSubsequentColorExpandScanline(ScrnInfoPtr pScrn,
+                                            int bufno);
 #endif
 
 static void
@@ -99,19 +125,22 @@ XPInitializeAccelerator(ScrnInfoPtr pScrn)
     BLADE_XP_OPERMODE(pTrident->EngineOperation);
     pTrident->EngineOperation |= 0x40;
     switch (pScrn->bitsPerPixel) {
-        case 8:
-        default: /* Muffle compiler */
+    case 8:
+    default: /* Muffle compiler */
         shift = 18;
         break;
-        case 16:
+    case 16:
         shift = 19;
         break;
-        case 32:
+    case 32:
         shift = 20;
         break;
     }
-    MMIO_OUT32(pTrident->IOBase, 0x2154, (pScrn->displayWidth) << shift);
-    MMIO_OUT32(pTrident->IOBase, 0x2150, (pScrn->displayWidth) << shift);
+
+    MMIO_OUT32(pTrident->IOBase, 0x2154,
+                                    (pScrn->displayWidth) << shift);
+    MMIO_OUT32(pTrident->IOBase, 0x2150,
+                                    (pScrn->displayWidth) << shift);
     MMIO_OUT8(pTrident->IOBase, 0x2126, 3);
 }
 #endif
@@ -129,8 +158,8 @@ Bool XPAccelInit(ScreenPtr pScreen) {
     if (!infoPtr) return FALSE;
 
     infoPtr->Flags = PIXMAP_CACHE |
-    OFFSCREEN_PIXMAPS |
-    LINEAR_FRAMEBUFFER;
+                        OFFSCREEN_PIXMAPS |
+                        LINEAR_FRAMEBUFFER;
 
     pTrident->InitializeAccelerator = XPInitializeAccelerator;
     XPInitializeAccelerator(pScrn);
@@ -141,11 +170,12 @@ Bool XPAccelInit(ScreenPtr pScreen) {
     infoPtr->SolidLineFlags = NO_PLANEMASK;
     infoPtr->SetupForSolidLine = XPSetupForSolidLine;
     infoPtr->SolidBresenhamLineErrorTermBits = 12;
-    infoPtr->SubsequentSolidBresenhamLine = XPSubsequentSolidBresenhamLine;
+    infoPtr->SubsequentSolidBresenhamLine =
+                                    XPSubsequentSolidBresenhamLine;
 
     infoPtr->DashedLineFlags = LINE_PATTERN_MSBFIRST_LSBJUSTIFIED |
-    NO_PLANEMASK |
-    LINE_PATTERN_POWER_OF_2_ONLY;
+                                NO_PLANEMASK |
+                                LINE_PATTERN_POWER_OF_2_ONLY;
     infoPtr->SetupForDashedLine = XPSetupForDashedLine;
     infoPtr->DashedBresenhamLineErrorTermBits = 12;
     infoPtr->SubsequentDashedBresenhamLine =
@@ -158,39 +188,41 @@ Bool XPAccelInit(ScreenPtr pScreen) {
     infoPtr->SubsequentSolidFillRect = XPSubsequentFillRectSolid;
     infoPtr->SubsequentSolidHorVertLine = XPSubsequentSolidHorVertLine;
 
-    infoPtr->ScreenToScreenCopyFlags = NO_PLANEMASK | NO_TRANSPARENCY;
+    infoPtr->ScreenToScreenCopyFlags = NO_PLANEMASK |
+                                        NO_TRANSPARENCY;
 
     infoPtr->SetupForScreenToScreenCopy =
-    XPSetupForScreenToScreenCopy;
+                                        XPSetupForScreenToScreenCopy;
     infoPtr->SubsequentScreenToScreenCopy =
-    XPSubsequentScreenToScreenCopy;
+                                    XPSubsequentScreenToScreenCopy;
 
     infoPtr->Mono8x8PatternFillFlags = NO_PLANEMASK |
-    HARDWARE_PATTERN_PROGRAMMED_BITS |
-    BIT_ORDER_IN_BYTE_MSBFIRST;
+                                    HARDWARE_PATTERN_PROGRAMMED_BITS |
+                                    BIT_ORDER_IN_BYTE_MSBFIRST;
 
     infoPtr->SetupForMono8x8PatternFill =
-    XPSetupForMono8x8PatternFill;
+                                    XPSetupForMono8x8PatternFill;
     infoPtr->SubsequentMono8x8PatternFillRect =
-    XPSubsequentMono8x8PatternFillRect;
+                                XPSubsequentMono8x8PatternFillRect;
 
 #if 0 /* Needs fixing */
     infoPtr->ScanlineCPUToScreenColorExpandFillFlags = NO_PLANEMASK |
     BIT_ORDER_IN_BYTE_MSBFIRST;
 
     pTrident->XAAScanlineColorExpandBuffers[0] =
-    xnfalloc(((pScrn->virtualX + 63)) *4* (pScrn->bitsPerPixel / 8));
+                                xnfalloc(((pScrn->virtualX + 63)) *
+                                        4 * (pScrn->bitsPerPixel / 8));
 
     infoPtr->NumScanlineColorExpandBuffers = 1;
     infoPtr->ScanlineColorExpandBuffers =
-    pTrident->XAAScanlineColorExpandBuffers;
+                            pTrident->XAAScanlineColorExpandBuffers;
 
     infoPtr->SetupForScanlineCPUToScreenColorExpandFill =
-    XPSetupForScanlineCPUToScreenColorExpandFill;
+                        XPSetupForScanlineCPUToScreenColorExpandFill;
     infoPtr->SubsequentScanlineCPUToScreenColorExpandFill =
-    XPSubsequentScanlineCPUToScreenColorExpandFill;
+                    XPSubsequentScanlineCPUToScreenColorExpandFill;
     infoPtr->SubsequentColorExpandScanline =
-    XPSubsequentColorExpandScanline;
+                                    XPSubsequentColorExpandScanline;
 #endif
 
     return(XAAInit(pScreen, infoPtr));
@@ -214,13 +246,16 @@ XPSync(ScrnInfoPtr pScrn)
         if (busy != GE_BUSY) {
             return;
         }
+
         count++;
         if (count == 10000000) {
             ErrorF("XP: BitBLT engine time-out.\n");
             count = 9990000;
             timeout++;
             if (timeout == 8) {
-                /* Reset BitBLT Engine */
+                /*
+                 * Reset BitBLT Engine.
+                 */
                 TGUI_STATUS(0x00);
                 return;
             }
@@ -240,13 +275,16 @@ XPClearSync(ScrnInfoPtr pScrn)
         if (busy != GE_BUSY) {
             return;
         }
+
         count++;
         if (count == 10000000) {
             ErrorF("XP: BitBLT engine time-out.\n");
             count = 9990000;
             timeout++;
             if (timeout == 8) {
-                /* Reset BitBLT Engine */
+                /*
+                 * Reset BitBLT Engine.
+                 */
                 TGUI_STATUS(0x00);
                 return;
             }
@@ -256,8 +294,10 @@ XPClearSync(ScrnInfoPtr pScrn)
 
 static void
 XPSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
-        int xdir, int ydir, int rop,
-        unsigned int planemask, int transparency_color)
+                                int xdir, int ydir,
+                                int rop,
+                                unsigned int planemask,
+                                int transparency_color)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int dst = 0;
@@ -268,7 +308,7 @@ XPSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
 
     REPLICATE(transparency_color);
     if (transparency_color != -1) {
-        dst |= 3<<16;
+        dst |= (3 << 16);
         MMIO_OUT32(pTrident->IOBase, 0x2134, transparency_color);
     }
 
@@ -277,8 +317,10 @@ XPSetupForScreenToScreenCopy(ScrnInfoPtr pScrn,
 }
 
 static void
-XPSubsequentScreenToScreenCopy(ScrnInfoPtr pScrn, int x1, int y1,
-        int x2, int y2, int w, int h)
+XPSubsequentScreenToScreenCopy(ScrnInfoPtr pScrn,
+                                int x1, int y1,
+                                int x2, int y2,
+                                int w, int h)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
@@ -286,10 +328,12 @@ XPSubsequentScreenToScreenCopy(ScrnInfoPtr pScrn, int x1, int y1,
         y1 = y1 + h - 1;
         y2 = y2 + h - 1;
     }
+
     if (pTrident->BltScanDirection & XNEG) {
         x1 = x1 + w - 1;
         x2 = x2 + w - 1;
     }
+
     XP_SRC_XY(x1,y1);
     XP_DEST_XY(x2,y2);
     XP_DIM_XY(w,h);
@@ -299,8 +343,10 @@ XPSubsequentScreenToScreenCopy(ScrnInfoPtr pScrn, int x1, int y1,
 
 #if 0
 static void
-XPSetupForSolidLine(ScrnInfoPtr pScrn, int color,
-        int rop, unsigned int planemask)
+XPSetupForSolidLine(ScrnInfoPtr pScrn,
+                    int color,
+                    int rop,
+                    unsigned int planemask)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
@@ -315,8 +361,11 @@ XPSetupForSolidLine(ScrnInfoPtr pScrn, int color,
 }
 
 static void
-XPSubsequentSolidBresenhamLine( ScrnInfoPtr pScrn,
-        int x, int y, int dmaj, int dmin, int e, int len, int octant)
+XPSubsequentSolidBresenhamLine(ScrnInfoPtr pScrn,
+                                int x, int y,
+                                int dmaj, int dmin,
+                                int e, int len,
+                                int octant)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int tmp = pTrident->BltScanDirection;
@@ -325,59 +374,60 @@ XPSubsequentSolidBresenhamLine( ScrnInfoPtr pScrn,
     if (octant & XDECREASING) tmp |= XNEG;
     if (octant & YDECREASING) tmp |= YNEG;
     TGUI_DRAWFLAG(SOLIDFILL | STENCIL | tmp);
-    XP_SRC_XY(dmin-dmaj,dmin);
-    XP_DEST_XY(x,y);
-    XP_DIM_XY(dmin+e,len);
+    XP_SRC_XY(dmin - dmaj, dmin);
+    XP_DEST_XY(x, y);
+    XP_DIM_XY(dmin + e, len);
     TGUI_COMMAND(GE_BRESLINE);
     XPSync(pScrn);
 }
 #endif
 
 static void
-XPSubsequentSolidHorVertLine(
-        ScrnInfoPtr pScrn,
-        int x, int y,
-        int len, int dir
-) {
+XPSubsequentSolidHorVertLine(ScrnInfoPtr pScrn,
+                                int x, int y,
+                                int len, int dir)
+{
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     TGUI_DRAWFLAG(SOLIDFILL);
     if (dir == DEGREES_0) {
-        XP_DIM_XY(len,1);
-        XP_DEST_XY(x,y);
+        XP_DIM_XY(len, 1);
+        XP_DEST_XY(x, y);
     } else {
-        XP_DIM_XY(1,len);
-        XP_DEST_XY(x,y);
+        XP_DIM_XY(1, len);
+        XP_DEST_XY(x, y);
     }
+
     TGUI_COMMAND(GE_BLT);
     XPSync(pScrn);
 }
 
 #if 0
 void
-XPSetupForDashedLine(
-        ScrnInfoPtr pScrn,
-        int fg, int bg, int rop,
-        unsigned int planemask,
-        int length,
-        unsigned char *pattern
-) {
+XPSetupForDashedLine(ScrnInfoPtr pScrn,
+                        int fg, int bg,
+                        int rop,
+                        unsigned int planemask,
+                        int length,
+                        unsigned char *pattern)
+{
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     CARD32 *DashPattern = (CARD32*)pattern;
     CARD32 NiceDashPattern = DashPattern[0];
 
-    NiceDashPattern = *((CARD16 *)pattern) & ((1<<length) - 1);
+    NiceDashPattern = *((CARD16 *)pattern) & ((1 << length) - 1);
     switch(length) {
         case 2: NiceDashPattern |= NiceDashPattern << 2;
         case 4: NiceDashPattern |= NiceDashPattern << 4;
         case 8: NiceDashPattern |= NiceDashPattern << 8;
     }
+
     pTrident->BltScanDirection = 0;
     REPLICATE(fg);
     if (pTrident->Chipset >= PROVIDIA9685) {
         TGUI_FPATCOL(fg);
         if (bg == -1) {
-            pTrident->BltScanDirection |= 1<<12;
+            pTrident->BltScanDirection |= (1 << 12);
             TGUI_BPATCOL(~fg);
         } else {
             REPLICATE(bg);
@@ -386,20 +436,24 @@ XPSetupForDashedLine(
     } else {
         TGUI_FCOLOUR(fg);
         if (bg == -1) {
-            pTrident->BltScanDirection |= 1<<12;
+            pTrident->BltScanDirection |= (1 << 12);
             TGUI_BCOLOUR(~fg);
         } else {
             REPLICATE(bg);
             TGUI_BCOLOUR(bg);
         }
     }
+
     TGUI_FMIX(XAAGetPatternROP(rop));
     pTrident->LinePattern = NiceDashPattern;
 }
 
 void
 XPSubsequentDashedBresenhamLine(ScrnInfoPtr pScrn,
-        int x, int y, int dmaj, int dmin, int e, int len, int octant, int phase)
+                                int x, int y,
+                                int dmaj, int dmin,
+                                int e, int len,
+                                int octant, int phase)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int tmp = pTrident->BltScanDirection;
@@ -409,19 +463,21 @@ XPSubsequentDashedBresenhamLine(ScrnInfoPtr pScrn,
     if (octant & YDECREASING) tmp |= YNEG;
 
     TGUI_STYLE(((pTrident->LinePattern >> phase) |
-                    (pTrident->LinePattern << (16-phase))) & 0x0000FFFF);
+                    (pTrident->LinePattern << (16 - phase))) &
+                    0x0000FFFF);
     TGUI_DRAWFLAG(STENCIL | tmp);
-    XP_SRC_XY(dmin-dmaj,dmin);
-    XP_DEST_XY(x,y);
-    XP_DIM_XY(e+dmin,len);
+    XP_SRC_XY(dmin - dmaj, dmin);
+    XP_DEST_XY(x, y);
+    XP_DIM_XY(e + dmin, len);
     TGUI_COMMAND(GE_BRESLINE);
     XPSync(pScrn);
 }
 #endif
 
 static void
-XPSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
-        int rop, unsigned int planemask)
+XPSetupForFillRectSolid(ScrnInfoPtr pScrn,
+                        int color,
+                        int rop, unsigned int planemask)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
@@ -432,21 +488,22 @@ XPSetupForFillRectSolid(ScrnInfoPtr pScrn, int color,
 }
 
 static void
-XPSubsequentFillRectSolid(ScrnInfoPtr pScrn, int x, int y, int w, int h)
+XPSubsequentFillRectSolid(ScrnInfoPtr pScrn,
+                            int x, int y,
+                            int w, int h)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    XP_DIM_XY(w,h);
-    XP_DEST_XY(x,y);
+    XP_DIM_XY(w, h);
+    XP_DEST_XY(x, y);
     TGUI_COMMAND(GE_BLT);
     XPSync(pScrn);
 }
 
 #if 0
-static void MoveDWORDS(
-        register CARD32* dest,
-        register CARD32* src,
-        register int dwords )
+static void MoveDWORDS(register CARD32* dest,
+                        register CARD32* src,
+                        register int dwords)
 {
     while(dwords & ~0x03) {
         *dest = *src;
@@ -457,6 +514,7 @@ static void MoveDWORDS(
         dest += 4;
         dwords -= 4;
     }
+
     if (!dwords) return;
     *dest = *src;
     dest += 1;
@@ -473,10 +531,10 @@ static void MoveDWORDS(
 #endif
 
 #if 0
-static void MoveDWORDS_FixedBase(
-        register CARD32* dest,
-        register CARD32* src,
-        register int dwords )
+static void
+MoveDWORDS_FixedBase(register CARD32* dest,
+                        register CARD32* src,
+                        register int dwords)
 {
     while(dwords & ~0x03) {
         *dest = *src;
@@ -498,9 +556,10 @@ static void MoveDWORDS_FixedBase(
 
 static void
 XPSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
-        int patternx, int patterny,
-        int fg, int bg, int rop,
-        unsigned int planemask)
+                                int patternx, int patterny,
+                                int fg, int bg,
+                                int rop,
+                                unsigned int planemask)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int drawflag = 0;
@@ -509,14 +568,14 @@ XPSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
     MMIO_OUT32(pTrident->IOBase, 0x2158, fg);
 
     if (bg == -1) {
-        drawflag |= 1<<12;
+        drawflag |= (1 << 12);
         MMIO_OUT32(pTrident->IOBase, 0x215C, ~fg);
     } else {
         REPLICATE(bg);
         MMIO_OUT32(pTrident->IOBase, 0x215C, bg);
     }
 
-    drawflag |= 7<<18;
+    drawflag |= (7 << 18);
     TGUI_DRAWFLAG(PATMONO | drawflag);
     MMIO_OUT32(pTrident->IOBase, 0x2180, patternx);
     MMIO_OUT32(pTrident->IOBase, 0x2184, patterny);
@@ -525,31 +584,30 @@ XPSetupForMono8x8PatternFill(ScrnInfoPtr pScrn,
 
 static void
 XPSubsequentMono8x8PatternFillRect(ScrnInfoPtr pScrn,
-        int patternx, int patterny,
-        int x, int y,
-        int w, int h)
+                                    int patternx, int patterny,
+                                    int x, int y,
+                                    int w, int h)
 {
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    XP_DEST_XY(x,y);
-    XP_DIM_XY(w,h);
+    XP_DEST_XY(x, y);
+    XP_DIM_XY(w, h);
     TGUI_COMMAND(GE_BLT);
     XPSync(pScrn);
 }
 
 #if 0
 static void
-XPSetupForScanlineCPUToScreenColorExpandFill(
-        ScrnInfoPtr pScrn,
-        int fg, int bg,
-        int rop,
-        unsigned int planemask
-) {
+XPSetupForScanlineCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
+                                                int fg, int bg,
+                                                int rop,
+                                                unsigned int planemask)
+{
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     TGUI_FMIX(XAAGetCopyROP(rop));
     if (bg == -1) {
-        TGUI_DRAWFLAG(SRCMONO | 1<<12);
+        TGUI_DRAWFLAG(SRCMONO | (1 << 12));
         REPLICATE(fg);
         TGUI_FCOLOUR(fg);
     } else {
@@ -562,17 +620,17 @@ XPSetupForScanlineCPUToScreenColorExpandFill(
 }
 
 static void
-XPSubsequentScanlineCPUToScreenColorExpandFill(
-        ScrnInfoPtr pScrn,
-        int x, int y, int w, int h,
-        int skipleft
-) {
+XPSubsequentScanlineCPUToScreenColorExpandFill(ScrnInfoPtr pScrn,
+                                                int x, int y,
+                                                int w, int h,
+                                                int skipleft)
+{
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     pTrident->dwords = (w + 31) >> 5;
     pTrident->h = h;
 
-    XP_DEST_XY(x,y);
-    XP_DIM_XY(w>>1,h);
+    XP_DEST_XY(x, y);
+    XP_DIM_XY(w >> 1, h);
     TGUI_COMMAND(GE_BLT);
 }
 
