@@ -81,58 +81,52 @@ static int PatternROP[16]=
    ROP_1
 };
 
-static int GetCopyROP(int i)
-{
+static int GetCopyROP(int i) {
     return CopyROP[i];
 }
 
-static int GetPatternROP(int i)
-{
+static int GetPatternROP(int i) {
     return PatternROP[i];
 }
 
-static void
-XP4WaitMarker(ScreenPtr pScreen, int Marker)
-{
-	/* Don't need a wait marker as we need to sync on all operations */
+static void XP4WaitMarker(ScreenPtr pScreen, int Marker) {
+    /* Don't need a wait marker as we need to sync on all operations */
 }
 
-static void
-XP4Done(PixmapPtr p) {
+static void XP4Done(PixmapPtr p) {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(p->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int count = 0, timeout = 0;
     int busy;
 
     for (;;) {
-	BLTBUSY(busy);
-	if (busy != GE_BUSY) {
-	    return;
-	}
-	count++;
-	if (count == 10000000) {
-	    ErrorF("XP: BitBLT engine time-out.\n");
-	    count = 9990000;
-	    timeout++;
-	    if (timeout == 4) {
-		/* Reset BitBLT Engine */
-		TGUI_STATUS(0x00);
-		return;
-	    }
-	}
+        BLTBUSY(busy);
+        if (busy != GE_BUSY) {
+            return;
+        }
+        count++;
+        if (count == 10000000) {
+            ErrorF("XP: BitBLT engine time-out.\n");
+            count = 9990000;
+            timeout++;
+            if (timeout == 4) {
+                /* Reset BitBLT Engine */
+                TGUI_STATUS(0x00);
+                return;
+            }
+        }
     }
 }
 
-static Bool
-XP4PrepareSolid(PixmapPtr pPixmap, int alu, Pixel planemask, Pixel fg)
-{
+static Bool XP4PrepareSolid(PixmapPtr pPixmap, int alu, Pixel planemask,
+        Pixel fg) {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     unsigned int dorg = exaGetPixmapOffset(pPixmap);
     unsigned int dptch = exaGetPixmapPitch(pPixmap);
 
     if (planemask != -1)
-	    return FALSE;
+        return FALSE;
 
     ropcode = alu;
 
@@ -140,39 +134,36 @@ XP4PrepareSolid(PixmapPtr pPixmap, int alu, Pixel planemask, Pixel fg)
 
     REPLICATE(fg);
     MMIO_OUT32(pTrident->IOBase, 0x2158, fg);
-    MMIO_OUT32(pTrident->IOBase, 0x2128, 1<<14);
+    MMIO_OUT32(pTrident->IOBase, 0x2128, 1 << 14);
 
     return TRUE;
 }
 
-static void
-XP4Solid(PixmapPtr pPixmap, int x1, int y1, int x2, int y2)
-{
+static void XP4Solid(PixmapPtr pPixmap, int x1, int y1, int x2, int y2) {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int bpp;
-    
+
     switch (pPixmap->drawable.bitsPerPixel) {
-	case 8:
-	    bpp = 0x40;
-	    break;
-	case 16:
-	    bpp = 0x41;
-	    break;
-	case 32:
-	    bpp = 0x42;
-	    break;
+    case 8:
+        bpp = 0x40;
+        break;
+    case 16:
+        bpp = 0x41;
+        break;
+    case 32:
+        bpp = 0x42;
+        break;
     }
 
-    MMIO_OUT32(pTrident->IOBase, 0x2138, x1<<16 | y1);
-    MMIO_OUT32(pTrident->IOBase, 0x2140, (x2-x1)<<16 | (y2-y1));
-    MMIO_OUT32(pTrident->IOBase, 0x2124, GetPatternROP(ropcode) << 24 | bpp << 8 | 2);
+    MMIO_OUT32(pTrident->IOBase, 0x2138, x1 << 16 | y1);
+    MMIO_OUT32(pTrident->IOBase, 0x2140, (x2 - x1) << 16 | (y2 - y1));
+    MMIO_OUT32(pTrident->IOBase, 0x2124,
+            GetPatternROP(ropcode) << 24 | bpp << 8 | 2);
 }
 
-static Bool
-XP4PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap, int dx, int dy,
-                int alu, Pixel planemask)
-{
+static Bool XP4PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap, int dx,
+        int dy, int alu, Pixel planemask) {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pDstPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     unsigned int sorg = exaGetPixmapOffset(pSrcPixmap);
@@ -181,11 +172,13 @@ XP4PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap, int dx, int dy,
     unsigned int dptch = exaGetPixmapPitch(pDstPixmap);
 
     if (planemask != -1)
-	    return FALSE;
+        return FALSE;
 
     pTrident->BltScanDirection = 0;
-    if (dx < 0) pTrident->BltScanDirection |= XNEG;
-    if (dy < 0) pTrident->BltScanDirection |= YNEG;
+    if (dx < 0)
+        pTrident->BltScanDirection |= XNEG;
+    if (dy < 0)
+        pTrident->BltScanDirection |= YNEG;
 
     ropcode = alu;
 
@@ -195,49 +188,47 @@ XP4PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap, int dx, int dy,
     return TRUE;
 }
 
-static void
-XP4Copy(PixmapPtr pDstPixmap, int x1, int y1, int x2, int y2, int w, int h)
-{
+static void XP4Copy(PixmapPtr pDstPixmap, int x1, int y1, int x2, int y2, int w,
+        int h) {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pDstPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int bpp;
-    
+
     switch (pDstPixmap->drawable.bitsPerPixel) {
-	case 8:
-	    bpp = 0x40;
-	    break;
-	case 16:
-	    bpp = 0x41;
-	    break;
-	case 32:
-	    bpp = 0x42;
-	    break;
+    case 8:
+        bpp = 0x40;
+        break;
+    case 16:
+        bpp = 0x41;
+        break;
+    case 32:
+        bpp = 0x42;
+        break;
     }
 
     if (pTrident->BltScanDirection & YNEG) {
         y1 = y1 + h - 1;
-	y2 = y2 + h - 1;
+        y2 = y2 + h - 1;
     }
     if (pTrident->BltScanDirection & XNEG) {
-	x1 = x1 + w - 1;
-	x2 = x2 + w - 1;
+        x1 = x1 + w - 1;
+        x2 = x2 + w - 1;
     }
     MMIO_OUT32(pTrident->IOBase, 0x2128, pTrident->BltScanDirection | SCR2SCR);
-    MMIO_OUT32(pTrident->IOBase, 0x2138, x2<<16 | y2);
-    MMIO_OUT32(pTrident->IOBase, 0x213C, x1<<16 | y1);
-    MMIO_OUT32(pTrident->IOBase, 0x2140, w<<16 | h);
-    MMIO_OUT32(pTrident->IOBase, 0x2124, GetCopyROP(ropcode) << 24 | bpp << 8 | 1);
+    MMIO_OUT32(pTrident->IOBase, 0x2138, x2 << 16 | y2);
+    MMIO_OUT32(pTrident->IOBase, 0x213C, x1 << 16 | y1);
+    MMIO_OUT32(pTrident->IOBase, 0x2140, w << 16 | h);
+    MMIO_OUT32(pTrident->IOBase, 0x2124,
+            GetCopyROP(ropcode) << 24 | bpp << 8 | 1);
 }
 
-Bool
-XP4ExaInit(ScreenPtr pScreen)
-{
+Bool XP4ExaInit(ScreenPtr pScreen) {
     ExaDriverPtr pExa;
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     if (pTrident->NoAccel)
-	return FALSE;
+        return FALSE;
 
     if (!(pExa = pTrident->EXADriverPtr = exaDriverAlloc())) {
         pTrident->NoAccel = TRUE;
@@ -250,8 +241,8 @@ XP4ExaInit(ScreenPtr pScreen)
     pExa->flags = EXA_OFFSCREEN_PIXMAPS;
     pExa->memoryBase = pTrident->FbBase;
     pExa->memorySize = pTrident->FbMapSize;
-    pExa->offScreenBase = pScrn->displayWidth * pScrn->virtualY *
-                               ((pScrn->bitsPerPixel + 7) / 8);
+    pExa->offScreenBase = pScrn->displayWidth * pScrn->virtualY
+            * ((pScrn->bitsPerPixel + 7) / 8);
 
     pExa->pixmapOffsetAlign = 16;
     pExa->pixmapPitchAlign = 16;
@@ -269,5 +260,5 @@ XP4ExaInit(ScreenPtr pScreen)
     pExa->Copy = XP4Copy;
     pExa->DoneCopy = XP4Done;
 
-    return(exaDriverInit(pScreen, pExa));
+    return (exaDriverInit(pScreen, pExa));
 }
