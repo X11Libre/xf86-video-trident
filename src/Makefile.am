@@ -33,7 +33,7 @@ trident_drv_la_SOURCES = \
          blade_accel.c \
          blade_accel_exa.c \
          compat-api.h \
-         image_accel.c \
+         image_xaa.c \
          tgui_xaa.c \
          trident_bank.c \
          trident_dac.c \
