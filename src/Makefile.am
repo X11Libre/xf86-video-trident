@@ -30,7 +30,7 @@ trident_drv_la_LIBADD = -lm
 trident_drv_ladir = @moduledir@/drivers
 
 trident_drv_la_SOURCES = \
-         blade_accel_exa.c \
+         blade_exa.c \
          blade_xaa.c \
          compat-api.h \
          image_xaa.c \
