@@ -2,23 +2,24 @@
  * Copyright 1997-2003 by Alan Hourihane, North Wales, UK.
  * Copyright (c) 2006, Jesse Barnes <jbarnes@virtuousgeek.org>
  *
- * Permission to use, copy, modify, distribute, and sell this software and its
- * documentation for any purpose is hereby granted without fee, provided that
- * the above copyright notice appear in all copies and that both that
- * copyright notice and this permission notice appear in supporting
- * documentation, and that the name of the authors not be used in
- * advertising or publicity pertaining to distribution of the software without
- * specific, written prior permission.  The authors make no representations
- * about the suitability of this software for any purpose.  It is provided
+ * Permission to use, copy, modify, distribute, and sell this software
+ * and its documentation for any purpose is hereby granted without
+ * fee, provided that the above copyright notice appear in all copies
+ * and that both that copyright notice and this permission notice
+ * appear in supporting documentation, and that the name of the
+ * authors not be used in advertising or publicity pertaining to
+ * distribution of the software without specific, written prior
+ * permission.  The authors make no representations about the
+ * suitability of this software for any purpose.  It is provided
  * "as is" without express or implied warranty.
  *
  * THE AUTHORS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
- * EVENT SHALL THE AUTHORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR
- * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
- * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
- * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
- * PERFORMANCE OF THIS SOFTWARE.
+ * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS,
+ * IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY SPECIAL, INDIRECT
+ * OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+ * LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+ * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+ * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  * Authors:  Alan Hourihane, <alanh@fairlite.demon.co.uk>
  *           Jesse Barnes <jbarnes@virtuousgeek.org>
@@ -26,7 +27,8 @@
  * Trident Blade3D EXA support.
  * TODO:
  *   Composite hooks (some ops/arg. combos may not be supported)
- *   Upload/Download from screen (is this even possible with this chip?)
+ *   Upload/Download from screen (is this even possible
+ *                                with this chip?)
  *   Fast mixed directoion Blts
  */
 
@@ -54,8 +56,8 @@
     } else                                          \
         if (bpp == 8) {                             \
             r &= 0xFF;                              \
-            r |= (r<<8);                            \
-            r |= (r<<16);                           \
+            r |= (r << 8);                          \
+            r |= (r << 16);                         \
     }                                               \
 }
 
@@ -78,11 +80,15 @@ static int rop_table[16] = {
     ROP_1               /* GXset */
 };
 
-static int GetCopyROP(int rop) {
+static int
+GetCopyROP(int rop)
+{
     return rop_table[rop];
 }
 
-static unsigned long GetDepth(int depth) {
+static unsigned long
+GetDepth(int depth)
+{
     unsigned long ret;
 
     switch (depth) {
@@ -101,11 +107,14 @@ static unsigned long GetDepth(int depth) {
         ret = 0;
         break;
     }
+
     return ret;
 }
 
-static Bool PrepareSolid(PixmapPtr pPixmap, int rop, Pixel planemask,
-        Pixel color) {
+static Bool
+PrepareSolid(PixmapPtr pPixmap,
+                int rop, Pixel planemask, Pixel color)
+{
     TRIDENTPtr pTrident = TRIDENTPTR(
             xf86ScreenToScrn(pPixmap->drawable.pScreen));
 
@@ -117,30 +126,43 @@ static Bool PrepareSolid(PixmapPtr pPixmap, int rop, Pixel planemask,
     return TRUE;
 }
 
-static void Solid(PixmapPtr pPixmap, int x, int y, int x2, int y2) {
+static void
+Solid(PixmapPtr pPixmap,
+        int x, int y,
+        int x2, int y2)
+{
     TRIDENTPtr pTrident = TRIDENTPTR(
-            xf86ScreenToScrn(pPixmap->drawable.pScreen));
+                        xf86ScreenToScrn(pPixmap->drawable.pScreen));
     int dst_stride = (pPixmap->drawable.width + 7) / 8;
     int dst_off = exaGetPixmapOffset(pPixmap) / 8;
 
     BLADE_OUT(GER_DSTBASE0,
-            GetDepth(pPixmap->drawable.bitsPerPixel) | dst_stride << 20
-                    | dst_off);
+                GetDepth(pPixmap->drawable.bitsPerPixel) |
+                (dst_stride << 20) |
+                dst_off);
 
     BLADE_OUT(GER_DRAW_CMD,
-            GER_OP_LINE | pTrident->BltScanDirection | GER_DRAW_SRC_COLOR | GER_ROP_ENABLE | GER_SRC_CONST);
+                GER_OP_LINE |
+                pTrident->BltScanDirection |
+                GER_DRAW_SRC_COLOR | GER_ROP_ENABLE | GER_SRC_CONST);
 
-    BLADE_OUT(GER_DST1, y << 16 | x);
-    BLADE_OUT(GER_DST2, ((y2 - 1) & 0xfff) << 16 | ((x2 - 1) & 0xfff));
+    BLADE_OUT(GER_DST1, (y << 16) | x);
+    BLADE_OUT(GER_DST2, (((y2 - 1) & 0xfff) << 16) |
+                        ((x2 - 1) & 0xfff));
 }
 
-static void DoneSolid(PixmapPtr pPixmap) {
+static void
+DoneSolid(PixmapPtr pPixmap)
+{
 }
 
-static Bool PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap,
-        int xdir, int ydir, int alu, Pixel planemask) {
+static Bool
+PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap,
+            int xdir, int ydir,
+            int alu, Pixel planemask)
+{
     TRIDENTPtr pTrident = TRIDENTPTR(
-            xf86ScreenToScrn(pSrcPixmap->drawable.pScreen));
+                    xf86ScreenToScrn(pSrcPixmap->drawable.pScreen));
     int src_stride = (pSrcPixmap->drawable.width + 7) / 8;
     int src_off = exaGetPixmapOffset(pSrcPixmap) / 8;
     int dst_stride = (pDstPixmap->drawable.width + 7) / 8;
@@ -151,55 +173,71 @@ static Bool PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap,
     REPLICATE(planemask, pSrcPixmap->drawable.bitsPerPixel);
     if (planemask != (unsigned int) -1) {
         BLADE_OUT(GER_BITMASK, ~planemask);
-        pTrident->BltScanDirection |= 1 << 5;
+        pTrident->BltScanDirection |= (1 << 5);
     }
 
     BLADE_OUT(GER_SRCBASE0,
-            GetDepth(pSrcPixmap->drawable.bitsPerPixel)
-                    | src_stride << 20 | src_off);
+                GetDepth(pSrcPixmap->drawable.bitsPerPixel) |
+                (src_stride << 20) |
+                src_off);
 
     BLADE_OUT(GER_DSTBASE0,
-            GetDepth(pDstPixmap->drawable.bitsPerPixel)
-                    | dst_stride << 20 | dst_off);
+                GetDepth(pDstPixmap->drawable.bitsPerPixel) |
+                (dst_stride << 20) |
+                dst_off);
 
     if ((xdir < 0) || (ydir < 0))
-        pTrident->BltScanDirection |= 1 << 1;
+        pTrident->BltScanDirection |= (1 << 1);
 
     BLADE_OUT(GER_ROP, GetCopyROP(alu));
 
     return TRUE;
 }
 
-static void Copy(PixmapPtr pDstPixmap, int x1, int y1, int x2, int y2,
-        int w, int h) {
+static void
+Copy(PixmapPtr pDstPixmap,
+        int x1, int y1,
+        int x2, int y2,
+        int w, int h)
+{
     TRIDENTPtr pTrident = TRIDENTPTR(
-            xf86ScreenToScrn(pDstPixmap->drawable.pScreen));
+                    xf86ScreenToScrn(pDstPixmap->drawable.pScreen));
 
-    BLADE_OUT(GER_DRAW_CMD,
-            GER_OP_BLT_HOST | GER_DRAW_SRC_COLOR | GER_ROP_ENABLE | GER_BLT_SRC_FB | pTrident->BltScanDirection);
+    BLADE_OUT(GER_DRAW_CMD, GER_OP_BLT_HOST |
+                            GER_DRAW_SRC_COLOR |
+                            GER_ROP_ENABLE |
+                            GER_BLT_SRC_FB |
+                            pTrident->BltScanDirection);
 
     if (pTrident->BltScanDirection) {
-        BLADE_OUT(GER_SRC1, (y1 + h - 1) << 16 | (x1 + w - 1));
-        BLADE_OUT(GER_SRC2, y1 << 16 | x1);
-        BLADE_OUT(GER_DST1, (y2 + h - 1) << 16 | (x2 + w - 1));
-        BLADE_OUT(GER_DST2, (y2 & 0xfff) << 16 | (x2 & 0xfff));
+        BLADE_OUT(GER_SRC1, ((y1 + h - 1) << 16) | (x1 + w - 1));
+        BLADE_OUT(GER_SRC2, (y1 << 16) | x1);
+        BLADE_OUT(GER_DST1, ((y2 + h - 1) << 16) | (x2 + w - 1));
+        BLADE_OUT(GER_DST2, ((y2 & 0xfff) << 16) | (x2 & 0xfff));
     } else {
-        BLADE_OUT(GER_SRC1, y1 << 16 | x1);
-        BLADE_OUT(GER_SRC2, (y1 + h - 1) << 16 | (x1 + w - 1));
-        BLADE_OUT(GER_DST1, y2 << 16 | x2);
-        BLADE_OUT(GER_DST2,
-                (((y2 + h - 1) & 0xfff) << 16 | ((x2 + w - 1) & 0xfff)));
+        BLADE_OUT(GER_SRC1, (y1 << 16) | x1);
+        BLADE_OUT(GER_SRC2, ((y1 + h - 1) << 16) | (x1 + w - 1));
+        BLADE_OUT(GER_DST1, (y2 << 16) | x2);
+        BLADE_OUT(GER_DST2, ((((y2 + h - 1) & 0xfff) << 16) |
+                            ((x2 + w - 1) & 0xfff)));
     }
 }
 
-static void DoneCopy(PixmapPtr pDstPixmap) {
+static void
+DoneCopy(PixmapPtr pDstPixmap)
+{
 }
 
-static int MarkSync(ScreenPtr pScreen) {
+static int
+MarkSync(ScreenPtr pScreen)
+{
     return 0;
 }
 
-static void WaitMarker(ScreenPtr pScreen, int marker) {
+static void
+WaitMarker(ScreenPtr pScreen,
+            int marker)
+{
     TRIDENTPtr pTrident = TRIDENTPTR(xf86ScreenToScrn(pScreen));
     int busy;
     int cnt = 10000000;
@@ -214,11 +252,14 @@ static void WaitMarker(ScreenPtr pScreen, int marker) {
             BLADE_OUT(GER_CONTROL, GER_CTL_RESUME);
             break;
         }
+
         BLADEBUSY(busy);
     }
 }
 
-static void BladeInitializeAccelerator(ScrnInfoPtr pScrn) {
+static void
+BladeInitializeAccelerator(ScrnInfoPtr pScrn)
+{
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     BLADE_OUT(GER_DSTBASE0, 0);
@@ -232,7 +273,9 @@ static void BladeInitializeAccelerator(ScrnInfoPtr pScrn) {
     BLADE_OUT(GER_PATSTYLE, 0);
 }
 
-Bool BladeExaInit(ScreenPtr pScreen) {
+Bool
+BladeExaInit(ScreenPtr pScreen)
+{
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     ExaDriverPtr ExaDriver;
