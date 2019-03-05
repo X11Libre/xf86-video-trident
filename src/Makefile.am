@@ -30,24 +30,24 @@ trident_drv_la_LIBADD = -lm
 trident_drv_ladir = @moduledir@/drivers
 
 trident_drv_la_SOURCES = \
-         blade_exa.c \
-         blade_xaa.c \
-         compat-api.h \
-         image_xaa.c \
-         tgui_xaa.c \
-         trident_bank.c \
-         trident_dac.c \
-         trident_dga.c \
-         trident_driver.c \
-         trident.h \
-         tridenthelper.c \
-	 tridentpcirename.h \
-         trident_i2c.c \
-         trident_regs.h \
-         trident_shadow.c \
-         trident_tv.c \
-         trident_video.c \
-         tvga_dac.c \
-         xp_accel.c \
-	 xp4_accel.c \
-	 xp4_accel_exa.c
+        blade_exa.c \
+        blade_xaa.c \
+        compat-api.h \
+        image_xaa.c \
+        tgui_xaa.c \
+        trident_bank.c \
+        trident_dac.c \
+        trident_dga.c \
+        trident_driver.c \
+        trident.h \
+        tridenthelper.c \
+        tridentpcirename.h \
+        trident_i2c.c \
+        trident_regs.h \
+        trident_shadow.c \
+        trident_tv.c \
+        trident_video.c \
+        tvga_dac.c \
+        xp_accel.c \
+        xp4_accel.c \
+        xp4_accel_exa.c
