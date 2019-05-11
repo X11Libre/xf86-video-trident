@@ -40,9 +40,9 @@ trident_drv_la_SOURCES = \
         trident_dga.c \
         trident_driver.c \
         trident.h \
-        tridenthelper.c \
         tridentpcirename.h \
         trident_i2c.c \
+        trident_pll.c \
         trident_regs.h \
         trident_shadow.c \
         trident_tv.c \
