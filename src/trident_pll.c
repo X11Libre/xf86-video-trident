@@ -37,7 +37,23 @@
 #include "trident.h"
 #include "trident_regs.h"
 
-static void IsClearTV(ScrnInfoPtr pScrn);
+
+static void
+IsClearTV(ScrnInfoPtr pScrn)
+{
+    int vgaIOBase = VGAHWPTR(pScrn)->IOBase;
+    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
+    CARD8 temp;
+
+    if (pTrident->frequency != 0) return;
+
+    OUTB(vgaIOBase + 4, 0xC0);
+    temp = INB(vgaIOBase + 5);
+    if (temp & 0x80)
+        pTrident->frequency = PAL;
+    else
+        pTrident->frequency = NTSC;
+}
 
 void
 TGUISetClock(ScrnInfoPtr pScrn, int clock, CARD8 *a, CARD8 *b)
@@ -121,23 +137,6 @@ TGUISetClock(ScrnInfoPtr pScrn, int clock, CARD8 *a, CARD8 *b)
     xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 3,
                    "Found Clock %6.2f n=%i m=%i k=%i\n",
                    clock/1000., p, q, r);
-}
-
-static void
-IsClearTV(ScrnInfoPtr pScrn)
-{
-    int vgaIOBase = VGAHWPTR(pScrn)->IOBase;
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    CARD8 temp;
-
-    if (pTrident->frequency != 0) return;
-
-    OUTB(vgaIOBase + 4, 0xC0);
-    temp = INB(vgaIOBase + 5);
-    if (temp & 0x80)
-        pTrident->frequency = PAL;
-    else
-        pTrident->frequency = NTSC;
 }
 
 void
