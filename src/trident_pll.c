@@ -71,8 +71,8 @@ TGUISetClock(ScrnInfoPtr pScrn, int clock, CARD8 *a, CARD8 *b)
 
     freq = clock;
 
-    for (k = startk; k <= endk; k++)
-        for (n = 0; n <= endn; n++)
+    for (k = startk; k <= endk; k++) {
+        for (n = 0; n <= endn; n++) {
             for (m = 1; m <= endm; m++) {
                 ffreq = ((((n + 8) * pTrident->frequency) /
                             ((m + 2) * powerup[k])) * 1000);
@@ -97,6 +97,8 @@ TGUISetClock(ScrnInfoPtr pScrn, int clock, CARD8 *a, CARD8 *b)
 #endif
                 }
             }
+        }
+    }
 
     if (s == 0) {
         FatalError("Unable to set programmable clock.\n"
