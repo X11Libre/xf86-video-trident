@@ -303,16 +303,17 @@ TGUISetMCLK(ScrnInfoPtr pScrn, int clock, CARD8 *a, CARD8 *b)
     freq = clock;
 
     if (!pTrident->HasSGRAM) {
-      for (k=0;k<=endk;k++)
-        for (n=startn;n<=endn;n++)
+      for (k=0;k<=endk;k++) {
+        for (n=startn;n<=endn;n++) {
           for (m=1;m<=endm;m++) {
 	    ffreq = ((((n+8)*pTrident->frequency)/((m+2)*powerup[k]))*1000);
-		if ((ffreq > freq - clock_diff) && (ffreq < freq + clock_diff)) 
-		{
+		if ((ffreq > freq - clock_diff) && (ffreq < freq + clock_diff)) {
 		    clock_diff = (freq > ffreq) ? freq - ffreq : ffreq - freq;
 		    p = n; q = m; r = k; s = ffreq;
-	    }
-	}
+		}
+          }
+        }
+      }
 
 	if (s == 0)
 	{
