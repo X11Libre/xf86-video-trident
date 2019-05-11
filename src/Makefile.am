@@ -39,14 +39,14 @@ trident_drv_la_SOURCES = \
         trident_dac.c \
         trident_dga.c \
         trident_driver.c \
-        trident.h \
-        tridentpcirename.h \
         trident_i2c.c \
         trident_pll.c \
         trident_regs.h \
         trident_shadow.c \
         trident_tv.c \
         trident_video.c \
+        trident.h \
+        tridentpcirename.h \
         tvga_dac.c \
         xp_xaa.c \
         xp4_exa.c \
