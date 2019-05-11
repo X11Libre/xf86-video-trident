@@ -30,7 +30,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "tridentpcirename.h"
+#include "trident_pci_rename.h"
 
 #include "exa.h"
 #include "xf86Cursor.h"
