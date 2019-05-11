@@ -26,8 +26,8 @@
  * library. The main purpose being to facilitate source code compatibility.
  */
 
-#ifndef TRIDENT_PCI_RENAME_H
-#define TRIDENT_PCI_RENAME_H
+#ifndef PCI_RENAME_H
+#define PCI_RENAME_H
 
 enum region_type {
     REGION_MEM,
@@ -119,4 +119,4 @@ typedef struct pci_device *pciVideoPtr;
 
 #endif /* XSERVER_LIBPCIACCESS */
 
-#endif /* TRIDENT_PCI_RENAME_H */
+#endif /* PCI_RENAME_H */
