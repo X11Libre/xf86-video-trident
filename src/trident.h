@@ -38,7 +38,6 @@
 #include "xaa.h"
 #endif
 #include "xf86fbman.h"
-#include "xf86RamDac.h"
 #include "compiler.h"
 #include "vgaHW.h"
 #include "xf86i2c.h"
@@ -103,7 +102,6 @@ typedef struct {
     int			useEXA;
     int			Chipset;
     int			DACtype;
-    int			RamDac;
     int                 ChipRev;
     int			HwBpp;
     int			BppShift;
@@ -169,7 +167,6 @@ typedef struct {
     CARD32		BltScanDirection;
     CARD32		DrawFlag;
     CARD16		LinePattern;
-    RamDacRecPtr	RamDacRec;
     int			CursorOffset;
     xf86CursorInfoPtr	CursorInfoRec;
     xf86Int10InfoPtr	Int10;
