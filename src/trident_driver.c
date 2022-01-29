@@ -907,7 +907,7 @@ TRIDENTLcdDisplaySize (xf86MonPtr pMon)
             }
         }
         /*
-         * If not explicitely set try to find out if the display supports
+         * If not explicitly set try to find out if the display supports
          * the 1400 mode. For sanity check if DDC comes from a digital
          * display.
          */
@@ -2079,7 +2079,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     pTrident->UsePCIBurst = TRUE;
     if (xf86ReturnOptValBool(pTrident->Options, OPTION_NOPCIBURST, FALSE)) {
         pTrident->UsePCIBurst = FALSE;
-        xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "PCI Burst disbled\n");
+        xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "PCI Burst disabled\n");
     }
     /* Display Size override moved to DDC section */
     if(xf86GetOptValInteger(pTrident->Options, OPTION_VIDEO_KEY,
@@ -2498,7 +2498,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
             xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "PCI retry not supported, disabling\n");
         pTrident->UsePCIRetry = FALSE; /* Not Supported */
         break;
-        /* Trident didn't update the PCI ID's and so we have to detemine
+        /* Trident didn't update the PCI ID's and so we have to determine
          * which chips are right ! Then override pTrident->Chipset to
          * correct values */
     case TGUI9660:

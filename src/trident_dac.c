@@ -1259,7 +1259,7 @@ void TridentSetOverscan(
 void TridentLoadPalette(
     ScrnInfoPtr pScrn, 
     int numColors, 
-    int *indicies,
+    int *indices,
     LOCO *colors,
     VisualPtr pVisual
 ){
@@ -1267,7 +1267,7 @@ void TridentLoadPalette(
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int i, index;
     for(i = 0; i < numColors; i++) {
-	index = indicies[i];
+	index = indices[i];
     	OUTB(0x3C6, 0xFF);
 	DACDelay(hwp);
         OUTB(0x3c8, index);
