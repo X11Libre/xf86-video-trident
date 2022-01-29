@@ -34,13 +34,13 @@ trident_drv_la_SOURCES = \
         blade_xaa.c \
         compat-api.h \
         image_xaa.c \
+        pci_rename.h \
         tgui_xaa.c \
         trident_bank.c \
         trident_dac.c \
         trident_dga.c \
         trident_driver.c \
         trident_i2c.c \
-        trident_pci_rename.h \
         trident_pll.c \
         trident_regs.h \
         trident_shadow.c \
