@@ -1854,7 +1854,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     vgaHWPtr hwp;
     MessageType from;
     CARD8 videoram, videorammask;
-    char *ramtype = NULL, *chipset = NULL;
+    const char *ramtype = NULL, *chipset = NULL;
     Bool Support24bpp;
     int vgaIOBase;
     float mclk;
