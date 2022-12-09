@@ -97,6 +97,7 @@ GetDepth(int depth)
         break;
     case 15:
         ret = 5UL << 29; /* 555 */
+        break;
     case 16:
         ret = 1UL << 29; /* 565 */
         break;
