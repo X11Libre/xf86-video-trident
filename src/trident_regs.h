@@ -300,21 +300,23 @@
         MMIO_IN32(pTrident->IOBase,(r))
 
 #define OUTB(addr, data) \
-{ \
+do { \
 	if (IsPciCard && UseMMIO) { \
             MMIO_OUT8(pTrident->IOBase, addr, data); \
 	} else { \
 	    outb(pTrident->PIOBase + (addr), data); \
 	} \
-}
+} while(0)
+
 #define OUTW(addr, data) \
-{ \
+do { \
 	if (IsPciCard && UseMMIO) { \
             MMIO_OUT16(pTrident->IOBase, addr, data); \
 	} else { \
 	    outw(pTrident->PIOBase + (addr), data); \
 	} \
-}
+} while(0)
+
 #define INB(addr) \
 ( \
 	(IsPciCard && UseMMIO) ? \
