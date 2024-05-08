@@ -1061,7 +1061,7 @@ TRIDENTGetRec(ScrnInfoPtr pScrn)
     if (pScrn->driverPrivate != NULL)
         return TRUE;
 
-    pScrn->driverPrivate = xnfcalloc(sizeof(TRIDENTRec), 1);
+    pScrn->driverPrivate = XNFcallocarray(sizeof(TRIDENTRec), 1);
     /* Initialise it */
 
     return TRUE;
@@ -3107,7 +3107,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
      * Setup the ClockRanges, which describe what clock ranges are available,
      * and what sort of modes they can be used for.
      */
-    clockRanges = xnfcalloc(sizeof(ClockRange), 1);
+    clockRanges = XNFcallocarray(sizeof(ClockRange), 1);
     clockRanges->next = NULL;
     if (!pScrn->progClock) {
         if (pScrn->videoRam < 1024)
@@ -3602,7 +3602,7 @@ TRIDENTScreenInit(SCREEN_INIT_ARGS_DECL)
         miBankInfoPtr pBankInfo;
 
         /* Setup the vga banking variables */
-        pBankInfo = xnfcalloc(sizeof(miBankInfoRec),1);
+        pBankInfo = XNFcallocarray(sizeof(miBankInfoRec),1);
         if (pBankInfo == NULL) {
             if (pTrident->pVbe)
                 vbeFree(pTrident->pVbe);
