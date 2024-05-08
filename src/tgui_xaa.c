@@ -246,7 +246,7 @@ TridentAccelInit(ScreenPtr pScreen)
                                         BIT_ORDER_IN_BYTE_MSBFIRST;
 
         pTrident->XAAScanlineColorExpandBuffers[0] =
-                            xnfalloc(((pScrn->virtualX + 63)) * 4 *
+                            XNFalloc(((pScrn->virtualX + 63)) * 4 *
                                         (pScrn->bitsPerPixel / 8));
 
         infoPtr->NumScanlineColorExpandBuffers = 1;

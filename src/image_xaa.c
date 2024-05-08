@@ -257,7 +257,7 @@ ImageAccelInit(ScreenPtr pScreen)
                                             BIT_ORDER_IN_BYTE_MSBFIRST;
 
         pTrident->XAAScanlineColorExpandBuffers[0] =
-                            xnfalloc(((pScrn->virtualX + 63)) * 4 *
+                            XNFalloc(((pScrn->virtualX + 63)) * 4 *
                                         (pScrn->bitsPerPixel / 8));
 
         infoPtr->NumScanlineColorExpandBuffers = 1;
@@ -286,7 +286,7 @@ ImageAccelInit(ScreenPtr pScreen)
                                     pTrident->XAAImageScanlineBuffer;
 
         pTrident->XAAImageScanlineBuffer[0] =
-                xnfalloc(pScrn->virtualX * pScrn->bitsPerPixel / 8);
+                XNFalloc(pScrn->virtualX * pScrn->bitsPerPixel / 8);
 
         infoPtr->ImageWriteBase = pTrident->IOBase + 0x10000;
     }
