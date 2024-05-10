@@ -1700,13 +1700,13 @@ GetAccelPitchValues(ScrnInfoPtr pScrn)
 
     for (i = 0; i < 4; i++) {
         n++;
-        linePitches = xnfrealloc(linePitches, n * sizeof(int));
+        linePitches = XNFrealloc(linePitches, n * sizeof(int));
         linePitches[n - 1] = lines[i];
     }
 
     /* Mark the end of the list */
     if (n > 0) {
-        linePitches = xnfrealloc(linePitches, (n + 1) * sizeof(int));
+        linePitches = XNFrealloc(linePitches, (n + 1) * sizeof(int));
         linePitches[n] = 0;
     }
     return linePitches;
