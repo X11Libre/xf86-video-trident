@@ -35,9 +35,6 @@
 
 #include "fb.h"
 
-#ifdef HAVE_ISA
-#include "mibank.h"
-#endif
 #include "micmap.h"
 #include "xf86.h"
 #include "xf86_OSproc.h"
@@ -148,20 +145,6 @@ static SymTabRec TRIDENTChipsets[] = {
     { XP5,              "XP5" },
     { -1,               NULL }
 };
-
-#ifdef HAVE_ISA
-static IsaChipsets TRIDENTISAchipsets[] = {
-    { TVGA9000,         RES_EXCLUSIVE_VGA },
-    { TVGA9000i,        RES_EXCLUSIVE_VGA },
-    { TVGA8900C,        RES_EXCLUSIVE_VGA },
-    { TVGA8900D,        RES_EXCLUSIVE_VGA },
-    { TVGA9200CXr,      RES_EXCLUSIVE_VGA },
-    { TGUI9400CXi,      RES_EXCLUSIVE_VGA },
-    { CYBER9320,        RES_EXCLUSIVE_VGA },
-    { TGUI9440AGi,      RES_EXCLUSIVE_VGA },
-    { -1,               RES_UNDEFINED }
-};
-#endif
 
 static PciChipsets TRIDENTPciChipsets[] = {
     { CYBER9320,        PCI_CHIP_9320,  RES_SHARED_VGA },
@@ -1463,99 +1446,6 @@ TRIDENTClockSelect(ScrnInfoPtr pScrn, int no)
     return(TRUE);
 }
 
-#ifdef HAVE_ISA
-static int
-TridentFindIsaDevice(GDevPtr dev)
-{
-    int found = -1;
-    unsigned char temp, origVal, newVal;
-
-    /*
-     * Check first that we have a Trident card.
-     */
-    outb(0x3C4, 0x0B);
-    temp = inb(0x3C5);	/* Save old value */
-    outb(0x3C4, 0x0B);	/* Switch to Old Mode */
-    outb(0x3C5, 0x00);
-    inb(0x3C5);		/* Now to New Mode */
-    outb(0x3C4, 0x0E);
-    origVal = inb(0x3C5);
-    outb(0x3C5, 0x00);
-    newVal = inb(0x3C5) & 0x0F;
-    outb(0x3C5, (origVal ^ 0x02));
-
-    /*
-     * Is it a Trident card ??
-     */
-    if (newVal != 2) {
-        /*
-         * Nope, so quit
-         */
-        outb(0x3C4, 0x0B);	/* Restore value of 0x0B */
-        outb(0x3C5, temp);
-        outb(0x3C4, 0x0E);
-        outb(0x3C5, origVal);
-        return found;
-    }
-
-    outb(0x3C4, 0x0B);
-    temp = inb(0x3C5);
-    switch (temp) {
-    case 0x01:
-        found = TVGA8800BR;
-        break;
-    case 0x02:
-        found = TVGA8800CS;
-        break;
-    case 0x03:
-        found = TVGA8900B;
-        break;
-    case 0x04:
-    case 0x13:
-        found = TVGA8900C;
-        break;
-    case 0x23:
-        found = TVGA9000;
-        break;
-    case 0x33:
-        found = TVGA8900D;
-        break;
-    case 0x43:
-        found = TVGA9000i;
-        break;
-    case 0x53:
-        found = TVGA9200CXr;
-        break;
-    case 0x63:
-        found = TVGA9100B;
-        break;
-    case 0x73:
-    case 0xC3:
-        found = TGUI9420DGi;
-        break;
-    case 0x83:
-        found = TVGA8200LX;
-        break;
-    case 0x93:
-        found = TGUI9400CXi;
-        break;
-    case 0xA3:
-        found = CYBER9320;
-        break;
-    case 0xD3:
-        found = TGUI9660;
-        break;
-    case 0xE3:
-        found = TGUI9440AGi;
-        break;
-    case 0xF3:
-        found = TGUI9430DGi;
-        break;
-    }
-    return found;
-}
-#endif
-
 /*
  * Map the framebuffer and MMIO memory.
  */
@@ -1808,39 +1698,6 @@ TRIDENTProbe(DriverPtr drv, int flags)
             free(usedChips);
         }
     }
-
-#ifdef HAVE_ISA
-    /* Isa Bus */
-    numUsed = xf86MatchIsaInstances(TRIDENT_NAME,TRIDENTChipsets,
-            TRIDENTISAchipsets,
-            drv,TridentFindIsaDevice,devSections,
-            numDevSections,&usedChips);
-    if (numUsed > 0) {
-        if (flags & PROBE_DETECT)
-            foundScreen = TRUE;
-        else 	for (i = 0; i < numUsed; i++) {
-            ScrnInfoPtr pScrn = NULL;
-            if ((pScrn = xf86ConfigIsaEntity(pScrn,0,usedChips[i],
-                    TRIDENTISAchipsets,NULL,
-                    NULL,NULL,NULL,NULL))) {
-                pScrn->driverVersion = TRIDENT_VERSION;
-                pScrn->driverName    = TRIDENT_DRIVER_NAME;
-                pScrn->name          = TRIDENT_NAME;
-                pScrn->Probe         = TRIDENTProbe;
-                pScrn->PreInit       = TRIDENTPreInit;
-                pScrn->ScreenInit    = TRIDENTScreenInit;
-                pScrn->SwitchMode    = TRIDENTSwitchMode;
-                pScrn->AdjustFrame   = TRIDENTAdjustFrame;
-                pScrn->EnterVT       = TRIDENTEnterVT;
-                pScrn->LeaveVT       = TRIDENTLeaveVT;
-                pScrn->FreeScreen    = TRIDENTFreeScreen;
-                pScrn->ValidMode     = TRIDENTValidMode;
-                foundScreen = TRUE;
-            }
-        }
-        free(usedChips);
-    }
-#endif
 
     free(devSections);
     return foundScreen;
@@ -3596,43 +3453,6 @@ TRIDENTScreenInit(SCREEN_INIT_ARGS_DECL)
 
     if (!pTrident->ShadowFB)
         TRIDENTDGAInit(pScreen);
-
-#ifdef HAVE_ISA
-    if (!LINEAR()) {
-        miBankInfoPtr pBankInfo;
-
-        /* Setup the vga banking variables */
-        pBankInfo = XNFcallocarray(sizeof(miBankInfoRec),1);
-        if (pBankInfo == NULL) {
-            if (pTrident->pVbe)
-                vbeFree(pTrident->pVbe);
-            else
-                xf86FreeInt10(pTrident->Int10);
-            return FALSE;
-        }
-        pBankInfo->pBankA = pTrident->FbBase;
-        pBankInfo->pBankB = pTrident->FbBase;
-        pBankInfo->BankSize = 0x10000;
-        pBankInfo->nBankDepth = (pScrn->depth == 4) ? 1 : pScrn->depth;
-
-        pBankInfo->SetSourceBank =
-                (miBankProcPtr)TVGA8900SetRead;
-        pBankInfo->SetDestinationBank =
-                (miBankProcPtr)TVGA8900SetWrite;
-        pBankInfo->SetSourceAndDestinationBanks =
-                (miBankProcPtr)TVGA8900SetReadWrite;
-        if (!miInitializeBanking(pScreen, pScrn->virtualX, pScrn->virtualY,
-                pScrn->displayWidth, pBankInfo)) {
-            free(pBankInfo);
-            pBankInfo = NULL;
-            if (pTrident->pVbe)
-                vbeFree(pTrident->pVbe);
-            else
-                xf86FreeInt10(pTrident->Int10);
-            return FALSE;
-        }
-    }
-#endif
 
     {
         BoxRec AvailFBArea;

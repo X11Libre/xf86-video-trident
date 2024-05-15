@@ -65,14 +65,6 @@ PKG_CHECK_MODULES(XEXT, [xextproto >= 7.0.99.1],
                   HAVE_XEXTPROTO_71="no")
 AM_CONDITIONAL(HAVE_XEXTPROTO_71, [ test "$HAVE_XEXTPROTO_71" = "yes" ])
 
-save_CFLAGS="$CFLAGS"
-CFLAGS="$XORG_CFLAGS"
-AC_CHECK_DECL(xf86ConfigIsaEntity,
-	      [AC_DEFINE(HAVE_ISA, 1, [Have ISA support])],
-	      [],
-	      [#include "xf86.h"])
-CFLAGS="$save_CFLAGS"
-
 SAVE_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $XORG_CFLAGS"
 AC_CHECK_DECL(XSERVER_LIBPCIACCESS,

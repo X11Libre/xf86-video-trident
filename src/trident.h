@@ -49,12 +49,7 @@
 #include "vbe.h"
 
 #include "compat-api.h"
-/* Banked framebuffer only supported on ISA */
-#ifdef HAVE_ISA
-#define LINEAR() (pTrident->Linear)
-#else
 #define LINEAR() (1)
-#endif
 
 #define PCI_VENDOR_TRIDENT		0x1023
 #define PCI_CHIP_2100			0x2100
@@ -356,12 +351,7 @@ typedef enum {
 
 #define IsPciCard	(pTrident->pEnt->location.type == BUS_PCI)
 
-#ifdef HAVE_ISA
-# define IsPrimaryCard	((xf86IsPrimaryPci(pTrident->PciInfo)) || \
-			 (xf86IsPrimaryIsa()))
-#else
 # define IsPrimaryCard	(xf86IsPrimaryPci(pTrident->PciInfo))
-#endif
 
 #define HAS_DST_TRANS	((pTrident->Chipset == PROVIDIA9682) || \
 			 (pTrident->Chipset == PROVIDIA9685) || \
