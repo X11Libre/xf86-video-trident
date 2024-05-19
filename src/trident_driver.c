@@ -38,10 +38,6 @@
 #include "micmap.h"
 #include "xf86.h"
 #include "xf86_OSproc.h"
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 6
-#include "xf86Resources.h"
-#include "xf86RAC.h"
-#endif
 #include "xf86Pci.h"
 #include "xf86cmap.h"
 #include "vgaHW.h"
@@ -495,15 +491,6 @@ TRIDENTEnableMMIO(ScrnInfoPtr pScrn)
     unsigned long vgaIOBase = pTrident->PIOBase + VGAHWPTR(pScrn)->IOBase;
     CARD8 temp = 0, protect = 0;
 
-    /*
-     * Skip MMIO Enable in PC-9821 PCI Trident Card!!
-     * Because of lack of non PCI VGA port
-     */
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-    if (IsPciCard && xf86IsPc98())
-        return;
-#endif
-
     /* Goto New Mode */
     outb(pTrident->PIOBase + 0x3C4, 0x0B);
     inb(pTrident->PIOBase + 0x3C5);
@@ -539,15 +526,6 @@ TRIDENTDisableMMIO(ScrnInfoPtr pScrn)
     CARD8 temp = 0, protect = 0;
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-    /*
-     * Skip MMIO Disable in PC-9821 PCI Trident Card!!
-     * Because of lack of non PCI VGA port
-     */
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-    if (IsPciCard && xf86IsPc98())
-        return;
-#endif
-
     /* Goto New Mode */
     OUTB(0x3C4, 0x0B); temp = INB(0x3C5);
 
@@ -573,251 +551,6 @@ TRIDENTDisableMMIO(ScrnInfoPtr pScrn)
     outb(pTrident->PIOBase + 0x3C4, NewMode1);
     outb(pTrident->PIOBase + 0x3C5, temp);
 }
-
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-/* Initialize VGA Block for Cyber9385 on PC-98x1 */
-static void
-PC98TRIDENT9385Init(ScrnInfoPtr pScrn)
-{
-    /* Nothing to initialize */
-}
-
-static void
-PC98TRIDENT9385Enable(ScrnInfoPtr pScrn)
-{
-    outb(0xFAC, 0x02);
-}
-
-static void
-PC98TRIDENT9385Disable(ScrnInfoPtr pScrn)
-{
-    outb(0xFAC, 0x00);
-}
-
-/* Initialize VGA Block for Trident96xx on PC-98x1 */
-static void
-PC98TRIDENT96xxInit(ScrnInfoPtr pScrn)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    vgaHWPtr hwp = VGAHWPTR(pScrn);
-    CARD8 temp = 0;
-
-    vgaHWProtect(pScrn, TRUE);
-
-    /* Video SusSystem Enable */
-    temp = INB(0x3CC);
-    OUTB(0x3C2, temp | 0xC3);
-    /* Switch Old */
-    OUTB(0x3C4, 0x0B); temp = INB(0x3C5);
-    OUTW(0x3C4, 0x0B | (temp << 8));
-    /* Select Configuration Port 1 */
-    OUTB(0x3C4, 0x0E); temp = INB(0x3C5);
-    OUTW(0x3C4, 0x0E | ((temp | 0x20) << 8));
-
-    OUTB(0x3C4, 0x0c);
-    if((INB(0x3C5) & 0x10) == 0x10)
-    {
-        OUTB(0x3C4, 0x0E | (temp << 8));
-        OUTB(0x94,  0x00);
-        OUTB(0x102, 0x01);
-        OUTB(0x94,  0x20);
-        temp = INB(0x3C3);
-        OUTB(0x3C3, temp | 0x01);
-    } else {
-        OUTB(0x3C4, 0x0E | (temp << 8));
-        OUTB(0x46E8, 0x10);
-        OUTB(0x102,  0x01);
-        OUTB(0x46E8, 0x08);
-    }
-
-    INB(0x3DA);
-    OUTB(0x3C0,0x10);
-    OUTB(0x3C0,0x41);
-
-    /* Register Unlock */
-    vgaHWUnlock(hwp);
-    OUTB(0x3C4, 0x0B); temp = INB(0x3C5); /* Switch New */
-    OUTB(0x3C4, 0x0E); temp = INB(0x3C5);
-    OUTW(0x3C4, 0x0E | ((temp | 0x80) << 8));
-
-    /* For Speed Up [Facoor 2 at Xengine] */
-    OUTW(0x3D4, 0x3820); /* Command FIFO Register */
-    OUTW(0x3D4, 0x2020); /* Command FIFO Register */
-    /* Latency Control Registers 0x30 - 0x32 */
-    /* Parameter Range 0x00 - 0x0F */
-    /* Tune these parameter to avoid GE Timeout */
-    OUTW(0x3D4, 0x0E30); /* Display Queue Latency Control */
-    /* 8bpp GE No Timeout Parameter 0x0D - 0x0F for PC-9821Xa7 TGUi9680 */
-    OUTW(0x3D4, 0x0031); /* Frame Buffer Latency Control */
-    OUTW(0x3D4, 0x0032); /* Display & Frame Buffer Latency Control */
-    OUTW(0x3D4, 0x213B); /* Clock and Tuning */
-
-    /* MCLK Init */
-    OUTB(0x43C6, 0xAF); OUTB(0x43C7, 0x00); /* 80.0MHz */
-#if 0
-    /* Sample MCLKs */
-    OUTB(0x43C6, 0xAF); OUTB(0x43C7, 0x00); /* 80.0MHz */
-    OUTB(0x43C6, 0xA7); OUTB(0x43C7, 0x00); /* 77.0MHz */
-    OUTB(0x43C6, 0x8E); OUTB(0x43C7, 0x00); /* 75.0MHz */
-    OUTB(0x43C6, 0x86); OUTB(0x43C7, 0x00); /* 72.0MHz */
-    OUTB(0x43C6, 0x8F); OUTB(0x43C7, 0x00); /* 67.2MHz */
-    OUTB(0x43C6, 0xD5); OUTB(0x43C7, 0x02); /* 61.6MHz */
-#endif
-
-    /* Register Lock */
-    OUTB(0x3C4, 0x0B); temp = INB(0x3C5); /* Switch New */
-    OUTB(0x3C4, 0x0E); temp = INB(0x3C5);
-    OUTW(0x3C4, 0x0E | ((temp & 0x7F) << 8));
-    vgaHWLock(hwp);
-
-    vgaHWProtect(pScrn, FALSE);
-}
-
-static void
-PC98TRIDENT96xxEnable(ScrnInfoPtr pScrn)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    CARD8 temp = 0;
-
-    outb(0x68, 0x0E);
-    outb(0x6A, 0x07);
-    outb(0x6A, 0x8F);
-    outb(0x6A, 0x06);
-
-    vgaHWProtect(pScrn, TRUE);
-
-    OUTB(0x3D4, 0x23); temp = INB(0x3D5);
-    OUTW(0x3D4, 0x23 | ((temp & 0xDF) << 8));
-
-    OUTB(0x3D4, 0x29); temp = INB(0x3D5);
-    OUTW(0x3D4, 0x29 | ((temp | 0x04) << 8));
-
-    OUTB(0x83C8, 0x04); temp = INB(0x83c6);
-    OUTB(0x83C8, 0x04); OUTB(0x83c6, (temp | 0x06));
-
-    OUTB(0x83C8, 0x04); temp = INB(0x83c6);
-    OUTB(0x83C8, 0x04); OUTB(0x83c6, (temp | 0x08));
-
-    OUTB(0x3CE, 0x23); temp = INB(0x3CF);
-    OUTW(0x3CE, 0x23 | ((temp & 0xFC) << 8));
-
-    OUTB(0x83C8, 0x04); temp = INB(0x83c6);
-    OUTB(0x83C8, 0x04); OUTB(0x83c6, (temp | 0x01));
-
-    OUTB(0x3C4, 0x01); temp = INB(0x3C5);
-    OUTW(0x3C4, 0x01 | ((temp & 0xEF) << 8));
-
-    vgaHWProtect(pScrn, FALSE);
-
-    outb(0xFAC, 0x02);
-}
-
-static void
-PC98TRIDENT96xxDisable(ScrnInfoPtr pScrn)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    CARD8 temp = 0;
-
-    outb(0xFAC, 0x00);
-
-    vgaHWProtect(pScrn, TRUE);
-
-    OUTB(0x3C4, 0x01); temp = INB(0x3C5);
-    OUTW(0x3C4, 0x01 | ((temp | 0x10) << 8));
-
-    OUTB(0x83C8, 0x04); temp = INB(0x83c6);
-    OUTB(0x83C8, 0x04); OUTB(0x83c6, (temp & 0xFE));
-
-    OUTB(0x3CE, 0x23); temp = INB(0x3CF);
-    OUTW(0x3CE, 0x23 | (((temp & 0xFC) | 0x01) << 8));
-
-    OUTB(0x83C8, 0x04); temp = INB(0x83c6);
-    OUTB(0x83C8, 0x04); OUTB(0x83c6, (temp & 0xFD));
-
-    OUTB(0x83C8, 0x04); temp = INB(0x83c6);
-    OUTB(0x83C8, 0x04); OUTB(0x83c6, (temp & 0xCF));
-
-    OUTB(0x83C8, 0x04); temp = INB(0x83c6);
-    OUTB(0x83C8, 0x04); OUTB(0x83c6, (temp & 0xF7));
-
-    OUTB(0x83C8, 0x04); temp = INB(0x83c6);
-    OUTB(0x83C8, 0x04); OUTB(0x83c6, (temp & 0xFB));
-
-    OUTB(0x3D4, 0x29); temp = INB(0x3D5);
-    OUTW(0x3D4, 0x29 | ((temp & 0xFB) << 8));
-
-    OUTB(0x3D4, 0x23); temp = INB(0x3D5);
-    OUTW(0x3D4, 0x23 | ((temp | 0x20) << 8));
-
-    vgaHWProtect(pScrn, FALSE);
-
-    outb(0x6A, 0x07);
-    outb(0x6A, 0x8E);
-    outb(0x6A, 0x06);
-    outb(0x68, 0x0F);
-}
-
-/* Initialize VGA Block for Trident Chip on PC-98x1 */
-static void
-PC98TRIDENTInit(ScrnInfoPtr pScrn)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    switch (pTrident->Chipset) {
-    case TGUI9660:
-    case TGUI9680:
-    case PROVIDIA9682:
-        PC98TRIDENT96xxInit(pScrn);
-        break;
-    case CYBER9320:
-    case CYBER9385:
-        PC98TRIDENT9385Init(pScrn);
-        break;
-    default: /* Run 96xx code as default */
-        PC98TRIDENT96xxInit(pScrn);
-        break;
-    }
-}
-
-static void
-PC98TRIDENTEnable(ScrnInfoPtr pScrn)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    switch (pTrident->Chipset) {
-    case TGUI9660:
-    case TGUI9680:
-    case PROVIDIA9682:
-        PC98TRIDENT96xxEnable(pScrn);
-        break;
-    case CYBER9320:
-    case CYBER9385:
-        PC98TRIDENT9385Enable(pScrn);
-        break;
-    default: /* Run 96xx code as default */
-        PC98TRIDENT96xxEnable(pScrn);
-        break;
-    }
-}
-
-static void
-PC98TRIDENTDisable(ScrnInfoPtr pScrn)
-{
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    switch (pTrident->Chipset) {
-    case TGUI9660:
-    case TGUI9680:
-    case PROVIDIA9682:
-        PC98TRIDENT96xxDisable(pScrn);
-        break;
-    case CYBER9320:
-    case CYBER9385:
-        PC98TRIDENT9385Disable(pScrn);
-        break;
-    default: /* Run 96xx code as default */
-        PC98TRIDENT96xxDisable(pScrn);
-        break;
-    }
-}
-#endif
 
 /*
  * This is a terrible hack! If we are on a notebook in a stretched
@@ -927,10 +660,7 @@ TRIDENTModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     TRIDENTRegPtr tridentReg;
 
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-    if (!xf86IsPc98())
-#endif
-        WAITFORVSYNC;
+    WAITFORVSYNC;
 
     TridentFindClock(pScrn,mode->Clock);
 
@@ -1021,11 +751,6 @@ TRIDENTModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
         TVGARestore(pScrn, tridentReg);
 
     vgaHWProtect(pScrn, FALSE);
-
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-    if (xf86IsPc98())
-        PC98TRIDENTEnable(pScrn);
-#endif
 
     if (pTrident->TVChipset != 0)
         VIA_TVInit(pScrn);
@@ -1224,11 +949,6 @@ TRIDENTLeaveVT(VT_FUNC_ARGS_DECL)
 
     TRIDENTRestore(pScrn);
     vgaHWLock(hwp);
-
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-    if (xf86IsPc98())
-        PC98TRIDENTDisable(pScrn);
-#endif
 
     if (IsPciCard && UseMMIO) TRIDENTDisableMMIO(pScrn);
 }
@@ -1827,11 +1547,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     vgaHWGetIOBase(hwp);
     vgaIOBase = hwp->IOBase;
 
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-    pTrident->PIOBase = hwp->PIOOffset;
-#else
-    pTrident->PIOBase = 0;
-#endif
+    pTrident->PIOBase = 0; /* was hwp->PIOOffset */
 
 #ifndef XSERVER_LIBPCIACCESS
     xf86SetOperatingState(resVga, pTrident->pEnt->index, ResUnusedOpr);
@@ -3196,11 +2912,6 @@ TRIDENTCloseScreen(CLOSE_SCREEN_ARGS_DECL)
             if (!pTrident->NoAccel && pTrident->useEXA)
                 pTrident->EXADriverPtr->WaitMarker(pScreen, 0);
 
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-        if (xf86IsPc98())
-            PC98TRIDENTDisable(pScrn);
-#endif
-
         TRIDENTRestore(pScrn);
         vgaHWLock(hwp);
         if (IsPciCard && UseMMIO) TRIDENTDisableMMIO(pScrn);
@@ -3298,21 +3009,16 @@ TRIDENTScreenInit(SCREEN_INIT_ARGS_DECL)
     if (!TRIDENTMapMem(pScrn))
         return FALSE;
 
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-    if (!xf86IsPc98())
+#ifdef VBE_INFO
+    if (pTrident->vbeModes) {
+        pTrident->pVbe = VBEInit(NULL,pTrident->pEnt->index);
+        pTrident->Int10 = pTrident->pVbe->pInt10;
+    } else
 #endif
     {
-#ifdef VBE_INFO
-        if (pTrident->vbeModes) {
-            pTrident->pVbe = VBEInit(NULL,pTrident->pEnt->index);
-            pTrident->Int10 = pTrident->pVbe->pInt10;
-        } else
-#endif
-        {
-            if (xf86LoadSubModule(pScrn, "int10")) {
-                xf86DrvMsg(pScrn->scrnIndex,X_INFO,"Initializing int10\n");
-                pTrident->Int10 = xf86InitInt10(pTrident->pEnt->index);
-            }
+        if (xf86LoadSubModule(pScrn, "int10")) {
+            xf86DrvMsg(pScrn->scrnIndex,X_INFO,"Initializing int10\n");
+            pTrident->Int10 = xf86InitInt10(pTrident->pEnt->index);
         }
     }
 
@@ -3328,16 +3034,7 @@ TRIDENTScreenInit(SCREEN_INIT_ARGS_DECL)
     /* Save the current state */
     TRIDENTSave(pScrn);
 
-    /*
-     * Some Trident chip on PC-9821 needs setup,
-     * because VGA chip is not initialized by VGA BIOS.
-     */
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-    if (IsPciCard && xf86IsPc98()) {
-        PC98TRIDENTInit(pScrn);
-    } else
-#endif
-        tridentSetModeBIOS(pScrn,pScrn->currentMode);
+    tridentSetModeBIOS(pScrn,pScrn->currentMode);
 
     /* Initialise the first mode */
     if (!TRIDENTModeInit(pScrn, pScrn->currentMode))

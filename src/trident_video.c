@@ -1339,11 +1339,6 @@ WaitForVBlank(ScrnInfoPtr pScrn)
      * full vblank has passed. 
      * - Alan.
      */
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 12
-    if (!xf86IsPc98())
-#endif
-    {
-       WAITFORVSYNC;
-       WAITFORVSYNC;
-    }
+    WAITFORVSYNC;
+    WAITFORVSYNC;
 }
