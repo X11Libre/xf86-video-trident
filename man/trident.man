@@ -20,7 +20,7 @@ The XvImage extension is supported on TGUI96xx and greater cards.
 .SH SUPPORTED HARDWARE
 The
 .B trident
-driver supports PCI,AGP and ISA video cards based on the following 
+driver supports PCI and AGP video cards based on the following
 Trident chips:
 .TP 12
 .B Blade
@@ -127,10 +127,11 @@ an integer value greater or equal to 0 and less than 128.
 Default: gamma and brightness control is turned off. 
 Note: This is not supported on all chipsets.
 .BI "Option \*qAccelMethod\*q \*q" string \*q
-Choose acceleration architecture, either "XAA" or "EXA".  XAA is the old
-(but stable) XFree86 based acceleration architecture.  EXA is a newer and
+Choose acceleration architecture, currently only "EXA".  XAA was the old
+(but stable) XFree86 based acceleration architecture, but is no longer available.
+EXA is a newer and
 simpler acceleration architecture designed to better accelerate the X Render
-extension.  Default: "XAA".
+extension.  Default: "EXA".
 .SH "SEE ALSO"
 __xservername__(__appmansuffix__), __xconfigfile__(__filemansuffix__), Xserver(__appmansuffix__), X(__miscmansuffix__)
 .SH AUTHOR

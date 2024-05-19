@@ -39,15 +39,6 @@ static Bool TRIDENT_OpenFramebuffer(ScrnInfoPtr, char **, unsigned char **,
 static Bool TRIDENT_SetMode(ScrnInfoPtr, DGAModePtr);
 static int  TRIDENT_GetViewport(ScrnInfoPtr);
 static void TRIDENT_SetViewport(ScrnInfoPtr, int, int, int);
-#ifdef HAVE_XAA_H
-static void TRIDENT_Sync(ScrnInfoPtr);
-static void TRIDENT_FillRect(ScrnInfoPtr, int, int, int, int, unsigned long);
-static void TRIDENT_BlitRect(ScrnInfoPtr, int, int, int, int, int, int);
-#if 0
-static void TRIDENT_BlitTransRect(ScrnInfoPtr, int, int, int, int, int, int, 
-					unsigned long);
-#endif
-#endif
 
 static
 DGAFunctionRec TRIDENTDGAFuncs = {
@@ -56,18 +47,7 @@ DGAFunctionRec TRIDENTDGAFuncs = {
    TRIDENT_SetMode,
    TRIDENT_SetViewport,
    TRIDENT_GetViewport,
-#ifdef HAVE_XAA_H
-   TRIDENT_Sync,
-   TRIDENT_FillRect,
-   TRIDENT_BlitRect,
-#if 0
-   TRIDENT_BlitTransRect
-#else
-   NULL
-#endif
-#else
    NULL, NULL, NULL
-#endif
 };
 
 Bool
@@ -106,10 +86,6 @@ SECOND_PASS:
 
 	currentMode->mode = pMode;
 	currentMode->flags = DGA_CONCURRENT_ACCESS | DGA_PIXMAP_AVAILABLE;
-#ifdef HAVE_XAA_H
-	if(!pTrident->NoAccel)
-	   currentMode->flags |= DGA_FILL_RECT | DGA_BLIT_RECT;
-#endif
 	if(pMode->Flags & V_DBLSCAN)
 	   currentMode->flags |= DGA_DOUBLESCAN;
 	if(pMode->Flags & V_INTERLACE)
@@ -222,69 +198,6 @@ TRIDENT_SetViewport(
    TRIDENTAdjustFrame(ADJUST_FRAME_ARGS(pScrn, x, y));
    pTrident->DGAViewportStatus = 0;  /* TRIDENTAdjustFrame loops until finished */
 }
-
-#ifdef HAVE_XAA_H
-static void 
-TRIDENT_FillRect (
-   ScrnInfoPtr pScrn, 
-   int x, int y, int w, int h, 
-   unsigned long color
-){
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-
-    if(pTrident->AccelInfoRec) {
-	(*pTrident->AccelInfoRec->SetupForSolidFill)(pScrn, color, GXcopy, ~0);
-	(*pTrident->AccelInfoRec->SubsequentSolidFillRect)(pScrn, x, y, w, h);
-	SET_SYNC_FLAG(pTrident->AccelInfoRec);
-    }
-}
-
-static void 
-TRIDENT_Sync(
-   ScrnInfoPtr pScrn
-){
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-
-    if(pTrident->AccelInfoRec) {
-	(*pTrident->AccelInfoRec->Sync)(pScrn);
-    }
-}
-
-static void 
-TRIDENT_BlitRect(
-   ScrnInfoPtr pScrn, 
-   int srcx, int srcy, 
-   int w, int h, 
-   int dstx, int dsty
-){
-    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-
-    if(pTrident->AccelInfoRec) {
-	int xdir = ((srcx < dstx) && (srcy == dsty)) ? -1 : 1;
-	int ydir = (srcy < dsty) ? -1 : 1;
-
-	(*pTrident->AccelInfoRec->SetupForScreenToScreenCopy)(
-		pScrn, xdir, ydir, GXcopy, ~0, -1);
-	(*pTrident->AccelInfoRec->SubsequentScreenToScreenCopy)(
-		pScrn, srcx, srcy, dstx, dsty, w, h);
-	SET_SYNC_FLAG(pTrident->AccelInfoRec);
-    }
-}
-
-#if 0
-static void 
-TRIDENT_BlitTransRect(
-   ScrnInfoPtr pScrn, 
-   int srcx, int srcy, 
-   int w, int h, 
-   int dstx, int dsty,
-   unsigned long color
-){
-  /* this one should be separate since the XAA function would
-     prohibit usage of ~0 as the key */
-}
-#endif
-#endif
 
 static Bool 
 TRIDENT_OpenFramebuffer(

@@ -939,11 +939,6 @@ TRIDENTLeaveVT(VT_FUNC_ARGS_DECL)
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     vgaHWPtr hwp = VGAHWPTR(pScrn);
 
-#ifdef HAVE_XAA_H
-    if (!pTrident->NoAccel && !pTrident->useEXA)
-        pTrident->AccelInfoRec->Sync(pScrn);
-    else
-#endif
         if (!pTrident->NoAccel && pTrident->useEXA)
             pTrident->EXADriverPtr->WaitMarker(pScrn->pScreen, 0);
 
@@ -1628,13 +1623,9 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
             pTrident->useEXA = TRUE;
             from = X_CONFIG;
         }
-        else if (!xf86NameCmp(s, "XAA")) {
-            pTrident->useEXA = FALSE;
-            from = X_CONFIG;
-        }
     }
     xf86DrvMsg(pScrn->scrnIndex, from, "Using %s for acceleration\n",
-            pTrident->useEXA ? "EXA" : "XAA");
+            pTrident->useEXA ? "EXA" : "none");
 
     pTrident->HWCursor = TRUE;
     if (xf86ReturnOptValBool(pTrident->Options, OPTION_SW_CURSOR, FALSE)) {
@@ -2802,15 +2793,13 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
         return FALSE;
     }
 
-    /* Load XAA if needed */
+    /* Load EXA if needed */
     if (!pTrident->NoAccel) {
         if (!pTrident->useEXA) {
-            if (!xf86LoadSubModule(pScrn, "xaa")) {
-                xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-                        "Falling back to shadowfb\n");
-                pTrident->NoAccel = 1;
-                pTrident->ShadowFB = 1;
-            }
+            xf86DrvMsg(pScrn->scrnIndex, X_INFO,
+                       "Falling back to shadowfb\n");
+            pTrident->NoAccel = 1;
+            pTrident->ShadowFB = 1;
         }
 
         if (pTrident->useEXA) {
@@ -2904,11 +2893,6 @@ TRIDENTCloseScreen(CLOSE_SCREEN_ARGS_DECL)
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     if (pScrn->vtSema) {
-#ifdef HAVE_XAA_H
-        if (!pTrident->NoAccel && !pTrident->useEXA)
-            pTrident->AccelInfoRec->Sync(pScrn);
-        else
-#endif
             if (!pTrident->NoAccel && pTrident->useEXA)
                 pTrident->EXADriverPtr->WaitMarker(pScreen, 0);
 
@@ -2918,10 +2902,6 @@ TRIDENTCloseScreen(CLOSE_SCREEN_ARGS_DECL)
         TRIDENTUnmapMem(pScrn);
     }
 
-#ifdef HAVE_XAA_H
-    if (pTrident->AccelInfoRec)
-        XAADestroyInfoRec(pTrident->AccelInfoRec);
-#endif
     if (pTrident->EXADriverPtr) {
         exaDriverFini(pScreen);
         free(pTrident->EXADriverPtr);
@@ -3189,24 +3169,11 @@ TRIDENTScreenInit(SCREEN_INIT_ARGS_DECL)
                 (pTrident->Chipset == BLADE3D)) {
             if (pTrident->useEXA)
                 BladeExaInit(pScreen);
-            else
-                BladeXaaInit(pScreen);
-        } else
-            if ((pTrident->Chipset == CYBERBLADEXP4) ||
-                    (pTrident->Chipset == XP5)) {
-                if (pTrident->useEXA)
-                    XP4ExaInit(pScreen);
-                else
-                    XP4XaaInit(pScreen);
-            } else
-                if ((pTrident->Chipset == BLADEXP) ||
-                        (pTrident->Chipset == CYBERBLADEXPAI1)) {
-                    XPAccelInit(pScreen);
-                } else {
-                    ImageAccelInit(pScreen);
-                }
-    } else {
-        TridentAccelInit(pScreen);
+        } else if ((pTrident->Chipset == CYBERBLADEXP4) ||
+                   (pTrident->Chipset == XP5)) {
+            if (pTrident->useEXA)
+                XP4ExaInit(pScreen);
+        }
     }
 
     xf86SetBackingStore(pScreen);

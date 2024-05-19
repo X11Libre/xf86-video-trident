@@ -31,11 +31,8 @@ trident_drv_ladir = @moduledir@/drivers
 
 trident_drv_la_SOURCES = \
         blade_exa.c \
-        blade_xaa.c \
         compat-api.h \
-        image_xaa.c \
         pci_rename.h \
-        tgui_xaa.c \
         trident_bank.c \
         trident_dac.c \
         trident_dga.c \
@@ -48,6 +45,4 @@ trident_drv_la_SOURCES = \
         trident_video.c \
         trident.h \
         tvga_dac.c \
-        xp_xaa.c \
-        xp4_exa.c \
-        xp4_xaa.c
+        xp4_exa.c

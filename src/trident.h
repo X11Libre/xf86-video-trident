@@ -34,9 +34,6 @@
 
 #include "exa.h"
 #include "xf86Cursor.h"
-#ifdef HAVE_XAA_H
-#include "xaa.h"
-#endif
 #include "xf86fbman.h"
 #include "compiler.h"
 #include "vgaHW.h"
@@ -169,17 +166,12 @@ typedef struct {
 #ifdef VBE_INFO
     vbeModeInfoPtr	vbeModes;
 #endif
-#ifdef HAVE_XAA_H
-    XAAInfoRecPtr	AccelInfoRec;
-#endif
     CloseScreenProcPtr	CloseScreen;
     ScreenBlockHandlerProcPtr BlockHandler;
     CreateScreenResourcesProcPtr CreateScreenResources;
     int                 panelWidth;
     int                 panelHeight;
     unsigned int	(*ddc1Read)(ScrnInfoPtr);
-    CARD8*		XAAScanlineColorExpandBuffers[2];
-    CARD8*		XAAImageScanlineBuffer[1];
     void                (*InitializeAccelerator)(ScrnInfoPtr);
     void		(*VideoTimerCallback)(ScrnInfoPtr, Time);
     XF86VideoAdaptorPtr adaptor;
@@ -260,12 +252,7 @@ Bool TVGAInit(ScrnInfoPtr pScrn, DisplayModePtr mode);
 void TridentRestore(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg);
 void TridentSave(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg);
 Bool TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode);
-Bool TridentAccelInit(ScreenPtr pScreen);
-Bool XPAccelInit(ScreenPtr pScreen);
-Bool XP4XaaInit(ScreenPtr pScreen);
 Bool XP4ExaInit(ScreenPtr pScreen);
-Bool ImageAccelInit(ScreenPtr pScreen);
-Bool BladeXaaInit(ScreenPtr pScreen);
 Bool BladeExaInit(ScreenPtr pScreen);
 Bool TridentHWCursorInit(ScreenPtr pScreen);
 int TridentFindMode(int xres, int yres, int depth);
