@@ -54,9 +54,8 @@ TRIDENTShadowUpdate (ScreenPtr pScreen, shadowBufPtr pBuf)
 }
 
 void
-TRIDENTPointerMoved(SCRN_ARG_TYPE arg, int x, int y)
+TRIDENTPointerMoved(ScrnInfoPtr pScrn, int x, int y)
 {
-    SCRN_INFO_PTR(arg);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     int newX, newY;
 
@@ -68,7 +67,7 @@ TRIDENTPointerMoved(SCRN_ARG_TYPE arg, int x, int y)
 	newY = pScrn->pScreen->width - x - 1;
     }
 
-    (*pTrident->PointerMoved)(arg, newX, newY);
+    (*pTrident->PointerMoved)(pScrn, newX, newY);
 }
 
 void

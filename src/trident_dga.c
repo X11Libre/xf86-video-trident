@@ -158,7 +158,7 @@ TRIDENT_SetMode(
 	
 	pScrn->displayWidth = OldDisplayWidth[index];
 	
-        TRIDENTSwitchMode(SWITCH_MODE_ARGS(pScrn, pScrn->currentMode));
+        TRIDENTSwitchMode(pScrn, pScrn->currentMode);
 	pTrident->DGAactive = FALSE;
    } else {
 	if(!pTrident->DGAactive) {  /* save the old parameters */
@@ -170,7 +170,7 @@ TRIDENT_SetMode(
 	pScrn->displayWidth = pMode->bytesPerScanline / 
 			      (pMode->bitsPerPixel >> 3);
 
-        TRIDENTSwitchMode(SWITCH_MODE_ARGS(pScrn, pMode->mode));
+        TRIDENTSwitchMode(pScrn, pMode->mode);
    }
    
    return TRUE;
@@ -195,7 +195,7 @@ TRIDENT_SetViewport(
 ){
    TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
-   TRIDENTAdjustFrame(ADJUST_FRAME_ARGS(pScrn, x, y));
+   TRIDENTAdjustFrame(pScrn, x, y);
    pTrident->DGAViewportStatus = 0;  /* TRIDENTAdjustFrame loops until finished */
 }
 

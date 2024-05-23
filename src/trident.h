@@ -127,7 +127,7 @@ typedef struct {
     unsigned char *	ShadowPtr;
     int			ShadowPitch;
     RefreshAreaFuncPtr  RefreshArea;
-    void	        (*PointerMoved)(SCRN_ARG_TYPE arg, int x, int y);
+    void	        (*PointerMoved)(ScrnInfoPtr pScrn, int x, int y);
     int                 Rotate;
     float		frequency;
     unsigned char	REGPCIReg;
@@ -239,8 +239,8 @@ typedef struct {
 /* Prototypes */
 
 Bool TRIDENTClockSelect(ScrnInfoPtr pScrn, int no);
-Bool TRIDENTSwitchMode(SWITCH_MODE_ARGS_DECL);
-void TRIDENTAdjustFrame(ADJUST_FRAME_ARGS_DECL);
+Bool TRIDENTSwitchMode(ScrnInfoPtr pScrn, DisplayModePtr mode);
+void TRIDENTAdjustFrame(ScrnInfoPtr pScrn, int x, int y);
 Bool TRIDENTDGAInit(ScreenPtr pScreen);
 Bool TRIDENTI2CInit(ScreenPtr pScreen);
 void TRIDENTInitVideo(ScreenPtr pScreen);
@@ -274,7 +274,7 @@ void TridentFindClock(ScrnInfoPtr pScrn, int clock);
 float CalculateMCLK(ScrnInfoPtr pScrn);
 void TRIDENTRefreshArea(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 void TRIDENTShadowUpdate (ScreenPtr pScreen, shadowBufPtr pBuf);
-void TRIDENTPointerMoved(SCRN_ARG_TYPE arg, int x, int y);
+void TRIDENTPointerMoved(ScrnInfoPtr pScrn, int x, int y);
 void TRIDENTRefreshArea8(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 void TRIDENTRefreshArea16(ScrnInfoPtr pScrn, int num, BoxPtr pbox);
 void TRIDENTRefreshArea24(ScrnInfoPtr pScrn, int num, BoxPtr pbox);

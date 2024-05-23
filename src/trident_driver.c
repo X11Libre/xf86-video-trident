@@ -71,7 +71,7 @@ static const OptionInfoRec * TRIDENTAvailableOptions(int chipid, int busid);
 static void     TRIDENTIdentify(int flags);
 static Bool     TRIDENTProbe(DriverPtr drv, int flags);
 static Bool     TRIDENTPreInit(ScrnInfoPtr pScrn, int flags);
-static Bool     TRIDENTScreenInit(SCREEN_INIT_ARGS_DECL);
+static Bool     TRIDENTScreenInit(ScreenPtr pScreen, int argc, char **argv);
 
 /*
  * This is intentionally screen-independent.  It indicates the binding
@@ -846,9 +846,8 @@ TRIDENTRestore(ScrnInfoPtr pScrn)
 
 /* Usually mandatory */
 Bool
-TRIDENTSwitchMode(SWITCH_MODE_ARGS_DECL)
+TRIDENTSwitchMode(ScrnInfoPtr pScrn, DisplayModePtr mode)
 {
-    SCRN_INFO_PTR(arg);
     return TRIDENTModeInit(pScrn, mode);
 }
 
@@ -859,9 +858,8 @@ TRIDENTSwitchMode(SWITCH_MODE_ARGS_DECL)
  */
 /* Usually mandatory */
 void
-TRIDENTAdjustFrame(ADJUST_FRAME_ARGS_DECL)
+TRIDENTAdjustFrame(ScrnInfoPtr pScrn, int x, int y)
 {
-    SCRN_INFO_PTR(arg);
     TRIDENTPtr pTrident;
     int base = y * pScrn->displayWidth + x;
     int vgaIOBase;
@@ -906,9 +904,8 @@ TRIDENTAdjustFrame(ADJUST_FRAME_ARGS_DECL)
 
 /* Mandatory */
 static Bool
-TRIDENTEnterVT(VT_FUNC_ARGS_DECL)
+TRIDENTEnterVT(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     if (IsPciCard && UseMMIO) TRIDENTEnableMMIO(pScrn);
@@ -933,9 +930,8 @@ TRIDENTEnterVT(VT_FUNC_ARGS_DECL)
 
 /* Mandatory */
 static void
-TRIDENTLeaveVT(VT_FUNC_ARGS_DECL)
+TRIDENTLeaveVT(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
     vgaHWPtr hwp = VGAHWPTR(pScrn);
 
@@ -953,9 +949,8 @@ TRIDENTLeaveVT(VT_FUNC_ARGS_DECL)
 
 /* Optional */
 static void
-TRIDENTFreeScreen(FREE_SCREEN_ARGS_DECL)
+TRIDENTFreeScreen(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     if (xf86LoaderCheckSymbol("vgaHWFreeHWRec"))
         vgaHWFreeHWRec(pScrn);
     TRIDENTFreeRec(pScrn);
@@ -966,9 +961,8 @@ TRIDENTFreeScreen(FREE_SCREEN_ARGS_DECL)
 
 /* Optional */
 static ModeStatus
-TRIDENTValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode, Bool verbose, int flags)
+TRIDENTValidMode(ScrnInfoPtr pScrn, DisplayModePtr mode, Bool verbose, int flags)
 {
-    SCRN_INFO_PTR(arg);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     if (pTrident->lcdActive && (pTrident->lcdMode != 0xff)){
@@ -1041,7 +1035,6 @@ TRIDENTDisplayPowerManagementSet(ScrnInfoPtr pScrn, int PowerManagementMode, int
 static void
 TRIDENTBlockHandler (BLOCKHANDLER_ARGS_DECL)
 {
-    SCREEN_PTR(arg);
     ScrnInfoPtr    pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr     pTrident = TRIDENTPTR(pScrn);
 
@@ -1542,7 +1535,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     vgaHWGetIOBase(hwp);
     vgaIOBase = hwp->IOBase;
 
-    pTrident->PIOBase = 0; /* was hwp->PIOOffset */
+    pTrident->PIOBase = 0;
 
 #ifndef XSERVER_LIBPCIACCESS
     xf86SetOperatingState(resVga, pTrident->pEnt->index, ResUnusedOpr);
@@ -2886,7 +2879,7 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
 
 /* Mandatory */
 static Bool
-TRIDENTCloseScreen(CLOSE_SCREEN_ARGS_DECL)
+TRIDENTCloseScreen(ScreenPtr pScreen)
 {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     vgaHWPtr hwp = VGAHWPTR(pScrn);
@@ -2926,7 +2919,7 @@ TRIDENTCloseScreen(CLOSE_SCREEN_ARGS_DECL)
     else
         xf86FreeInt10(pTrident->Int10);
     pScreen->CloseScreen = pTrident->CloseScreen;
-    return (*pScreen->CloseScreen)(CLOSE_SCREEN_ARGS);
+    return (*pScreen->CloseScreen)(pScreen);
 }
 
 /* Do screen blanking */
@@ -2963,7 +2956,7 @@ TRIDENTCreateScreenResources(ScreenPtr pScreen)
 /* This gets called at the start of each server generation */
 
 static Bool
-TRIDENTScreenInit(SCREEN_INIT_ARGS_DECL)
+TRIDENTScreenInit(ScreenPtr pScreen, int argc, char **argv)
 {
     /* The vgaHW references will disappear one day */
     ScrnInfoPtr pScrn;
@@ -3022,7 +3015,7 @@ TRIDENTScreenInit(SCREEN_INIT_ARGS_DECL)
 
     /* Darken the screen for aesthetic reasons and set the viewport */
     TRIDENTSaveScreen(pScreen, SCREEN_SAVER_ON);
-    TRIDENTAdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+    TRIDENTAdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
 
     /*
      * The next step is to setup the screen's visuals, and initialise the
