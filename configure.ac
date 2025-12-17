@@ -81,8 +81,5 @@ AM_CONDITIONAL(XSERVER_LIBPCIACCESS, test "x$XSERVER_LIBPCIACCESS" = xyes)
 
 AC_SUBST([moduledir])
 
-DRIVER_NAME=trident
-AC_SUBST([DRIVER_NAME])
-
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
 AC_OUTPUT
