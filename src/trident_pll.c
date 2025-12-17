@@ -143,44 +143,12 @@ TridentFindClock(ScrnInfoPtr pScrn, int clock)
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
 
     pTrident->MUX = FALSE;
-#ifdef READOUT
-    pTrident->DontSetClock = FALSE;
-#endif
     pTrident->currentClock = clock;
 
     if (pTrident->IsCyber) {
         Bool LCDActive;
-#ifdef READOUT
-        Bool ShadowModeActive;
-        Bool HStretch;
-        Bool VStretch;
-#endif
         OUTB(0x3CE, FPConfig);
         LCDActive = (INB(0x3CF) & 0x10);
-#ifdef READOUT
-        OUTB(0x3CE, HorStretch);
-        HStretch = (INB(0x3CF) & 0x01);
-        OUTB(0x3CE, VertStretch);
-        VStretch = (INB(0x3CF) & 0x01);
-
-        if (!(VStretch || HStretch) && LCDActive) {
-            CARD8 temp;
-            temp = INB(0x3C8);
-            temp = INB(0x3C6);
-            temp = INB(0x3C6);
-            temp = INB(0x3C6);
-            temp = INB(0x3C6);
-            pTrident->MUX = ((INB(0x3C6) & 0x20) == 0x20);
-            temp = INB(0x3C8);
-            pTrident->DontSetClock = TRUE;
-            xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-                        "Keeping Clock for LCD Mode\n");
-            xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-                        "MUX is %s\n",
-                        pTrident->MUX ? "on" : "off");
-            return;
-        } else
-#endif
         {
             if (pTrident->lcdMode != 0xff && LCDActive)
                 pTrident->currentClock = clock =
@@ -188,13 +156,11 @@ TridentFindClock(ScrnInfoPtr pScrn, int clock)
         }
 
     } 
-#ifndef READOUT
     if (pTrident->Chipset != BLADEXP &&
         clock > pTrident->MUXThreshold)
         pTrident->MUX = TRUE;
     else  
         pTrident->MUX = FALSE;
-#endif
 }
 
 float

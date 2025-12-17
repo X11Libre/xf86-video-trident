@@ -148,9 +148,6 @@ typedef struct {
     int                 lcdMode;
     Bool                lcdActive;
     Bool                doInit;
-#ifdef READOUT
-    Bool                DontSetClock;
-#endif
     TRIDENTRegRec	SavedReg;
     TRIDENTRegRec	ModeReg;
     I2CBusPtr		DDC;

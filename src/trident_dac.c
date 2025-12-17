@@ -270,14 +270,7 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 
     if (pTrident->IsCyber) {
 	Bool LCDActive;
-#ifdef READOUT
-	Bool ShadowModeActive;
-#endif
 	int i = pTrident->lcdMode;
-#ifdef READOUT
-	OUTB(0x3CE, CyberControl);
-	ShadowModeActive = ((INB(0x3CF) & 0x81) == 0x81);
-#endif
 	OUTB(0x3CE, FPConfig);
 	pReg->tridentRegs3CE[FPConfig] = INB(0x3CF);
 	if (pTrident->dspOverride) {
@@ -321,27 +314,6 @@ TridentInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	OUTB(0x3CE,VertStretch);
 	pReg->tridentRegs3CE[VertStretch] = INB(0x3CF);
 
-#ifdef READOUT
-	if ((!((pReg->tridentRegs3CE[VertStretch] & 1) ||
-	       (pReg->tridentRegs3CE[HorStretch] & 1)))
-	    && (!LCDActive || ShadowModeActive)) 
-	  {
-	    unsigned char tmp;
-	    
-	    SHADOW_ENABLE(tmp);
-	    OUTB(vgaIOBase + 4,0);
-	    pReg->tridentRegs3x4[0x0] = INB(vgaIOBase + 5);
-	    OUTB(vgaIOBase + 4,3);
-	    pReg->tridentRegs3x4[0x3] = INB(vgaIOBase + 5);
-	    OUTB(vgaIOBase + 4,4);
-	    pReg->tridentRegs3x4[0x4] = INB(vgaIOBase + 5);
-	    OUTB(vgaIOBase + 4,5);
-  	    pReg->tridentRegs3x4[0x5] = INB(vgaIOBase + 5);
-  	    OUTB(vgaIOBase + 4,0x6);
-  	    pReg->tridentRegs3x4[0x6] = INB(vgaIOBase + 5);
-  	    SHADOW_RESTORE(tmp);
- 	} else
-#endif
  	{
  	    if (i != 0xff) {
   		pReg->tridentRegs3x4[0x0] = LCD[i].shadow_0;
@@ -867,9 +839,6 @@ TridentRestore(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
     }
  
     if (Is3Dchip) {
-#ifdef READOUT
-	if (!pTrident->DontSetClock)
-#endif
 	{
 	    OUTW(0x3C4, (tridentReg->tridentRegsClock[0x01])<<8 | ClockLow);
 	    OUTW(0x3C4, (tridentReg->tridentRegsClock[0x02])<<8 | ClockHigh);
@@ -879,9 +848,6 @@ TridentRestore(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
 	    OUTW(0x3C4,(tridentReg->tridentRegsClock[0x04])<<8 | MCLKHigh);
 	}
     } else {
-#ifdef READOUT
-	if (!pTrident->DontSetClock)
-#endif
 	{
 	    OUTB(0x43C8, tridentReg->tridentRegsClock[0x01]);
 	    OUTB(0x43C9, tridentReg->tridentRegsClock[0x02]);
@@ -891,9 +857,6 @@ TridentRestore(ScrnInfoPtr pScrn, TRIDENTRegPtr tridentReg)
 	    OUTB(0x43C7, tridentReg->tridentRegsClock[0x04]);
 	}
     }
-#ifdef READOUT
-    if (!pTrident->DontSetClock)
-#endif
     {
 	OUTB(0x3C2, tridentReg->tridentRegsClock[0x00]);
     }
