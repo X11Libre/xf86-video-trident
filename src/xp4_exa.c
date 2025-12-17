@@ -24,9 +24,7 @@
  * Trident XP4/XP5 accelerated options.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "exa.h"
 #include "picture.h"

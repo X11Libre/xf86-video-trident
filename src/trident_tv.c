@@ -2,10 +2,7 @@
  * VIA TV additions
  */
 
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include "trident.h"
 #include "trident_regs.h"
