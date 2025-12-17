@@ -1163,10 +1163,6 @@ TRIDENTMapMem(ScrnInfoPtr pScrn)
     if (Is3Dchip) mapsize = 0x20000;
 
     if (IsPciCard && UseMMIO)
-#ifndef XSERVER_LIBPCIACCESS
-        pTrident->IOBase = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_MMIO,
-                pTrident->PciTag, pTrident->IOAddress, mapsize);
-#else
     {
         void **result = (void **)&pTrident->IOBase;
         int err = pci_device_map_range(pTrident->PciInfo,
@@ -1180,15 +1176,8 @@ TRIDENTMapMem(ScrnInfoPtr pScrn)
                     strerror(err), err);
         }
     }
-#endif
     else {
-#ifndef XSERVER_LIBPCIACCESS
-        pTrident->IOBase = xf86MapDomainMemory(pScrn->scrnIndex, VIDMEM_MMIO,
-                pTrident->PciTag, pTrident->IOAddress, 0x1000);
-        pTrident->IOBase += 0xF00;
-#else
         return FALSE;
-#endif
     }
 
     if (pTrident->IOBase == NULL)
@@ -1196,13 +1185,6 @@ TRIDENTMapMem(ScrnInfoPtr pScrn)
 
     if (LINEAR()) {
         if (pTrident->FbMapSize != 0) {
-#ifndef XSERVER_LIBPCIACCESS
-            pTrident->FbBase = xf86MapPciMem(pScrn->scrnIndex,
-                    VIDMEM_FRAMEBUFFER,
-                    pTrident->PciTag,
-                    (unsigned long)pTrident->FbAddress,
-                    pTrident->FbMapSize);
-#else
             {
                 void **result = (void **)&pTrident->FbBase;
                 int err = pci_device_map_range(pTrident->PciInfo,
@@ -1217,7 +1199,6 @@ TRIDENTMapMem(ScrnInfoPtr pScrn)
                             strerror(err), err);
                 }
             }
-#endif
             if (pTrident->FbBase == NULL)
                 return FALSE;
         }
@@ -1243,26 +1224,12 @@ TRIDENTUnmapMem(ScrnInfoPtr pScrn)
     /*
      * Unmap IO registers to virtual address space
      */
-#ifdef XSERVER_LIBPCIACCESS
     pci_device_unmap_range(pTrident->PciInfo, (pointer)pTrident->IOBase, mapsize);
-#else
-    if (IsPciCard && UseMMIO) {
-        xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pTrident->IOBase, mapsize);
-    } else {
-        pTrident->IOBase -= 0xF00;
-        xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pTrident->IOBase, 0x1000);
-    }
-#endif
     pTrident->IOBase = NULL;
 
     if (LINEAR()) {
         if (pTrident->FbMapSize != 0) {
-#ifdef XSERVER_LIBPCIACCESS
             pci_device_unmap_range(pTrident->PciInfo, (pointer)pTrident->FbBase, pTrident->FbMapSize);
-#else
-            xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pTrident->FbBase,
-                    pTrident->FbMapSize);
-#endif
             pTrident->FbBase = NULL;
         }
     }
@@ -1363,11 +1330,6 @@ TRIDENTProbe(DriverPtr drv, int flags)
      * All of the cards this driver supports are PCI, so the "probing" just
      * amounts to checking the PCI data that the server has already collected.
      */
-#ifndef XSERVER_LIBPCIACCESS
-    if (xf86GetPciVideoInfo()== NULL) {
-        return FALSE;
-    }
-#endif
     {
         numUsed = xf86MatchPciInstances(TRIDENT_NAME, PCI_VENDOR_TRIDENT,
                 TRIDENTChipsets, TRIDENTPciChipsets, devSections,
@@ -1439,18 +1401,12 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     /* This is the general case */
     for (i = 0; i<pScrn->numEntities; i++) {
         pTrident->pEnt = xf86GetEntityInfo(pScrn->entityList[i]);
-#ifndef XSERVER_LIBPCIACCESS
-        if (pTrident->pEnt->resources) return FALSE;
-#endif
         pTrident->Chipset = pTrident->pEnt->chipset;
         pScrn->chipset = (char *)xf86TokenToString(TRIDENTChipsets,
                 pTrident->pEnt->chipset);
         /* This driver can handle ISA and PCI buses */
         if (pTrident->pEnt->location.type == BUS_PCI) {
             pTrident->PciInfo = xf86GetPciInfoForEntity(pTrident->pEnt->index);
-#ifndef XSERVER_LIBPCIACCESS
-            pTrident->PciTag = PCI_DEV_TAG(pTrident->PciInfo);
-#endif
             pTrident->Linear = TRUE;
         } else {
             pTrident->Linear = FALSE;
@@ -1531,10 +1487,6 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
     vgaIOBase = hwp->IOBase;
 
     pTrident->PIOBase = 0;
-
-#ifndef XSERVER_LIBPCIACCESS
-    xf86SetOperatingState(resVga, pTrident->pEnt->index, ResUnusedOpr);
-#endif
 
     /* The ramdac module should be loaded here when needed */
     if (!xf86LoadSubModule(pScrn, "ramdac"))
@@ -1872,14 +1824,6 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
                 (unsigned long)pTrident->IOAddress);
     }
 
-#ifndef XSERVER_LIBPCIACCESS
-    /* Register the PCI-assigned resources. */
-    if (xf86RegisterResources(pTrident->pEnt->index, NULL, ResExclusive)) {
-        xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
-                "xf86RegisterResources() found resource conflicts\n");
-        return FALSE;
-    }
-#endif
     /* Initialize VBE if possible
      * Don't move this past MMIO enable!!
      * PIO access will be blocked
@@ -2853,14 +2797,6 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
         TRIDENTUnmapMem(pScrn);
     }
 
-#ifndef XSERVER_LIBPCIACCESS
-    pScrn->racMemFlags = RAC_FB | RAC_COLORMAP | RAC_CURSOR | RAC_VIEWPORT;
-
-    if (pTrident->IsCyber && pTrident->MMIOonly)
-        pScrn->racIoFlags = 0;
-    else
-        pScrn->racIoFlags = RAC_FB | RAC_COLORMAP | RAC_CURSOR | RAC_VIEWPORT;
-#endif
     pTrident->FbMapSize = pScrn->videoRam * 1024;
 
     return TRUE;
