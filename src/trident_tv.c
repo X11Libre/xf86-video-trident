@@ -489,10 +489,6 @@ void VIA_TVInit(ScrnInfoPtr pScrn)
 		  0X1E,0X1F,0X20,0X21,0X3D
                   };
 
-#ifdef DEBUG_CODE_TRACE
-    ErrorF("VIAB3D: VIA_TVInit:\n");
-#endif
-
     if (pScrn->currentMode->HDisplay==640 && pScrn->currentMode->VDisplay==480 && (pScrn->depth==8 || pScrn->depth==16) && pTrident->TVSignalMode == 0)
     {
        /* Overlay window 1 position OK */
