@@ -436,8 +436,6 @@ tridentLCD LCD[] = {
 #endif
 #endif
 
-#ifdef XFree86LOADER
-
 static MODULESETUPPROTO(tridentSetup);
 
 static XF86ModuleVersionInfo tridentVersRec =
@@ -474,8 +472,6 @@ tridentSetup(pointer module, pointer opts, int *errmaj, int *errmin)
     if (errmaj) *errmaj = LDR_ONCEONLY;
     return NULL;
 }
-
-#endif /* XFree86LOADER */
 
 static void
 TRIDENTEnableMMIO(ScrnInfoPtr pScrn)
