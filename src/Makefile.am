@@ -31,7 +31,6 @@ trident_drv_ladir = @moduledir@/drivers
 
 trident_drv_la_SOURCES = \
         blade_exa.c \
-        compat-api.h \
         pci_rename.h \
         trident_bank.c \
         trident_dac.c \

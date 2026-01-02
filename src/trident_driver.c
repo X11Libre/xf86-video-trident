@@ -1022,13 +1022,13 @@ TRIDENTDisplayPowerManagementSet(ScrnInfoPtr pScrn, int PowerManagementMode, int
 }
 
 static void
-TRIDENTBlockHandler (BLOCKHANDLER_ARGS_DECL)
+TRIDENTBlockHandler (ScreenPtr pScreen, pointer pTimeout)
 {
     ScrnInfoPtr    pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr     pTrident = TRIDENTPTR(pScrn);
 
     pScreen->BlockHandler = pTrident->BlockHandler;
-    (*pScreen->BlockHandler) (BLOCKHANDLER_ARGS);
+    (*pScreen->BlockHandler) (pScreen, pTimeout);
     pScreen->BlockHandler = TRIDENTBlockHandler;
 
     if(pTrident->VideoTimerCallback) {
