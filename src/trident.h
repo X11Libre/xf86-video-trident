@@ -45,7 +45,6 @@
 #include "xf86Pci.h"
 #include "vbe.h"
 
-#include "compat-api.h"
 #define LINEAR() (1)
 
 #define PCI_VENDOR_TRIDENT		0x1023
