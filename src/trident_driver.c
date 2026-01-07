@@ -458,15 +458,15 @@ _X_EXPORT XF86ModuleData tridentModuleData = {
     NULL
 };
 
-pointer
-tridentSetup(pointer module, pointer opts, int *errmaj, int *errmin)
+void*
+tridentSetup(void *module, void *opts, int *errmaj, int *errmin)
 {
     static Bool setupDone = FALSE;
 
     if (!setupDone) {
         setupDone = TRUE;
         xf86AddDriver(&TRIDENT, module, 0);
-        return (pointer)TRUE;
+        return (void*)TRUE;
     } 
 
     if (errmaj) *errmaj = LDR_ONCEONLY;
@@ -1022,7 +1022,7 @@ TRIDENTDisplayPowerManagementSet(ScrnInfoPtr pScrn, int PowerManagementMode, int
 }
 
 static void
-TRIDENTBlockHandler (ScreenPtr pScreen, pointer pTimeout)
+TRIDENTBlockHandler (ScreenPtr pScreen, void *pTimeout)
 {
     ScrnInfoPtr    pScrn = xf86ScreenToScrn(pScreen);
     TRIDENTPtr     pTrident = TRIDENTPTR(pScrn);
@@ -1218,12 +1218,12 @@ TRIDENTUnmapMem(ScrnInfoPtr pScrn)
     /*
      * Unmap IO registers to virtual address space
      */
-    pci_device_unmap_range(pTrident->PciInfo, (pointer)pTrident->IOBase, mapsize);
+    pci_device_unmap_range(pTrident->PciInfo, pTrident->IOBase, mapsize);
     pTrident->IOBase = NULL;
 
     if (LINEAR()) {
         if (pTrident->FbMapSize != 0) {
-            pci_device_unmap_range(pTrident->PciInfo, (pointer)pTrident->FbBase, pTrident->FbMapSize);
+            pci_device_unmap_range(pTrident->PciInfo, pTrident->FbBase, pTrident->FbMapSize);
             pTrident->FbBase = NULL;
         }
     }
