@@ -48,14 +48,14 @@
 
 static XF86VideoAdaptorPtr TRIDENTSetupImageVideo(ScreenPtr);
 static void TRIDENTInitOffscreenImages(ScreenPtr);
-static void TRIDENTStopVideo(ScrnInfoPtr, pointer, Bool);
-static int TRIDENTSetPortAttribute(ScrnInfoPtr, Atom, INT32, pointer);
-static int TRIDENTGetPortAttribute(ScrnInfoPtr, Atom ,INT32 *, pointer);
+static void TRIDENTStopVideo(ScrnInfoPtr, void*, Bool);
+static int TRIDENTSetPortAttribute(ScrnInfoPtr, Atom, INT32, void*);
+static int TRIDENTGetPortAttribute(ScrnInfoPtr, Atom ,INT32 *, void*);
 static void TRIDENTQueryBestSize(ScrnInfoPtr, Bool,
-	short, short, short, short, unsigned int *, unsigned int *, pointer);
+	short, short, short, short, unsigned int *, unsigned int *, void*);
 static int TRIDENTPutImage( ScrnInfoPtr, 
 	short, short, short, short, short, short, short, short,
-	int, unsigned char*, short, short, Bool, RegionPtr, pointer,
+	int, unsigned char*, short, short, Bool, RegionPtr, void*,
 	DrawablePtr);
 static int TRIDENTQueryImageAttributes(ScrnInfoPtr, 
 	int, unsigned short *, unsigned short *,  int *, int *);
@@ -331,7 +331,7 @@ TRIDENTSetupImageVideo(ScreenPtr pScreen)
     adapt->nPorts = 1;
     adapt->pPortPrivates = (DevUnion*)(&adapt[1]);
     pPriv = (TRIDENTPortPrivPtr)(&adapt->pPortPrivates[1]);
-    adapt->pPortPrivates[0].ptr = (pointer)(pPriv);
+    adapt->pPortPrivates[0].ptr = pPriv;
     adapt->pAttributes = Attributes;
     adapt->nImages = NUM_IMAGES;
     if (pTrident->Chipset >= CYBER9388) {
@@ -385,7 +385,7 @@ TRIDENTSetupImageVideo(ScreenPtr pScreen)
 
 
 static void 
-TRIDENTStopVideo(ScrnInfoPtr pScrn, pointer data, Bool shutdown)
+TRIDENTStopVideo(ScrnInfoPtr pScrn, void* data, Bool shutdown)
 {
   TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
   TRIDENTPortPrivPtr pPriv = (TRIDENTPortPrivPtr)data;
@@ -452,7 +452,7 @@ TRIDENTSetPortAttribute(
   ScrnInfoPtr pScrn, 
   Atom attribute,
   INT32 value, 
-  pointer data
+  void *data
 ){
   TRIDENTPortPrivPtr pPriv = (TRIDENTPortPrivPtr)data;
   TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
@@ -526,7 +526,7 @@ TRIDENTGetPortAttribute(
   ScrnInfoPtr pScrn, 
   Atom attribute,
   INT32 *value, 
-  pointer data
+  void *data
 ){
   TRIDENTPortPrivPtr pPriv = (TRIDENTPortPrivPtr)data;
 
@@ -553,7 +553,7 @@ TRIDENTQueryBestSize(
   short vid_w, short vid_h, 
   short drw_w, short drw_h, 
   unsigned int *p_w, unsigned int *p_h, 
-  pointer data
+  void *data
 ){
   *p_w = drw_w;
   *p_h = drw_h; 
@@ -783,7 +783,7 @@ TRIDENTPutImage(
   int id, unsigned char* buf, 
   short width, short height, 
   Bool sync,
-  RegionPtr clipBoxes, pointer data,
+  RegionPtr clipBoxes, void *data,
   DrawablePtr pDraw
 ){
    TRIDENTPortPrivPtr pPriv = (TRIDENTPortPrivPtr)data;
@@ -996,7 +996,7 @@ TRIDENTAllocateSurface(
     surface->id = id;   
     surface->pitches[0] = pitch;
     surface->offsets[0] = linear->offset * bpp;
-    surface->devPrivate.ptr = (pointer)pPriv;
+    surface->devPrivate.ptr = pPriv;
 
     return Success;
 }
@@ -1043,7 +1043,7 @@ TRIDENTGetSurfaceAttribute(
     INT32 *value
 ){
     return TRIDENTGetPortAttribute(pScrn, attribute, value, 
-			(pointer)(GET_PORT_PRIVATE(pScrn)));
+                                   (GET_PORT_PRIVATE(pScrn)));
 }
 
 static int
@@ -1053,7 +1053,7 @@ TRIDENTSetSurfaceAttribute(
     INT32 value
 ){
     return TRIDENTSetPortAttribute(pScrn, attribute, value, 
-			(pointer)(GET_PORT_PRIVATE(pScrn)));
+                                   (GET_PORT_PRIVATE(pScrn)));
 }
 
 static int 
