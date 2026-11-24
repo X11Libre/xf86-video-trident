@@ -170,11 +170,11 @@ static XF86VideoFormatRec Formats[NUM_FORMATS] =
 
 static XF86AttributeRec Attributes[NUM_ATTRIBUTES] =
 {
-    {XvSettable | XvGettable, 0, (1 << 24) - 1, "XV_COLORKEY"},
-    {XvSettable | XvGettable, 0, 187,           "XV_SATURATION"},
-    {XvSettable | XvGettable, 0, 0x3F,          "XV_BRIGHTNESS"},
-    {XvSettable | XvGettable, 0, 360 ,          "XV_HUE"},
-    {XvSettable | XvGettable, 0, 7,           "XV_CONTRAST"}
+    {XvSettable | XvGettable, 0, (1 << 24) - 1, (char *) "XV_COLORKEY"},
+    {XvSettable | XvGettable, 0, 187,           (char *) "XV_SATURATION"},
+    {XvSettable | XvGettable, 0, 0x3F,          (char *) "XV_BRIGHTNESS"},
+    {XvSettable | XvGettable, 0, 360 ,          (char *) "XV_HUE"},
+    {XvSettable | XvGettable, 0, 7,           (char *) "XV_CONTRAST"}
 };
 
 #define NUM_IMAGES 3
@@ -435,14 +435,16 @@ tridentSetVideoParameters(TRIDENTPtr pTrident, int brightness,
       brightness += 0x20;
     dtmp = sin((double)hue / 180.0 * PI) * saturation / 12.5;
     sign = (dtmp < 0) ? 1 << 1 : 0;
-    tmp1 = ((int)fabs(dtmp) >> 4) & 0x1;
+    dtmp = fabs(dtmp);
+    tmp1 = ((int)dtmp >> 4) & 0x1;
     tmp = brightness << 2 | sign | tmp1;
     OUTW(0x3C4, tmp << 8 | 0xB1);
 
-    tmp1 = ((int)fabs(dtmp) & 0x7 ) << 5;
+    tmp1 = ((int)dtmp & 0x7 ) << 5;
     dtmp = cos((double)hue / 180.0 * PI) * saturation / 12.5;
     sign = (dtmp < 0) ? 1 << 4 : 0;
-    tmp1 |= (int)fabs(dtmp)  & 0xf;
+    dtmp = fabs(dtmp);
+    tmp1 |= (int)dtmp  & 0xf;
     tmp = sign | tmp1;
     OUTW(0x3C4, tmp << 8 | 0xB0);
 }

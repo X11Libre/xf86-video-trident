@@ -40,7 +40,6 @@ TVGAInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
     TRIDENTRegPtr pReg = &pTrident->ModeReg;
     int vgaIOBase;
     int offset = 0;
-    int clock = mode->Clock;
     vgaIOBase = VGAHWPTR(pScrn)->IOBase;
 
     OUTB(0x3C4, 0x0B); INB(0x3C5); /* Ensure we are in New Mode */
@@ -85,7 +84,6 @@ TVGAInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 		else
 	    	    pReg->tridentRegsDAC[0x00] = 0xE0;
     	    	pReg->tridentRegs3CE[MiscExtFunc] |= 0x08; /* Clock Div by 2*/
-	    	clock *= 2;	/* Double the clock */
 	    }
 	    break;
 	case 24:
@@ -96,7 +94,6 @@ TVGAInit(ScrnInfoPtr pScrn, DisplayModePtr mode)
 	case 32:
 	    pReg->tridentRegs3CE[MiscExtFunc] |= 0x02;
     	    pReg->tridentRegs3CE[MiscExtFunc] |= 0x08; /* Clock Division by 2*/
-	    clock *= 2;	/* Double the clock */
     	    offset = pScrn->displayWidth >> 1;
 	    pReg->tridentRegsDAC[0x00] = 0x42;
 	    break;
