@@ -170,11 +170,11 @@ static XF86VideoFormatRec Formats[NUM_FORMATS] =
 
 static XF86AttributeRec Attributes[NUM_ATTRIBUTES] =
 {
-    {XvSettable | XvGettable, 0, (1 << 24) - 1, "XV_COLORKEY"},
-    {XvSettable | XvGettable, 0, 187,           "XV_SATURATION"},
-    {XvSettable | XvGettable, 0, 0x3F,          "XV_BRIGHTNESS"},
-    {XvSettable | XvGettable, 0, 360 ,          "XV_HUE"},
-    {XvSettable | XvGettable, 0, 7,           "XV_CONTRAST"}
+    {XvSettable | XvGettable, 0, (1 << 24) - 1, (char *) "XV_COLORKEY"},
+    {XvSettable | XvGettable, 0, 187,           (char *) "XV_SATURATION"},
+    {XvSettable | XvGettable, 0, 0x3F,          (char *) "XV_BRIGHTNESS"},
+    {XvSettable | XvGettable, 0, 360 ,          (char *) "XV_HUE"},
+    {XvSettable | XvGettable, 0, 7,           (char *) "XV_CONTRAST"}
 };
 
 #define NUM_IMAGES 3
