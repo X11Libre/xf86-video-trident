@@ -435,14 +435,16 @@ tridentSetVideoParameters(TRIDENTPtr pTrident, int brightness,
       brightness += 0x20;
     dtmp = sin((double)hue / 180.0 * PI) * saturation / 12.5;
     sign = (dtmp < 0) ? 1 << 1 : 0;
-    tmp1 = ((int)fabs(dtmp) >> 4) & 0x1;
+    dtmp = fabs(dtmp);
+    tmp1 = ((int)dtmp >> 4) & 0x1;
     tmp = brightness << 2 | sign | tmp1;
     OUTW(0x3C4, tmp << 8 | 0xB1);
 
-    tmp1 = ((int)fabs(dtmp) & 0x7 ) << 5;
+    tmp1 = ((int)dtmp & 0x7 ) << 5;
     dtmp = cos((double)hue / 180.0 * PI) * saturation / 12.5;
     sign = (dtmp < 0) ? 1 << 4 : 0;
-    tmp1 |= (int)fabs(dtmp)  & 0xf;
+    dtmp = fabs(dtmp);
+    tmp1 |= (int)dtmp  & 0xf;
     tmp = sign | tmp1;
     OUTW(0x3C4, tmp << 8 | 0xB0);
 }
