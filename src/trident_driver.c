@@ -1627,11 +1627,11 @@ TRIDENTPreInit(ScrnInfoPtr pScrn, int flags)
         int brightness = -1;
         double gamma = -1.0;
         Bool error = FALSE;
-        int i;
+        int nconv;
 
-        i = sscanf(s,"%lf %i",&gamma,&brightness);
+        nconv = sscanf(s,"%lf %i",&gamma,&brightness);
 
-        if (i != 2 || brightness == -1 || gamma == -1.0) {
+        if (nconv != 2 || brightness == -1 || gamma == -1.0) {
             xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
                     "Invalid Gamma/Brightness argument: %s\n",s);
             error = TRUE;
