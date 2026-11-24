@@ -78,6 +78,7 @@ static int pix24bpp = 0;
 #define TRIDENT_MAJOR_VERSION PACKAGE_VERSION_MAJOR
 #define TRIDENT_MINOR_VERSION PACKAGE_VERSION_MINOR
 #define TRIDENT_PATCHLEVEL PACKAGE_VERSION_PATCHLEVEL
+#define TRIDENT_VERSION_SUFFIX PACKAGE_VERSION_SUFFIX
 
 /* 
  * This contains the functions needed by the server after loading the driver
@@ -457,6 +458,9 @@ _X_EXPORT XF86ModuleData tridentModuleData = {
     tridentSetup,
     NULL
 };
+#ifdef XF86_MODULE_VERSION_SUFFIX
+XF86_MODULE_VERSION_SUFFIX(trident, TRIDENT_VERSION_SUFFIX);
+#endif
 
 void*
 tridentSetup(void *module, void *opts, int *errmaj, int *errmin)
