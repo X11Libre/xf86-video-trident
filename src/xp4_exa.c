@@ -38,6 +38,26 @@
 #include "trident_regs.h"
 
 static int ropcode;
+static int bppcode;
+
+/* Sets bppcode for the pixmap's depth; FALSE if the engine can't draw it. */
+static Bool
+XP4SetBpp(PixmapPtr pPixmap)
+{
+    switch (pPixmap->drawable.bitsPerPixel) {
+    case 8:
+        bppcode = 0x40;
+        return TRUE;
+    case 16:
+        bppcode = 0x41;
+        return TRUE;
+    case 32:
+        bppcode = 0x42;
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
 
 static int CopyROP[16] =
 {
@@ -134,7 +154,7 @@ XP4PrepareSolid(PixmapPtr pPixmap,
     unsigned int dorg = exaGetPixmapOffset(pPixmap);
     unsigned int dptch = exaGetPixmapPitch(pPixmap);
 
-    if (planemask != -1)
+    if (planemask != -1 || !XP4SetBpp(pPixmap))
         return FALSE;
 
     ropcode = alu;
@@ -155,26 +175,13 @@ XP4Solid(PixmapPtr pPixmap,
 {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    int bpp;
-
-    switch (pPixmap->drawable.bitsPerPixel) {
-    case 8:
-        bpp = 0x40;
-        break;
-    case 16:
-        bpp = 0x41;
-        break;
-    case 32:
-        bpp = 0x42;
-        break;
-    }
 
     MMIO_OUT32(pTrident->IOBase, 0x2138, (x1 << 16) | y1);
     MMIO_OUT32(pTrident->IOBase, 0x2140, ((x2 - x1) << 16) |
                                             (y2 - y1));
     MMIO_OUT32(pTrident->IOBase, 0x2124,
                                     (GetPatternROP(ropcode) << 24) |
-                                    (bpp << 8) |
+                                    (bppcode << 8) |
                                     2);
 }
 
@@ -190,7 +197,7 @@ XP4PrepareCopy(PixmapPtr pSrcPixmap, PixmapPtr pDstPixmap,
     unsigned int sptch = exaGetPixmapPitch(pSrcPixmap);
     unsigned int dptch = exaGetPixmapPitch(pDstPixmap);
 
-    if (planemask != -1)
+    if (planemask != -1 || !XP4SetBpp(pDstPixmap))
         return FALSE;
 
     pTrident->BltScanDirection = 0;
@@ -215,19 +222,6 @@ XP4Copy(PixmapPtr pDstPixmap,
 {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pDstPixmap->drawable.pScreen);
     TRIDENTPtr pTrident = TRIDENTPTR(pScrn);
-    int bpp;
-
-    switch (pDstPixmap->drawable.bitsPerPixel) {
-    case 8:
-        bpp = 0x40;
-        break;
-    case 16:
-        bpp = 0x41;
-        break;
-    case 32:
-        bpp = 0x42;
-        break;
-    }
 
     if (pTrident->BltScanDirection & YNEG) {
         y1 = y1 + h - 1;
@@ -243,7 +237,7 @@ XP4Copy(PixmapPtr pDstPixmap,
     MMIO_OUT32(pTrident->IOBase, 0x213C, (x1 << 16) | y1);
     MMIO_OUT32(pTrident->IOBase, 0x2140, (w << 16) | h);
     MMIO_OUT32(pTrident->IOBase, 0x2124, (GetCopyROP(ropcode) << 24) |
-                                            (bpp << 8) |
+                                            (bppcode << 8) |
                                             1);
 }
 
